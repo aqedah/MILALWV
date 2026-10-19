@@ -20,14 +20,22 @@ function bibleLoad(){ return fetch("study/bible.json?v="+(window.STUDY_V||"1")).
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function render(){ const m=document.getElementById("main"); m.innerHTML=renderStudy(); bindStudy(m); navSync(); }
 
-/* ===== 하단 탭: 홈 · 원문 · 도구 · 낱말 · 검색식 · 이론 ===== */
-function navSync(){ const S=view.st, cur=S.home||!S.entered||!S.R?"home":S.pick?"":S.mode;
-  document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-selected",b.dataset.nav===cur)); }
+/* ===== 하단 탭 4개: 본문 · 구조 · 연구 · 기록 =====
+   본문·구조 = mode "verse"(rd read/struct) · 연구 = mode tool/word/query/theory · 기록 = mode "notes"
+   탭을 바꿔도 보고 있던 책·장(view.st.R, vc)은 그대로입니다. */
+const RESEARCH_MODES=["tool","word","query","theory"];
+function navOf(){ const S=view.st; if(S.pick||!S.entered||!S.R) return "";
+  if(S.mode==="notes") return "notes"; if(RESEARCH_MODES.includes(S.mode)) return "research";
+  return (typeof rdMode==="function"?rdMode():"read")==="struct"?"struct":"text"; }
+function navSync(){ const cur=navOf(); document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-selected",b.dataset.nav===cur)); }
 function bindNav(){ document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.onclick=()=>{ const S=view.st, k=b.dataset.nav;
-  if(k==="home"){ S.home=true; S.pick=false; render(); scrollTo({top:0}); return; }
   if(typeof SD==="undefined"||!SD) return;
-  if(!S.R){ const L=lastRange(); if(L) setRange(L); else { openAddr(); return; } }
-  S.home=false; S.entered=true; S.pick=false; S.mode=k; if(k==="tool"&&S.range==="all") S.range="book"; S.more=1; render(); scrollTo({top:0}); }); }
+  if(!S.R) setRange(lastRange()||{b:1,c1:1,c2:1});
+  S.home=false; S.entered=true; S.pick=false; S.more=1;
+  if(k==="text"||k==="struct"){ S.mode="verse"; S.rd=k==="text"?"read":"struct"; try{ localStorage.setItem("milal-study-vm",S.rd); }catch(e){} }
+  else if(k==="research"){ S.mode=RESEARCH_MODES.includes(S.rmode)?S.rmode:"tool"; if(S.mode==="tool"&&S.range==="all") S.range="book"; }
+  else if(k==="notes") S.mode="notes";
+  render(); scrollTo({top:0}); }); }
 function sheet(title,body){
   const root=document.getElementById("sheetRoot");
   root.innerHTML=`<div class="sheet-bg" id="sheetBg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-head"><h3>${esc(title)}</h3><button class="iconbtn sheet-x" id="sheetX" aria-label="닫기">✕</button></div>${body}<div class="row sheet-foot"><button class="btn small" id="sheetClose">닫기</button></div></div></div>`;
