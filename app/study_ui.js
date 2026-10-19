@@ -24,6 +24,7 @@ function studyLoad(){
     D.wc=dec(w.wc); D.wp=dec(w.wp); D.ws=dec(w.ws); D.wa=dec(w.wa); D.at=u8(w.at); D.ay=u8(w.ay); D.ax=u8(w.ax); D.TXT=m.txt||[];
     /* BHSA 2021 clause_atom 실제 노드 번호 (MILAL 결과와 잇는 열쇠). 차이 부호화 → 누적 */
     if(w.can){ D.can=new Uint32Array(w.can.length); let acc=0; for(let i=0;i<w.can.length;i++){ acc+=w.can[i]; D.can[i]=acc; } D.bhsa=w.bhsa||"2021"; }
+    if(w.ccn){ D.ccn=new Uint32Array(w.ccn.length); let acc=0; for(let i=0;i<w.ccn.length;i++){ acc+=w.ccn[i]; D.ccn[i]=acc; } D.bs=w.bs||null; }
     const N=D.wl.length; D.vOf=new Int32Array(N); D.ref=new Map(); D.ch=new Map(); D.book={};
     D.V.forEach((x,vi)=>{ const [b,kc,kv,c,v,s,n]=x; for(let j=s;j<s+n;j++) D.vOf[j]=vi;
       const k=b+"-"+kc+"-"+kv; if(!D.ref.has(k)) D.ref.set(k,[]); D.ref.get(k).push(vi);
@@ -198,8 +199,8 @@ function renderStudy(){
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
     h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
-      <div class="svrow">${rd==="struct"?`<div class="seg svm" title="MILAL 판정은 2·3단계에서 들어갑니다">${[["etcbc","ETCBC 판정",""],["milal","MILAL 판정"," disabled"]].map(([x,n,d])=>`<button aria-checked="${(S.sj||"etcbc")===x}" data-ssj="${x}"${d}>${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
-      ${rd==="read"?readView(S.R.b,vc):structView(S.R.b,vc,true)}
+      <div class="svrow">${rd==="struct"?`<div class="seg svm">${[["tree","계층"],["speech","발화"]].map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
+      ${rd==="read"?readView(S.R.b,vc):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true))}
       ${multi&&k<chs.length-1?`<button class="sbtn snextch" id="sVcN2">${chs[k+1]}${u} 이어서 보기 ›</button>`:""}</section>`; }
   else if(S.mode==="query") h+=renderQuery();
   else if(S.mode==="word"){
@@ -263,7 +264,9 @@ function bindStudy(m){
   m.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>{ S.rd=b.dataset.svm; try{ localStorage.setItem(RD_KEY,S.rd); }catch(e){} render(); });
   if(S.mode==="verse"&&rdMode()==="read") bindRead(m);
   if(S.mode==="notes") bindStudyNotes();
-  m.querySelectorAll("[data-ssj]").forEach(b=>b.onclick=()=>{ if(b.disabled) return; S.sj=b.dataset.ssj; render(); });
+  m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
+  m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
+  m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
   const fa=document.getElementById("sFoldAll"); if(fa) fa.onclick=()=>{ S.foldAll=!S.foldAll; S.fold={}; render(); toast(S.foldAll?"인물의 말을 모두 접었습니다. 이야기 뼈대만 보입니다.":"인물의 말을 모두 펼쳤습니다."); };
   const gt=document.getElementById("sGoToday"); if(gt) gt.onclick=()=>{ const m=S.mode; setRange(todayOT()); S.mode=m; render(); scrollTo({top:0}); };
   const ml=document.getElementById("sMulti"); if(ml) ml.onclick=()=>{ S.pick=true; S.pk={b:S.R.b,c1:null,c2:null}; render(); scrollTo({top:0}); };
@@ -289,6 +292,14 @@ function studyOpenVerse(b,c,v){ const S=view.st; view.tab="study";
   const go=()=>{ setRange({b,c1:c,c2:c}); S.mode="verse"; S.scrollV=v; if(view.tab==="study") render(); };
   if(SD){ go(); scrollTo({top:0}); } else { render(); scrollTo({top:0}); const pr=studyLoad(); if(pr) pr.then(go); } }
 
+/* 구조 화면 머리: 세 출처(BHSA 원자료 / 앱 관찰 후보 / MILAL 판정)와 MILAL 자료 상태 */
+function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalLoad(b):ML[b]);
+  let m=""; if(!f) m=`<span>MILAL 판정: 이 책의 자료 없음</span>`;
+  else if(!S.milalOn) m=`<button class="mtog" data-milal="1">MILAL 판정 겹쳐 보기 ▸</button>`;
+  else if(!st||st.state==="loading") m=`<span>MILAL 판정 불러오는 중…</span>`;
+  else if(st.state==="err") m=`<span>MILAL 자료를 읽지 않음: ${esc(st.msg)}</span> <button class="mtog" data-milal="0">끄기</button>`;
+  else m=`<span>MILAL 판정 ${st.test?'<em class="mb mb-t">시험 자료</em>':""} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
+  return `<div class="srcnote"><span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다.</span></div>`; }
 /* 장 구조 보기: ETCBC 절 원자(clause atom)를 들여쓰기(tab)대로 */
 const MAINLINE=new Set(["Way0","WayX"]), BACKGR=new Set(["NmCl","AjCl","Ptcp","XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"]);
 /* 이야기 표지 판정 (ETCBC 자료로): 와예히/웨하야 + 때·키·베/케+부정사·곳, MSyn의 보라·이제 */
@@ -343,7 +354,8 @@ function structView(b,c,mini){
     const vfirst=at.vi!==lastVi; const vnum=at.vi!==lastVi?`<b class="stv">${SD.V[at.vi][2]===0?"표제":SD.V[at.vi][2]}</b>`:""; lastVi=at.vi;
     const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]]; return `<span class="sww" data-sw="${j}">${esc(tx)}</span>`; }).join("");
     const canFold=blk[ai]>ai, folded=visible.includes(-ai-1);
-    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><span class="stmeta"${SD.can?` title="BHSA ${SD.bhsa} clause_atom ${SD.can[at.a]}"`:""}><small>${esc(typ)}</small><i>${esc(lab)}</i>${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">말 접기 ▴</button>`:""}</span><span class="stvn">${vnum}</span></div>`; }
+    const mon=S.milalOn&&ML[b]&&ML[b].state==="ok"; if(mon) h+=milalGroupHead(b,at.a);
+    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세"><small>${esc(typ)}</small><i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
   return h+`</div>`; }
 
 function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi), HN=sHan(vi), li=SD.wl[wi], x=SD.L[li];
