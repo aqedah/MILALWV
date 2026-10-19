@@ -39,7 +39,7 @@ def ctrail(s):
 lexid={}; LEX=[]; vote=collections.defaultdict(collections.Counter)
 MORPH={}; MLIST=[]; FUN={}; FLIST=[]; TYP={}; TLIST=[]; DOM={}; DLIST=[]
 WL=array.array('H'); WM=array.array('H'); WF=array.array('B'); WG=array.array('B')
-CT=array.array('B'); CD=array.array('B'); WC=array.array('I'); cid={}; WP=array.array('I'); pid={}; PT=array.array('B'); PTY={}; PTL=[]; WS=array.array('I'); sid={}; WA=array.array('I'); aid={}; AT=array.array('B'); AY=array.array('B'); AX=array.array('B'); TXL=[]; TXD={}
+CT=array.array('B'); CD=array.array('B'); WC=array.array('I'); cid={}; WP=array.array('I'); pid={}; PT=array.array('B'); PTY={}; PTL=[]; WS=array.array('I'); sid={}; WA=array.array('I'); aid={}; CAN=[]; AT=array.array('B'); AY=array.array('B'); AX=array.array('B'); TXL=[]; TXD={}
 VERSES=[]; HEB=[]; HAN=[]
 def idx(d,l,k):
     if k not in d: d[k]=len(l); l.append(k)
@@ -71,7 +71,7 @@ for bi,bn in enumerate(BH):
             if se not in sid: sid[se]=len(sid)
             WS.append(sid[se])
             ca=L.u(w,'clause_atom')[0]
-            if ca not in aid: aid[ca]=len(aid); AT.append(min(255,F.tab.v(ca) or 0)); AY.append(idx(TYP,TLIST,F.typ.v(ca) or '')); AX.append(idx(TXD,TXL,F.txt.v(cl) or ''))
+            if ca not in aid: aid[ca]=len(aid); CAN.append(ca); AT.append(min(255,F.tab.v(ca) or 0)); AY.append(idx(TYP,TLIST,F.typ.v(ca) or '')); AX.append(idx(TXD,TXL,F.txt.v(cl) or ''))
             WA.append(aid[ca])
             texts.append(t+tr)
             hans.append("여호와" if F.lex.v(w)=="JHWH/" else hword(F.phono.v(w) or ''))
@@ -146,5 +146,5 @@ def enc(A):
         else: st.append(2); ex.append(v)
         prev=v
     return {"s":b64(st),"x":ex}
-json.dump({"V":VERSES,"heb":HEB,"han":HAN,"wl":b64(WL),"wm":b64(WM),"wf":b64(WF),"wg":b64(WG),"ct":b64(CT),"cd":b64(CD),"wc":enc(WC),"wp":enc(WP),"pt":b64(PT),"ws":enc(WS),"wa":enc(WA),"at":b64(AT),"ay":b64(AY),"ax":b64(AX)},open('/home/claude/rj/study/words.json','w'),ensure_ascii=False,separators=(',',':'))
+json.dump({"V":VERSES,"heb":HEB,"han":HAN,"wl":b64(WL),"wm":b64(WM),"wf":b64(WF),"wg":b64(WG),"ct":b64(CT),"cd":b64(CD),"wc":enc(WC),"wp":enc(WP),"pt":b64(PT),"ws":enc(WS),"wa":enc(WA),"can":[CAN[0]]+[CAN[i]-CAN[i-1] for i in range(1,len(CAN))],"bhsa":"2021","at":b64(AT),"ay":b64(AY),"ax":b64(AX)},open('/home/claude/rj/study/words.json','w'),ensure_ascii=False,separators=(',',':'))
 print("nostrong",sum(1 for x in LOUT if not x[3]),"noko",sum(1 for x in LOUT if not x[4]))

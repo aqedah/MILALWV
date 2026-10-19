@@ -22,6 +22,8 @@ function studyLoad(){
       wl:new Uint16Array(u8(w.wl).buffer),wm:new Uint16Array(u8(w.wm).buffer),wf:u8(w.wf),wg:u8(w.wg),ct:u8(w.ct),cd:u8(w.cd),pt:u8(w.pt),PTY:m.ptyp,BK:m.books};
     const dec=o=>{ const s=u8(o.s), r=new Uint32Array(s.length); let mx=-1, prev=-1, k=0; for(let i=0;i<s.length;i++){ const c=s[i]; prev=c===0?prev:c===1?++mx:o.x[k++]; r[i]=prev; } return r; };
     D.wc=dec(w.wc); D.wp=dec(w.wp); D.ws=dec(w.ws); D.wa=dec(w.wa); D.at=u8(w.at); D.ay=u8(w.ay); D.ax=u8(w.ax); D.TXT=m.txt||[];
+    /* BHSA 2021 clause_atom 실제 노드 번호 (MILAL 결과와 잇는 열쇠). 차이 부호화 → 누적 */
+    if(w.can){ D.can=new Uint32Array(w.can.length); let acc=0; for(let i=0;i<w.can.length;i++){ acc+=w.can[i]; D.can[i]=acc; } D.bhsa=w.bhsa||"2021"; }
     const N=D.wl.length; D.vOf=new Int32Array(N); D.ref=new Map(); D.ch=new Map(); D.book={};
     D.V.forEach((x,vi)=>{ const [b,kc,kv,c,v,s,n]=x; for(let j=s;j<s+n;j++) D.vOf[j]=vi;
       const k=b+"-"+kc+"-"+kv; if(!D.ref.has(k)) D.ref.set(k,[]); D.ref.get(k).push(vi);
@@ -84,7 +86,7 @@ function openStudyInfo(){ sheet("장 구조 보는 법",`<div class="theory"><p>
   <p><b>이야기 줄기</b>(와이크톨)는 사건을 앞으로 밀고 가고, <b>배경·멈춤</b>(명사문, 다른 말이 앞선 완료형, 분사)은 흐름을 멈추고 설명·이전 일·대조를 알립니다.</p>
   <p><b>이야기 표지</b>: 와예히·웨하야가 때(때 구, 베/케+부정사, 키)나 곳과 함께 새 장면을 여는 자리, 그리고 홀로 선 '보라'·'이제'입니다. 와예히에 주어나 보어가 붙어 실제로 무엇이 생긴 경우는 이야기 줄기로 둡니다.</p>
   <p><b>인물의 말</b>: 따옴표 안의 말입니다. 말 속의 말은 '2단'으로 표시합니다. 위의 ⇕ 단추로 말을 모두 접으면 이야기 뼈대만 남고, 줄마다 '말 접기'로 하나씩 접을 수도 있습니다.</p>
-  <p>낱말을 누르면 뜻·꼴·문장 속 역할이 나옵니다. 오른쪽 끝 숫자는 절 번호입니다. 이 구분은 ETCBC(탈스트라)와 니카치의 본문언어학을 따른 참고 표시입니다.</p></div>`); }
+  <p>줄마다 BHSA 2021의 절 원자 노드 번호를 간직하고 있어, MILAL이 판정한 관계를 그대로 받아 겹쳐 보일 수 있습니다(준비 중). 낱말을 누르면 뜻·꼴·문장 속 역할이 나옵니다. 오른쪽 끝 숫자는 절 번호입니다. 이 구분은 ETCBC(탈스트라)와 니카치의 본문언어학을 따른 참고 표시입니다.</p></div>`); }
 
 function inSpan(vi,sp){ if(!sp) return true; const [b,c]=SD.V[vi]; for(const [B,a,z] of sp) if(b===B&&c>=a&&c<=z) return true; return false; }
 function spanVerses(sp){ if(!sp) return null; const out=[]; for(const [B,a,z] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1]; if(c>=a&&c<=z) out.push(vi); } } return out; }
@@ -341,7 +343,7 @@ function structView(b,c,mini){
     const vfirst=at.vi!==lastVi; const vnum=at.vi!==lastVi?`<b class="stv">${SD.V[at.vi][2]===0?"표제":SD.V[at.vi][2]}</b>`:""; lastVi=at.vi;
     const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]]; return `<span class="sww" data-sw="${j}">${esc(tx)}</span>`; }).join("");
     const canFold=blk[ai]>ai, folded=visible.includes(-ai-1);
-    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><span class="stmeta"><small>${esc(typ)}</small><i>${esc(lab)}</i>${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">말 접기 ▴</button>`:""}</span><span class="stvn">${vnum}</span></div>`; }
+    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><span class="stmeta"${SD.can?` title="BHSA ${SD.bhsa} clause_atom ${SD.can[at.a]}"`:""}><small>${esc(typ)}</small><i>${esc(lab)}</i>${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">말 접기 ▴</button>`:""}</span><span class="stvn">${vnum}</span></div>`; }
   return h+`</div>`; }
 
 function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi), HN=sHan(vi), li=SD.wl[wi], x=SD.L[li];
