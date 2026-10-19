@@ -247,3 +247,14 @@ main{grid-template-columns:minmax(0,1fr)}.sec{min-width:0}.stlines,.stl{min-widt
 .seg.smode.rseg{grid-template-columns:repeat(4,1fr);margin:8px 0 2px}
 .seg.svm button[disabled]{opacity:.45;cursor:not-allowed}
 .bnav button{font-size:12px}
+
+/* 우상단 메뉴 */
+.menubtn{width:36px;height:36px;border:1.5px solid var(--accent);background:var(--card);border-radius:999px;display:grid;place-items:center;padding:0;overflow:hidden;cursor:pointer}
+.menubtn svg{width:20px;height:20px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round}.menubtn img{width:100%;height:100%;object-fit:cover}
+.mrow{display:flex;align-items:center;gap:10px;padding:6px 0 2px}.micon{width:36px;height:36px;border-radius:999px;background:var(--accent-soft);display:grid;place-items:center;overflow:hidden;flex:none;font-size:18px}.micon img{width:100%;height:100%;object-fit:cover}
+.mtxt{flex:1;min-width:0;display:grid}.mtxt b{font-size:15px}.mtxt small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.mgrp{font-size:12.5px;color:var(--muted);margin:8px 0 -4px;letter-spacing:.02em}
+.seg.sseg.mseg{display:grid;grid-auto-flow:column;grid-template-columns:none}
+.mlist{display:grid;gap:4px;margin-top:6px}.mitem{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:11px 12px;font:inherit;font-size:15px;text-align:left;cursor:pointer}.mitem span{width:24px;text-align:center;flex:none}
+ol.tut{margin:0;padding-left:20px;display:grid;gap:8px}ol.tut li{font-size:15.5px;line-height:1.65}
+.snshare{border:0;background:none;color:var(--accent);font-size:18px;padding:0 6px;cursor:pointer}

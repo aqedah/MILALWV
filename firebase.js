@@ -2,7 +2,7 @@
    보는 것은 로그인 없이 됩니다. 로그인은 메모를 기기끼리 맞출 때만 씁니다. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, deleteDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const A=window.MILAL_AUTH;
 if(!window.FIREBASE_CONFIG){ A.ready=false; }
@@ -29,5 +29,11 @@ else {
     }
     refreshAcct();
   });
+  /* 나눔: shared 모음. 읽기는 누구나, 쓰기는 로그인한 사람이 자기 이름으로만 (Firestore 규칙은 HANDOFF 2절) */
+  window.MILAL_SHARE={
+    list:async()=>{ const q=query(collection(db,"shared"),orderBy("t","desc"),limit(60)); const s=await getDocs(q); return s.docs.map(d=>({id:d.id,...d.data()})); },
+    add:async n=>{ const u=A.user; if(!u) throw new Error("로그인이 필요합니다"); const {b,c,v,heb,gl,st,m,lex,han}=n; return addDoc(collection(db,"shared"),{uid:u.uid,name:u.displayName||"",photo:u.photoURL||"",b,c,v,heb,gl,st:st||0,m:m||"",lex:lex||"",han:han||"",t:Date.now()}); },
+    remove:async id=>deleteDoc(doc(db,"shared",id))
+  };
   window.onNotesSaved=L=>{ if(applying||!A.user) return; setDoc(noteRef(A.user),{list:L,at:Date.now()}).catch(e=>{ console.warn(e); toast("메모를 올리지 못했습니다: "+(e.code||"")); }); };
 }

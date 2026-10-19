@@ -185,7 +185,7 @@ function gateHTML(){ const L=lastRange(), RC=recentRanges(); let h=`<section cla
 function renderStudy(){
   const S=view.st;
   if(!document.getElementById("hebFont")){ const l=document.createElement("link"); l.id="hebFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500&display=swap"; document.head.appendChild(l); }
-  let h=`<section class="shead2"><div class="sh1"><button class="sh1t" id="sHome" aria-label="책·장 고르기">${esc(window.APP_NAME||"MILAL")}</button><span class="ssub">히브리어 원문 · BHSA</span><span id="hostAcct">${window.hostAcctHTML?hostAcctHTML():""}</span></div>`;
+  let h=`<section class="shead2"><div class="sh1"><button class="sh1t" id="sHome" aria-label="책·장 고르기">${esc(window.APP_NAME||"MILAL")}</button><span class="ssub">히브리어 원문 · BHSA</span><span id="hostAcct">${window.hostMenuHTML?hostMenuHTML():""}</span></div>`;
   if(!SD){ studyLoad(); return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):"원문 자료를 내려받는 중입니다. 처음 한 번만 받습니다(약 5MB)."}</p>${SDerr?`<button class="sbtn" id="sdRetry">다시 시도</button>`:""}</section>`; }
   if(S.pick) return h+`</section>`+pickerHTML();
   if(!S.entered||!S.R){ const m=S.mode; setRange(lastRange()||{b:1,c1:1,c2:1}); S.mode=m&&m!=="verse"?m:"verse"; }
@@ -224,7 +224,7 @@ function bindStudy(m){
   bindQuery(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
   const sh=document.getElementById("sHome"); if(sh) sh.onclick=openAddr;
     m.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ setRange(JSON.parse(b.dataset.ar)); S.mode="verse"; render(); scrollTo({top:0}); });
-  const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostAcct) bindHostAcct(ha);
+  const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostMenu) bindHostMenu(ha);
   const pkS=()=>{ const y=scrollY; render(); scrollTo({top:y}); };
   const stdy=document.getElementById("sToday"); if(stdy) stdy.onclick=()=>{ setRange(todayOT()); render(); scrollTo({top:0}); };
   const sl=document.getElementById("sLast"); if(sl) sl.onclick=()=>{ setRange(lastRange()); render(); scrollTo({top:0}); };
@@ -434,19 +434,37 @@ function openNoteSheet(wi){ const vi=SD.vOf[wi], [b,c,v]=SD.V[vi], li=SD.wl[wi],
   sheet("원어 메모",`<div class="rdh2"><span class="heb">${esc(wHeb(wi).trim())}</span><span class="rdp">${esc(wHan(wi))}</span><b>${esc(lexGloss(li))}</b></div><p class="lead" style="margin:4px 0 8px">${esc(sRef(vi))}${x[3]?` · H${x[3]}`:""}</p><textarea id="rnMemo" rows="4" placeholder="이 낱말에서 본 것을 짧게 적어 두세요 (비워 두어도 됩니다)" style="width:100%"></textarea><button class="sbtn" id="rnSave">메모 저장</button><p class="lead" style="margin-top:6px">${window.noteStoreHint?esc(noteStoreHint()):"원어 메모는 이 기기에만 저장됩니다."}</p>`);
   const root=document.getElementById("sheetRoot");
   root.querySelector("#rnSave").onclick=()=>{ const L=studyNotes(); L.unshift({t:Date.now(),b,c,v,heb:wHeb(wi).trim(),lex:x[0],han:wHan(wi),gl:lexGloss(li),st:x[3]||0,m:root.querySelector("#rnMemo").value.trim()}); saveStudyNotes(L.slice(0,500)); root.innerHTML=""; toast("원어 메모에 넣었습니다."); }; }
-function notesPage(){ const L=studyNotes(); const show=view.snAll?L:L.slice(0,30);
-  let h=`<section class="sec"><span class="label">원어 메모 · ${L.length}</span>`;
-  h+=L.length?`<div class="snlist">${show.map(n=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button><button class="sndel" data-snd="${n.t}" aria-label="지우기">✕</button></div>`).join("")}</div>${L.length>30?`<button class="morebtn" id="snAll">${view.snAll?"접기 ▴":`${L.length-30}개 더 보기 ▾`}</button>`:""}`
+function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L.slice(0,30); S.nseg ||= "mine";
+  let h=`<div class="seg smode rseg" role="tablist">${[["mine","내 메모"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;
+  if(S.nseg==="shared") return h+sharedPage();
+  h+=`<section class="sec"><span class="label">원어 메모 · ${L.length}</span>`;
+  h+=L.length?`<div class="snlist">${show.map(n=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button>${window.MILAL_SHARE?`<button class="snshare" data-snsh="${n.t}" aria-label="나누기" title="나눔에 올리기">↗</button>`:""}<button class="sndel" data-snd="${n.t}" aria-label="지우기">✕</button></div>`).join("")}</div>${L.length>30?`<button class="morebtn" id="snAll">${view.snAll?"접기 ▴":`${L.length-30}개 더 보기 ▾`}</button>`:""}`
     :`<p class="lead">아직 메모가 없습니다. 본문 화면에서 절을 누르고 낱말을 고른 뒤 '메모 남기기'를 누르세요.</p>`;
   h+=`<p class="lead" style="margin-top:8px">${esc(window.noteStoreHint?noteStoreHint():"")}</p></section>`;
   h+=`<section class="sec"><span class="label">다음에 들어올 것</span><p class="lead">절·절 원자·구간 메모, 본문 하이라이트와 괄호, 관찰과 해석을 나눈 연구 노트, PDF·Markdown 내보내기. 지금은 낱말 메모만 됩니다.</p></section>`;
   return h; }
+/* 나눔: 다른 이들이 올린 원어 메모 */
+let SHL=null, SHerr="";
+function sharedPage(){ const A=window.MILAL_AUTH;
+  if(!window.MILAL_SHARE) return `<section class="sec"><p class="lead">나눔은 서버 연결이 있어야 합니다.</p></section>`;
+  if(!SHL&&!SHerr){ MILAL_SHARE.list().then(L=>{ SHL=L; if(view.st.mode==="notes") render(); }).catch(e=>{ SHerr=e.code||e.message||"불러오지 못했습니다"; if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">나눔 목록을 불러오는 중…</p></section>`; }
+  let h=`<section class="sec"><span class="label">나눔 · ${SHL?SHL.length:0}</span><p class="lead">다른 이들이 '내 메모'에서 ↗로 올린 원어 메모입니다. 누르면 그 절로 갑니다.${A.user?"":" 올리려면 로그인하세요."}</p>`;
+  if(SHerr) h+=`<p class="lead">${/permission/i.test(SHerr)?"아직 서버 쪽 문이 열리지 않았습니다. 관리자가 Firestore 규칙에 나눔(shared)을 추가하면 보입니다.":esc(SHerr)}</p>`;
+  else if(!SHL.length) h+=`<p class="lead">아직 올라온 메모가 없습니다. 첫 번째가 되어 보세요.</p>`;
+  else h+=`<div class="snlist">${SHL.map(n=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1]||"")} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""} · ${esc(n.name||"익명")} · ${new Date(n.t).toLocaleDateString("ko-KR")}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button>${A.user&&A.user.uid===n.uid?`<button class="sndel" data-shdel="${n.id}" aria-label="내리기">✕</button>`:""}</div>`).join("")}</div>`;
+  return h+`<button class="morebtn" id="shReload">다시 불러오기</button></section>`; }
 function studyNotesSection(){ if(!STUDY_ON()) return ""; const L=studyNotes(); if(!L.length) return "";
   const show=view.snAll?L:L.slice(0,5);
   return `<section class="sec"><span class="label">원어 메모 · ${L.length}</span><div class="snlist">${show.map((n,i)=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button><button class="sndel" data-snd="${n.t}" aria-label="지우기">✕</button></div>`).join("")}</div>${L.length>5?`<button class="morebtn" id="snAll">${view.snAll?"접기 ▴":`${L.length-5}개 더 보기 ▾`}</button>`:""}</section>`; }
 function bindStudyNotes(){ document.querySelectorAll("[data-snj]").forEach(b=>b.onclick=()=>{ const [bb,c,v]=b.dataset.snj.split("-").map(Number); view.st.rd="read"; studyOpenVerse(bb,c,v); });
   document.querySelectorAll("[data-snd]").forEach(b=>b.onclick=()=>{ const t=+b.dataset.snd; saveStudyNotes(studyNotes().filter(n=>n.t!==t)); const y=scrollY; render(); scrollTo({top:y}); });
-  const a=document.getElementById("snAll"); if(a) a.onclick=()=>{ view.snAll=!view.snAll; const y=scrollY; render(); scrollTo({top:y}); }; }
+  const a=document.getElementById("snAll"); if(a) a.onclick=()=>{ view.snAll=!view.snAll; const y=scrollY; render(); scrollTo({top:y}); };
+  document.querySelectorAll("[data-nseg]").forEach(b=>b.onclick=()=>{ view.st.nseg=b.dataset.nseg; render(); });
+  document.querySelectorAll("[data-snsh]").forEach(b=>b.onclick=()=>{ const n=studyNotes().find(x=>x.t===+b.dataset.snsh); if(!n) return; const A=window.MILAL_AUTH; if(!A.user){ toast("나누려면 먼저 로그인하세요 (오른쪽 위 ☰)."); return; }
+    sheet("나눔에 올리기",`<div class="rdh2"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b></div><p class="lead">${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v}${n.m?` · ${esc(n.m)}`:""}</p><p>이 메모가 로그인한 이름(${esc(A.user.displayName||"")})과 함께 모든 사람에게 보입니다. 올릴까요?</p><button class="sbtn" id="shGo">올리기</button>`);
+    document.getElementById("shGo").onclick=()=>{ MILAL_SHARE.add(n).then(()=>{ document.getElementById("sheetRoot").innerHTML=""; SHL=null; toast("나눔에 올렸습니다."); }).catch(e=>toast("올리지 못했습니다: "+(e.code||e.message))); }; });
+  document.querySelectorAll("[data-shdel]").forEach(b=>b.onclick=()=>{ MILAL_SHARE.remove(b.dataset.shdel).then(()=>{ SHL=null; render(); toast("내렸습니다."); }).catch(e=>toast("내리지 못했습니다: "+(e.code||e.message))); });
+  const rl=document.getElementById("shReload"); if(rl) rl.onclick=()=>{ SHL=null; SHerr=""; render(); }; }
 
 /* 성경연구 글씨 크기 (0.8~1.5배, 이 기기에 저장) */
 function sFs(){ try{ const v=+localStorage.getItem("milal-study-fs"); return v>=0.8&&v<=1.5?v:1; }catch(e){ return 1; } }

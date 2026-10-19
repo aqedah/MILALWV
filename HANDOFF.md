@@ -11,8 +11,10 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 ## 현재 상태 (2026-10-19, 첫 판 올림)
 
 - 독립 앱이 돌아갑니다: `index.html` + `host.js`(CBSR이 주던 것 대신) + `study.css` + `app/` 3개 + `study/` 자료 3개.
-- 시작 화면: '어디로 갈까요'(책 → 장) + '최근 본 곳'. 머리띠의 MILAL 글자와 하단 탭 '홈'이 처음 화면으로 갑니다.
-- 하단 탭: 홈 · 원문 · 도구 · 낱말 · 검색식 · 이론 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`).
+- 머리띠의 MILAL 글자와 주소 단추가 '어디로 갈까요'(책 → 장 + 최근 본 곳) 창을 엽니다.
+- 하단 탭: 본문 · 구조 · 연구 · 기록 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`). 첫 화면은 최근 본 곳, 없으면 창세기 1장.
+- 우상단 ☰ 메뉴(`app/menu.js`): 로그인 · 번역본(개역한글/원문만, 개역개정 자리) · 밝기(기기/밝게/어둡게) · 홈 화면에 추가 · 처음 쓰는 법(첫 방문에 한 번 자동) · MILAL이란(Marker-Informed Linguistic Analysis of Layers) · 자료 출처.
+- 기록 탭: 내 메모 · 나눔(`shared` 모음, 내 메모의 ↗로 올림; 규칙은 2절).
 - 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦). 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.
 - 링크 공유 썸네일 `img/og.jpg`(1200×630), 아이콘 `img/`, `manifest.webmanifest`. 썸네일 원본은 대화에서 만든 HTML(글꼴: Noto Serif Hebrew/KR, IBM Plex Mono).
 - 로그인은 **보기에는 필요 없고**, 원어 메모를 기기끼리 맞출 때만 씁니다(Google 로그인, `firebase.js`, 저장 자리 `users/{uid}/study/notes` 문서 하나에 목록으로).
@@ -113,13 +115,22 @@ service cloud.firestore {
     match /users/{uid}/{doc=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    // 그 밖은 모두 막음 (공유 주석 등은 나중에 규칙을 따로 추가)
+    // 나눔(기록 탭 → 나눔): 읽기는 누구나, 올리기는 로그인한 사람이 자기 uid로만, 내리기는 올린 사람만
+    match /shared/{id} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.m.size() <= 500;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+    // 그 밖은 모두 막음
     match /{path=**} { allow read, write: if false; }
   }
 }
 ```
 
 > **이메일 주소는 공개 저장소에 넣지 않습니다.** 관리자 구분이 필요하면 uid로 합니다.
+> **2026-10-19 '나눔'을 넣었으므로 위 규칙 전체를 Firebase 콘솔 → Firestore → 규칙에 다시 붙여 넣고 '게시'를 누릅니다.** 안 하면 나눔 탭에 "permission-denied"가 뜹니다. (첫 올리기 때 "색인이 필요합니다" 링크가 뜨면 그 링크를 눌러 만들면 됩니다 — `t` 내림차순 하나라 보통 필요 없음.)
 
 ---
 

@@ -14,7 +14,7 @@ const PLAN={
 
 /* 번역 본문: study/bible.json (pipeline/make_bible.py로 만듦). BIBLE[책-1][장-1][절-1] */
 window.BIBLE=null; const TR="tr", TR_INFO={tr:{name:""}};
-function bibleLoad(){ return fetch("study/bible.json?v="+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ window.BIBLE=j.books; TR_INFO.tr.name=j.name||""; TR_INFO.tr.src=j.src||""; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{}); }
+function bibleLoad(){ return trApply(trId()); } /* app/menu.js: 고른 번역본을 불러옴 */
 
 /* 도움 함수 */
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -57,7 +57,7 @@ function bindHostAcct(el){ const b=el.querySelector("#acctBtn"); if(!b) return; 
   if(A.user){ sheet("계정",`<p>${esc(A.user.displayName||"")}</p><p class="lead">${esc(A.user.email||"")}</p><p class="lead" style="margin-top:8px">로그인한 동안 원어 메모가 기기끼리 맞춰집니다.</p><button class="sbtn ghost" id="acctOut">로그아웃</button>`);
     document.getElementById("acctOut").onclick=()=>{ A.signOut&&A.signOut(); document.getElementById("sheetRoot").innerHTML=""; }; }
   else if(A.ready&&A.signIn) A.signIn(); }; }
-function refreshAcct(){ const el=document.getElementById("hostAcct"); if(el){ el.innerHTML=hostAcctHTML(); bindHostAcct(el); } }
+function refreshAcct(){ const el=document.getElementById("hostAcct"); if(el){ el.innerHTML=hostMenuHTML(); bindHostMenu(el); } }
 function noteStoreHint(){ const A=window.MILAL_AUTH; return A.user?"로그인 중이라 다른 기기에서도 같은 메모를 봅니다.":"원어 메모는 이 기기에만 저장됩니다. 로그인하면 기기끼리 맞춥니다."; }
 
 /* ===== 원어 메모 목록 (아래에서 올라오는 창) ===== */
@@ -70,4 +70,4 @@ function openNotesSheet(){ const L=studyNotes(); const show=view.snAll?L:L.slice
   const a=document.getElementById("snAll"); if(a) a.onclick=()=>{ view.snAll=!view.snAll; openNotesSheet(); }; }
 
 /* 시작 */
-document.addEventListener("DOMContentLoaded",()=>{ bindNav(); render(); if(!SD) studyIntro(); bibleLoad(); });
+document.addEventListener("DOMContentLoaded",()=>{ bindNav(); render(); if(!SD) studyIntro(); bibleLoad(); (studyLoad()||Promise.resolve()).then(()=>tutorialMaybe()); });
