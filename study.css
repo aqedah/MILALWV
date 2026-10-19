@@ -283,3 +283,4 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .spb.d-n{border-left-color:var(--k-main,#1F3A6B)}.spb.d-q{border-left-color:#7A8798}.spb.d-d{border-left-color:#8E6B2E}
 .spb .spm{display:grid;gap:1px;white-space:nowrap}.spb .spm b{font-size:13px}.spb .spm small{color:var(--muted);font-size:12px}.spb .heb{font-size:17px;direction:rtl;text-align:right;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;justify-self:end;max-width:100%}
 .stvn .stfb{display:block;font-size:10.5px;padding:0;margin-top:2px}
+.mgo{border:0;background:none;color:var(--accent);font:inherit;font-size:inherit;padding:0 2px;text-decoration:underline;cursor:pointer}.mobs{display:block;color:var(--muted);font-size:12.5px}

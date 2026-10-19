@@ -1,7 +1,8 @@
-"""MILALWV-IF-1 파일 검증기 (docs/MILAL_INTERFACE_DRAFT.md 9절의 V1~V11).
+"""MILALWV-IF-1 파일 검증기 (docs/MILAL_INTERFACE_DRAFT.md 9절의 V1~V14).
 
 쓰는 법: python3 milal_check.py <interface.json> [--words study/words.json]
-  --words 를 주면 V5(낱말 대조)를 한다. 결과: 표준출력에 표, 실패가 있으면 종료 코드 1.
+  --words 를 주면 V5(낱말 번호 전체 대조)를 한다.
+  종료 코드: 0 모두 통과 · 1 실패 있음 · 2 검사 불가(jsonschema 없음 등 — 통과가 아님)
 """
 import sys, json, base64, argparse
 from collections import defaultdict, Counter
@@ -48,13 +49,14 @@ def main():
     def res(i, ok, msg=""): R.append((i, ok, msg))
 
     # V1 schema
+    unable = False
     try:
         import jsonschema
         schema = json.load(open(HERE + "/../docs/milal_interface.schema.json", encoding="utf-8"))
         errs = sorted(jsonschema.Draft202012Validator(schema).iter_errors(D), key=lambda e: list(e.path))
         res("V1 스키마", not errs, "; ".join(f"{'/'.join(map(str, e.path))}: {e.message[:80]}" for e in errs[:5]))
     except ImportError:
-        res("V1 스키마", True, "jsonschema 없음 — 건너뜀")
+        unable = True; res("V1 스키마", False, "검사 불가 — jsonschema 가 없음 (pip install jsonschema). 통과가 아님")
     # V2
     res("V2 BHSA 2021", D.get("source", {}).get("bhsa_version") == "2021")
     nodes = {n["id"]: n for n in D.get("nodes", [])}
@@ -92,8 +94,10 @@ def main():
         for n in nodes.values():
             got = cw.get(int(n["id"]))
             if got is None: mism.append(f"{n['id']}: words.json에 없는 절")
-            elif sorted(got) != sorted(n["word_ids"]): mism.append(f"{n['id']}: 낱말 {len(got)} vs {len(n['word_ids'])}")
-        res("V5 낱말 대조", not mism, f"{len(mism)}절 불일치: " + "; ".join(mism[:3]))
+            elif sorted(got) != sorted(n["word_ids"]):
+                d1 = sorted(set(got) - set(n["word_ids"])); d2 = sorted(set(n["word_ids"]) - set(got))
+                mism.append(f"{n['id']}: 앱에만 {d1[:2]} / 파일에만 {d2[:2]}" if (d1 or d2) else f"{n['id']}: 순서 다름")
+        res("V5 낱말 대조(번호 전체)", not mism, f"{len(mism)}절 불일치: " + "; ".join(mism[:3]))
     else:
         res("V5 낱말 대조", True, "--words 없음 — 건너뜀")
     # V6/V7 confirmed hierarchy
@@ -125,15 +129,29 @@ def main():
     bad9 = [f"{r['id']}→{e}" for r in rels for e in r.get("evidence_ids", []) if e not in ev]
     res("V9 근거 존재", not bad9, "; ".join(bad9[:5]))
     # V10
-    res("V10 파일 상태", True, D.get("file_status", "?") + (" — 시험 자료, 실제 판정 아님" if D.get("file_status") == "TEST_ONLY" else ""))
+    res("V10 파일 상태", True, D.get("file_status", "?") + (" — 시험 자료, 실제 판정 아님" if D.get("file_status") == "TEST_ONLY" else " — 실제 MILAL 출력"))
+    # V12 NO_DIRECT_RELATION basis
+    b12 = [s["id"] for s in D.get("issues", []) if s.get("kind") == "NO_DIRECT_RELATION" and not (s.get("basis", {}).get("kind") and s.get("record"))]
+    res("V12 직접연결없음에 근거", not b12, "; ".join(b12[:5]))
+    # V13 native_relations atoms exist
+    atoms = {a for n in nodes.values() for a in n.get("clause_atom_ids", [])}
+    nat = D.get("native_relations", [])
+    b13 = [x["id"] for x in nat if atoms and (x["clause_atom"] not in atoms)]
+    res("V13 원 관계 절 원자 존재", not b13, f"{len(b13)}개 (nodes.clause_atom_ids 밖)" if b13 else (f"{len(nat)}개" + ("" if atoms else " — nodes에 clause_atom_ids 없어 대조 못 함")))
+    # V14 MILAL_OUTPUT provenance
+    if D.get("file_status") == "MILAL_OUTPUT":
+        m = D.get("source", {}).get("milal", {})
+        res("V14 실제 출력 출처", bool(m.get("commit") and m.get("network_sha256") and D["source"].get("generated_at")), "commit·network_sha256·generated_at 필요")
+    else:
+        res("V14 실제 출력 출처", True, "TEST_ONLY — 해당 없음")
     # 요약
     st = Counter(r["status"] for r in rels); kd = Counter(r["kind"] for r in rels)
-    print(f"파일: {a.file}\n절 {len(nodes)} · 묶음 {len(groups)} · 관계 {len(rels)} · 근거 {len(ev)} · 이슈 {len(D.get('issues', []))} · 메모 {len(D.get('notes', []))}")
+    print(f"파일: {a.file}\n절 {len(nodes)} · 묶음 {len(groups)} · 관계 {len(rels)} · 근거 {len(ev)} · 이슈 {len(D.get('issues', []))} · 메모 {len(D.get('notes', []))} · BHSA 원 관계 {len(D.get('native_relations', []))}")
     print("관계 상태:", dict(st), "\n관계 종류:", dict(kd))
     okall = True
     for i, ok, msg in R:
         okall &= ok; print(("PASS " if ok else "FAIL ") + i + (" — " + msg if msg else ""))
-    sys.exit(0 if okall else 1)
+    sys.exit(2 if unable else (0 if okall else 1))
 
 if __name__ == "__main__":
     main()

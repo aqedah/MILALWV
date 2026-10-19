@@ -1,62 +1,159 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aqedah.github.io/MILALWV/docs/milal_interface.schema.json",
-  "title": "MILALWV-IF-1 — MILAL → MILALWV 연결 규격 (초안)",
+  "title": "MILALWV-IF-1 — MILAL → MILALWV 연결 규격 (초안 2판)",
   "type": "object",
-  "required": ["schema", "file_status", "source", "nodes", "groups", "relations", "evidence", "issues", "notes"],
+  "required": [
+    "schema",
+    "file_status",
+    "source",
+    "nodes",
+    "groups",
+    "relations",
+    "evidence",
+    "issues",
+    "notes",
+    "native_relations"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "MILALWV-IF-1" },
-    "file_status": { "enum": ["TEST_ONLY", "MILAL_OUTPUT"] },
+    "schema": {
+      "const": "MILALWV-IF-1"
+    },
+    "file_status": {
+      "enum": [
+        "TEST_ONLY",
+        "MILAL_OUTPUT"
+      ]
+    },
     "source": {
       "type": "object",
-      "required": ["schema_version", "bhsa_version", "milal", "generated_at", "scope"],
+      "required": [
+        "schema_version",
+        "bhsa_version",
+        "milal",
+        "generated_at",
+        "scope"
+      ],
       "properties": {
-        "schema_version": { "const": "MILALWV-IF-1" },
-        "bhsa_version": { "const": "2021" },
+        "schema_version": {
+          "const": "MILALWV-IF-1"
+        },
+        "bhsa_version": {
+          "const": "2021"
+        },
         "milal": {
           "type": "object",
-          "required": ["stage", "rules_version"],
+          "required": [
+            "stage",
+            "rules_version"
+          ],
           "properties": {
-            "stage": { "type": "string" },
-            "rules_version": { "type": "string" },
-            "commit": { "type": "string" },
-            "network_schema": { "type": "string" },
-            "network_sha256": { "type": "string" },
-            "input_receipt": { "type": "object" }
+            "stage": {
+              "type": "string"
+            },
+            "rules_version": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "network_schema": {
+              "type": "string"
+            },
+            "network_sha256": {
+              "type": "string"
+            },
+            "input_receipt": {
+              "type": "object"
+            }
           }
         },
-        "generated_at": { "type": "string" },
+        "generated_at": {
+          "type": "string"
+        },
         "scope": {
           "type": "object",
-          "required": ["book", "bhsa_book"],
+          "required": [
+            "book",
+            "bhsa_book"
+          ],
           "properties": {
-            "book": { "type": "string" },
-            "bhsa_book": { "type": "string" },
-            "chapters": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 }
+            "book": {
+              "type": "string"
+            },
+            "bhsa_book": {
+              "type": "string"
+            },
+            "chapters": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
           }
         },
-        "scientific_status": { "type": "string" },
-        "test_note": { "type": "string" }
+        "scientific_status": {
+          "type": "string"
+        },
+        "test_note": {
+          "type": "string"
+        }
       }
     },
     "nodes": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "ch", "vs", "word_ids"],
+        "required": [
+          "id",
+          "ch",
+          "vs",
+          "word_ids"
+        ],
         "properties": {
-          "id": { "$ref": "#/$defs/nodeId" },
-          "pos": { "type": "integer" },
-          "ch": { "type": "integer" },
-          "vs": { "type": "integer" },
-          "type": { "type": "string" },
-          "domain": { "type": "string" },
-          "text": { "type": "string" },
-          "word_ids": { "type": "array", "items": { "type": "integer" }, "minItems": 1 },
-          "clause_atom_ids": { "type": "array", "items": { "type": "integer" } },
-          "native_self_annotations": { "type": "array" },
-          "meta": { "type": "object" }
+          "id": {
+            "$ref": "#/$defs/nodeId"
+          },
+          "pos": {
+            "type": "integer"
+          },
+          "ch": {
+            "type": "integer"
+          },
+          "vs": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "word_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1
+          },
+          "clause_atom_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "native_self_annotations": {
+            "type": "array"
+          },
+          "meta": {
+            "type": "object"
+          }
         }
       }
     },
@@ -64,21 +161,123 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "kind", "members"],
+        "required": [
+          "id",
+          "kind",
+          "members"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "kind": { "enum": ["LOCAL_SPEECH_UNIT", "CONDITIONAL_RESPONSE_UNIT", "UNRESOLVED_SCOPE_FRAGMENT", "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS", "ENCLOSING_SPEECH_HYPOTHESIS", "SURFACE_EVENT_ANCHOR", "UNCOVERED_SOURCE_CONTEXT"] },
-          "members": { "type": "array", "items": { "$ref": "#/$defs/nodeId" }, "minItems": 1 },
-          "first": { "type": "string" }, "last": { "type": "string" },
-          "roles": { "type": "object", "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } } },
-          "observed": { "type": "array" },
-          "status": { "type": "string" }, "textual": { "type": "string" },
-          "frame_id": { "type": ["string", "null"] }, "source_id": { "type": ["string", "null"] },
-          "interpretation_dependencies": { "type": "array" },
-          "disposition": { "type": "string" }, "mother_table_status": { "type": "string" },
-          "candidate_count": { "type": "integer" }, "candidate_rule_summary": { "type": "object" },
-          "common_mothers": { "type": "array" }, "possible_mothers": { "type": "array" }, "peers": { "type": "array" },
-          "rule_notes": { "type": "array", "items": { "type": "object", "required": ["rule", "status"], "properties": { "trace_id": { "type": "string" }, "rule": { "type": "string" }, "status": { "type": "string" }, "other": { "type": "string" }, "failed": { "type": "array" }, "unresolved": { "type": "array" } } } }
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "LOCAL_SPEECH_UNIT",
+              "CONDITIONAL_RESPONSE_UNIT",
+              "UNRESOLVED_SCOPE_FRAGMENT",
+              "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS",
+              "ENCLOSING_SPEECH_HYPOTHESIS",
+              "SURFACE_EVENT_ANCHOR",
+              "UNCOVERED_SOURCE_CONTEXT"
+            ]
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/nodeId"
+            },
+            "minItems": 1
+          },
+          "first": {
+            "type": "string"
+          },
+          "last": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nodeId"
+              }
+            }
+          },
+          "observed": {
+            "type": "array"
+          },
+          "status": {
+            "type": "string"
+          },
+          "textual": {
+            "type": "string"
+          },
+          "frame_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "interpretation_dependencies": {
+            "type": "array"
+          },
+          "disposition": {
+            "type": "string"
+          },
+          "mother_table_status": {
+            "type": "string"
+          },
+          "candidate_count": {
+            "type": "integer"
+          },
+          "candidate_rule_summary": {
+            "type": "object"
+          },
+          "common_mothers": {
+            "type": "array"
+          },
+          "possible_mothers": {
+            "type": "array"
+          },
+          "peers": {
+            "type": "array"
+          },
+          "rule_notes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "rule",
+                "status"
+              ],
+              "properties": {
+                "trace_id": {
+                  "type": "string"
+                },
+                "rule": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "other": {
+                  "type": "string"
+                },
+                "failed": {
+                  "type": "array"
+                },
+                "unresolved": {
+                  "type": "array"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -86,25 +285,134 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "family", "kind", "status", "source", "target", "rule", "record"],
+        "required": [
+          "id",
+          "family",
+          "kind",
+          "status",
+          "source",
+          "target",
+          "rule",
+          "record"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "family": { "enum": ["HIERARCHY", "GROUPING", "CLOSURE", "LITERARY"] },
-          "kind": { "enum": ["SUBORDINATE", "PARALLEL", "FRAME_CONTENT", "CONTINUATION", "CLOSURE", "MEMBERSHIP"] },
-          "status": { "enum": ["CONFIRMED", "PROVISIONAL", "COMPETING", "UNASSIGNED"] },
-          "source": { "$ref": "#/$defs/endpoint" },
-          "target": { "$ref": "#/$defs/endpoint" },
-          "rule": { "type": "string", "minLength": 1 },
-          "record": { "$ref": "#/$defs/record" },
-          "evidence_clause_ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } },
-          "evidence_ids": { "type": "array", "items": { "type": "string" } },
-          "note": { "type": "string" },
-          "extra": { "type": "object" }
+          "id": {
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "HIERARCHY",
+              "GROUPING",
+              "CLOSURE",
+              "LITERARY"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "SUBORDINATE",
+              "PARALLEL",
+              "FRAME_CONTENT",
+              "CONTINUATION",
+              "CLOSURE",
+              "MEMBERSHIP"
+            ]
+          },
+          "status": {
+            "enum": [
+              "CONFIRMED",
+              "PROVISIONAL",
+              "COMPETING",
+              "UNASSIGNED"
+            ]
+          },
+          "source": {
+            "$ref": "#/$defs/endpoint"
+          },
+          "target": {
+            "$ref": "#/$defs/endpoint"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record": {
+            "$ref": "#/$defs/record"
+          },
+          "evidence_clause_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/nodeId"
+            }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "extra": {
+            "type": "object"
+          }
         },
         "allOf": [
-          { "if": { "properties": { "kind": { "enum": ["SUBORDINATE", "FRAME_CONTENT", "CONTINUATION"] } } }, "then": { "properties": { "family": { "const": "HIERARCHY" } } } },
-          { "if": { "properties": { "kind": { "enum": ["PARALLEL", "MEMBERSHIP"] } } }, "then": { "properties": { "family": { "const": "GROUPING" } } } },
-          { "if": { "properties": { "kind": { "const": "CLOSURE" } } }, "then": { "properties": { "family": { "const": "CLOSURE" } } } }
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "SUBORDINATE",
+                    "FRAME_CONTENT",
+                    "CONTINUATION"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "family": {
+                  "const": "HIERARCHY"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "PARALLEL",
+                    "MEMBERSHIP"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "family": {
+                  "const": "GROUPING"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "CLOSURE"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "family": {
+                  "const": "CLOSURE"
+                }
+              }
+            }
+          }
         ]
       }
     },
@@ -112,15 +420,69 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "rule_id", "stance"],
+        "required": [
+          "id",
+          "rule_id",
+          "outcome",
+          "record"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "rule_id": { "type": "string" },
-          "check": { "type": "string" },
-          "stance": { "enum": ["SUPPORTS", "OPPOSES", "UNRESOLVED"] },
-          "observed": { "type": "object", "properties": { "clause_ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } }, "word_ids": { "type": "array", "items": { "type": "integer" } }, "features": { "type": "object" } } },
-          "text": { "type": "string" },
-          "record": { "$ref": "#/$defs/record" }
+          "id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "check": {
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "UNRESOLVED",
+              "HUMAN"
+            ]
+          },
+          "role": {
+            "enum": [
+              "REQUIRED",
+              "SUPPORTING",
+              "COUNTEREVIDENCE"
+            ]
+          },
+          "observed": {
+            "type": "object",
+            "properties": {
+              "clause_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/nodeId"
+                }
+              },
+              "atom_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "word_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "features": {
+                "type": "object"
+              }
+            }
+          },
+          "text": {
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/$defs/record"
+          }
         }
       }
     },
@@ -128,43 +490,323 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "kind"],
+        "required": [
+          "id",
+          "kind"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "kind": { "enum": ["ALTERNATIVE_SET", "UNRESOLVED", "SCOPE_CONFLICT", "UNASSIGNED_CLAUSE", "NO_DIRECT_RELATION"] },
-          "subkind": { "type": "string" },
-          "about": { "oneOf": [ { "$ref": "#/$defs/endpoint" }, { "type": "array", "items": { "$ref": "#/$defs/endpoint" } } ] },
-          "options": { "type": "array", "items": { "type": "string" } },
-          "competing": { "type": "boolean" },
-          "rule_id": { "type": "string" },
-          "unresolved_checks": { "type": "array", "items": { "type": "string" } },
-          "record": { "$ref": "#/$defs/record" },
-          "note": { "type": "string" }
-        }
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "ALTERNATIVE_SET",
+              "UNRESOLVED",
+              "SCOPE_CONFLICT",
+              "UNASSIGNED_CLAUSE",
+              "NO_DIRECT_RELATION"
+            ]
+          },
+          "subkind": {
+            "type": "string"
+          },
+          "about": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/endpoint"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/endpoint"
+                }
+              }
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "competing": {
+            "type": "boolean"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "unresolved_checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "record": {
+            "$ref": "#/$defs/record"
+          },
+          "note": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "HUMAN_DECISION",
+                  "RULE",
+                  "CONTROL"
+                ]
+              },
+              "decision": {
+                "type": "string"
+              },
+              "judgment_id": {
+                "type": "string"
+              },
+              "rationale_code": {
+                "type": "string"
+              },
+              "rule_id": {
+                "type": "string"
+              },
+              "check": {
+                "type": "string"
+              },
+              "control_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "NO_DIRECT_RELATION"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "basis",
+                "record",
+                "about"
+              ]
+            }
+          }
+        ]
       }
     },
     "notes": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["record", "decision"],
+        "required": [
+          "record",
+          "decision"
+        ],
         "properties": {
-          "record": { "$ref": "#/$defs/record" },
-          "source_clause_id": { "$ref": "#/$defs/nodeId" }, "target_clause_id": { "$ref": "#/$defs/nodeId" },
-          "decision": { "type": "string" }, "effect": { "type": "string" }, "rationale_code": { "type": "string" }
+          "record": {
+            "$ref": "#/$defs/record"
+          },
+          "source_clause_id": {
+            "$ref": "#/$defs/nodeId"
+          },
+          "target_clause_id": {
+            "$ref": "#/$defs/nodeId"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "effect": {
+            "type": "string"
+          },
+          "rationale_code": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "native_relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "clause_atom",
+          "mother_clause_atom",
+          "rela",
+          "rela_level",
+          "source"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "clause_atom": {
+            "type": "integer"
+          },
+          "mother_clause_atom": {
+            "type": "integer"
+          },
+          "rela": {
+            "type": "string"
+          },
+          "rela_level": {
+            "enum": [
+              "clause_atom",
+              "clause"
+            ]
+          },
+          "clause_id": {
+            "$ref": "#/$defs/nodeId"
+          },
+          "mother_clause_id": {
+            "$ref": "#/$defs/nodeId"
+          },
+          "source": {
+            "type": "object",
+            "required": [
+              "dataset",
+              "version"
+            ],
+            "properties": {
+              "dataset": {
+                "const": "BHSA"
+              },
+              "version": {
+                "const": "2021"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }
   },
   "$defs": {
-    "nodeId": { "type": "string", "pattern": "^[0-9]+$", "description": "BHSA 2021 clause 노드 번호 (문자열)" },
-    "record": { "type": "object", "required": ["table", "id"], "properties": { "table": { "type": "string" }, "id": { "type": "string" } } },
+    "nodeId": {
+      "type": "string",
+      "pattern": "^[0-9]+$",
+      "description": "BHSA 2021 clause 노드 번호 (문자열)"
+    },
+    "record": {
+      "type": "object",
+      "required": [
+        "table",
+        "id"
+      ],
+      "properties": {
+        "table": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
     "endpoint": {
       "oneOf": [
-        { "type": "object", "required": ["type", "id"], "properties": { "type": { "const": "clause" }, "id": { "$ref": "#/$defs/nodeId" } }, "additionalProperties": false },
-        { "type": "object", "required": ["type", "id"], "properties": { "type": { "const": "group" }, "id": { "type": "string" } }, "additionalProperties": false },
-        { "type": "object", "required": ["type", "ids"], "properties": { "type": { "const": "clause_set" }, "ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" }, "minItems": 1 } }, "additionalProperties": false }
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "id"
+          ],
+          "properties": {
+            "type": {
+              "const": "clause"
+            },
+            "id": {
+              "$ref": "#/$defs/nodeId"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "id"
+          ],
+          "properties": {
+            "type": {
+              "const": "group"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "ids"
+          ],
+          "properties": {
+            "type": {
+              "const": "clause_set"
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nodeId"
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
       ]
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "file_status": {
+            "const": "MILAL_OUTPUT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "milal": {
+                "required": [
+                  "stage",
+                  "rules_version",
+                  "commit",
+                  "network_sha256"
+                ],
+                "properties": {
+                  "commit": {
+                    "minLength": 7
+                  },
+                  "network_sha256": {
+                    "minLength": 16
+                  }
+                }
+              },
+              "generated_at": {
+                "minLength": 10
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

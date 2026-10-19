@@ -1,6 +1,6 @@
 # MILAL → MILALWV 연결 규격 초안 (MILALWV-IF-1)
 
-- 상태: **초안** (2026-10-19). 최종 확정은 연구자 승인 뒤.
+- 상태: **초안 2판** (2026-10-19 밤, 1판의 뜻 오류를 고침 — 맨 끝 '2판에서 바뀐 것' 참조). 최종 확정은 실제 MILAL 관계망과 대조한 뒤 연구자 승인으로.
 - 바탕: MILAL 저장소 `src/milal_v1_network.py`(MFR.0.3-V1, 스키마 `MILAL-V1-RELATION-NETWORK-1`)와 `docs/MFR_0_3_V1_SPEC.md`. MILAL의 관계 유형·판정 상태·규칙 이름을 **그대로** 쓰고, 새 이름을 짓지 않는다.
 - 원칙: MILAL은 판정하고 MILALWV는 보여 준다. 이 규격은 MILAL이 낸 것을 **하나도 잃지 않고** 옮기는 그릇이다. MILALWV가 받은 뒤 계산한 것(계층 깊이, 화면 배치)은 이 파일에 되쓰지 않는다.
 - 스키마 파일: `docs/milal_interface.schema.json` (JSON Schema 2020-12). 검증기: `pipeline/milal_check.py`. 시험 자료: `test/milal_test_only_job31-38.json` (**TEST_ONLY**, 실제 판정 아님).
@@ -18,12 +18,15 @@
   "groups":    [ … 묶음(발언 단위 등) … ],
   "relations": [ … 관계 … ],
   "evidence":  [ … 근거 … ],
-  "issues":    [ … 미해결·대안 … ],
-  "notes":     [ … 사람 결정 메모(채택되지 않은 것 포함) … ]
+  "issues":    [ … 미해결·대안·직접 연결 없음(판정) … ],
+  "notes":     [ … 사람 결정 메모(채택되지 않은 것 포함) … ],
+  "native_relations": [ … BHSA 원 자료의 절 원자 mother/rela — MILAL 판정이 아님 … ]
 }
 ```
 
-MILAL V1 관계망의 `clauses → nodes`, `groups → groups`, `edges → relations`, `alternatives + unassigned_clause_ids + rule_notes → issues`, `human_notes → notes`로 1:1 옮겨진다. V1에 없는 것은 `evidence`(근거를 관계에서 떼어 독립 목록으로)뿐이며, V1의 `edge.record`(출처 표·ID)와 `evidence_clause_ids`는 그대로 보존된다.
+MILAL V1 관계망의 `clauses → nodes`, `groups → groups`, `edges(BHSA 원 관계 제외) → relations`, `edges(BHSA 원 관계) → native_relations`, `alternatives + unassigned_clause_ids + rule_notes → issues`, `human_notes → notes`로 옮겨진다. V1에 없는 것은 `evidence`(근거를 관계에서 떼어 독립 목록으로)뿐이며, V1의 `edge.record`(출처 표·ID)와 `evidence_clause_ids`는 그대로 보존된다.
+
+**세 층을 섞지 않는다**: `native_relations`(BHSA 원 자료) / `relations`(MILAL 판정) / MILALWV 화면의 색·표지(앱 관찰 후보). 한 파일 안에 있어도 칸이 다르고, 화면에서도 따로 표시한다.
 
 ---
 
@@ -130,20 +133,24 @@ V1 `edges`를 그대로 옮기되 근거는 `evidence_ids`로 뗀다. **노드 �
 }
 ```
 
-### 방향 (고정)
+### 방향 (확정 근거 있음)
 
-| kind | source | target |
-|---|---|---|
-| SUBORDINATE, FRAME_CONTENT, CONTINUATION | **기대는 대상(모절·틀·머리)** | **기대는 쪽(자절·내용·의존절)** |
-| PARALLEL | 앞 것 | 뒤 것 (대칭; 화면은 양쪽에 표시) |
-| MEMBERSHIP | 묶음(담는 쪽) | 절(담기는 쪽) |
-| CLOSURE | 닫는 절·묶음 | 닫히는 묶음 |
+| kind | source | target | 계층인가 |
+|---|---|---|---|
+| SUBORDINATE | **모절·머리** | **자절·의존절** | 예 |
+| FRAME_CONTENT | **틀(도입 절·묶음)** | **내용(묶음)** | 예 — 틀이 내용을 거느린다 |
+| CONTINUATION | **앞선 머리** | **이어지는 절** | 예(BHSA `rela` 없음/NA/Resu/ReVo를 V1이 이렇게 분류) — 단, **이 종류는 V1에서 BHSA 원 관계에서만 나온다**. 그래서 2판에서는 `native_relations`로 간다. MILAL이 스스로 CONTINUATION을 판정하는 날이 오면 그때 `relations`에 쓴다 |
+| PARALLEL | 앞 것 | 뒤 것 | 아니오 (대칭) |
+| MEMBERSHIP | 묶음(담는 쪽) | 절(담기는 쪽) | 아니오 |
+| CLOSURE | 닫는 절·묶음 | 닫히는 묶음 | 아니오 |
 
-V1 코드에서 BHSA 원 관계는 `E.add(kind, status, C(head), C(dependent), …)`, 사람 결정은 `C(source_clause_id), C(target_clause_id)`로 넣는다. 즉 **source = 머리(모절), target = 의존절**로 읽힌다. → **연구자 확인 사항 ①** (아래 9절).
+근거: MILAL `docs/HUMAN_STRUCTURAL_ADJUDICATION_MFR_H02.md`의 기록 "500062 → 500065"에서 `target_clause_id=500065`(כִּי יְבֻלָּע, **모절을 찾는 절**), `source_clause_id=500062`(**모절 후보**). P2 명세도 "each target's mother table"(target마다 모절 표)라고 쓴다. V1 코드는 BHSA 원 관계를 `C(head), C(dependent)`로, 사람 결정을 `C(source), C(target)`로 넣어 같은 방향이다. → **source = 모절, target = 자절**로 확정. (연구자 확인 ①은 '확인됨'으로 내림)
+
+**중복 모절·순환 검사는 계층(HIERARCHY) 계열에만** 건다. PARALLEL·MEMBERSHIP·CLOSURE를 같은 나무에 억지로 넣지 않는다.
 
 ### 계열(family)
 
-- `HIERARCHY`: SUBORDINATE, FRAME_CONTENT, CONTINUATION — 모절·자절 계층. 깊이는 여기서 계산한다.
+- `HIERARCHY`: SUBORDINATE, FRAME_CONTENT, CONTINUATION — 모절·자절 계층. **깊이는 CONFIRMED 관계만으로** 계산한다. PROVISIONAL·COMPETING은 깊이에 넣지 않고 점선·경쟁 표시로만 보인다.
 - `GROUPING`: MEMBERSHIP, PARALLEL — 계층이 아니다. MEMBERSHIP은 "모절 주장 아님"(V1).
 - `CLOSURE`: CLOSURE.
 - `LITERARY`: 인용·재진술·논박 등. **MILAL에 아직 없다.** 자리만 둔다. kind 값은 MILAL이 정할 때까지 비워 둔다.
@@ -158,27 +165,29 @@ V1 코드에서 BHSA 원 관계는 `E.add(kind, status, C(head), C(dependent), �
 ### "연결 없음"과 "모름"의 구분
 
 - 어떤 절에 HIERARCHY 관계가 하나도 없고, `issues`에도 없음 → MILALWV는 **"자료 없음(모름)"** 으로 표시한다.
-- MILAL이 "직접 연결이 없다"고 판정한 것은 `issues`에 `kind: "NO_DIRECT_RELATION"`으로 명시한다(V1 통제 항목 "4:7/5:1 no recorded direct relation"이 이 경우). → **연구자 확인 사항 ②**: V1 관계망에는 이 판정을 담는 칸이 없다. MILAL 쪽 출력에 추가가 필요하다.
+- MILAL이 "직접 연결이 없다"고 **명시적으로 판정한** 것만 `issues`에 `kind: "NO_DIRECT_RELATION"`으로 적는다. 관계가 출력되지 않았다는 이유로 만들지 않는다. 반드시 `basis`(무엇에 근거했나)를 둔다. 실제 예: H0.2 기록 `human_edge_decision=REJECTED`, `human_relation_type=NO_DIRECT_STRICT_MOTHER_RELATION`(욥 37:20, 500062→500065) — 이것은 V1에서 `human_notes`로 가므로, 변환기가 `notes`와 함께 `issues.NO_DIRECT_RELATION`(basis.kind=HUMAN_DECISION)으로도 낸다. 통제 항목(4:7/5:1)은 basis.kind=CONTROL.
 
 ---
 
 ## 6. evidence — 근거
 
-한 관계에 근거 여럿. 반례도 근거다(`stance: OPPOSES`). 여러 근거를 하나의 설명문으로 합치지 않는다.
+한 관계에 근거 여럿. 여러 근거를 하나의 설명문으로 합치지 않는다. **검사 결과(outcome)와 역할(role)을 구별한다**: 검사가 실패했다(FAILED)는 것과 그것이 반례다(COUNTEREVIDENCE)는 것은 다른 말이다. 실패를 기계적으로 반례로 바꾸지 않는다.
 
 ```jsonc
 { "id": "EV-…",
-  "rule_id": "G1",                         // MILAL 규칙 이름
-  "check": "REPORT_CONTENT_DEPENDENCY",    // 규칙 안의 검사 항목 이름 (V1 rule trace의 relation/check)
-  "stance": "SUPPORTS",                    // SUPPORTS | OPPOSES | UNRESOLVED
-  "observed": { "clause_ids": ["441901"], "word_ids": [339210], "features": { "typ": "WayX", "lex": "<NH[" } },
-  "text": "도입 절이 와이크톨 '대답하여 말하다' 공식",
+  "rule_id": "G1",                          // MILAL 규칙 이름 그대로
+  "check": "REPORT_CONTENT_DEPENDENCY",     // 규칙 안의 검사 항목 (P2_RULE_TRACE의 passed/failed/unresolved_checks 항목명)
+  "outcome": "PASSED",                      // PASSED | FAILED | UNRESOLVED | HUMAN  — 자료에 있는 그대로
+  "role": "REQUIRED",                       // 선택. REQUIRED | SUPPORTING | COUNTEREVIDENCE — MILAL 규칙 문법(CLAUSE_RELATION_GRAMMAR의 required/supporting/counterevidence 칸)이 그렇게 이름 붙인 경우에만. 없으면 비움
+  "observed": { "clause_ids": ["441901"], "atom_ids": [529855], "word_ids": [339210], "features": { "typ": "WayX" } },  // 실제로 기록된 것만. 없으면 비움. 만들어 넣지 않는다
+  "text": "…",                              // MILAL 기록의 설명문 그대로 (사람 결정이면 human_rationale_text)
   "record": { "table": "P2_RULE_TRACE", "id": "…" }   // 되짚는 열쇠
 }
 ```
 
-- V1 관계망에는 근거가 `rule` + `record` + `evidence_clause_ids` + `note`로 압축돼 있고, 검사 항목별 통과/실패/미결은 `P2_RULE_TRACE.csv`에 있다. 손실 없는 변환은 **rule trace의 `passed_checks / failed_checks / unresolved_checks`를 evidence 항목 하나씩**으로 펼치는 것이다. → **MILAL 쪽에 필요한 작업** (10절).
-- `observed.features`는 자유 형식. MILALWV는 키·값을 그대로 보여 준다.
+- 사람 결정의 근거는 `outcome: "HUMAN"`, `check: human_rationale_code`, `text: human_rationale_text`, `observed.features.rationale_observations: [...]`(H0.2 기록의 칸 그대로).
+- V1 관계망에는 근거가 `rule` + `record` + `evidence_clause_ids` + `note`로 압축돼 있고, 검사 항목별 결과는 `P2_RULE_TRACE.csv`에 있다. 손실 없는 변환은 **trace의 `passed_checks / failed_checks / unresolved_checks`를 evidence 항목 하나씩(outcome 그대로)**으로 펼치는 것이다. → 변환기 명세 `docs/MILAL_EXPORTER_SPEC.md`.
+- `observed.features`는 자유 형식. MILALWV는 키·값을 그대로 보여 주고, `observed`의 절·낱말을 누르면 원문 자리로 간다.
 
 ---
 
@@ -204,8 +213,11 @@ UNRESOLVED를 관계 하나에 억지로 붙이지 않는다. 세 경우를 따�
 { "id": "ISS-…", "kind": "UNASSIGNED_CLAUSE",          // 어느 바탕 단위에도 들지 않은 절 (V1 unassigned_clause_ids)
   "about": { "type": "clause", "id": "…" } }
 
-{ "id": "ISS-…", "kind": "NO_DIRECT_RELATION",         // "직접 연결 없음"이라고 판정됨 (모름과 구분)
-  "about": [ { "type": "clause", "id": "…" }, { "type": "clause", "id": "…" } ], "record": { … } }
+{ "id": "ISS-…", "kind": "NO_DIRECT_RELATION",         // "직접 연결 없음"이라고 명시적으로 판정됨 (모름과 구분)
+  "about": [ { "type": "clause", "id": "500062" }, { "type": "clause", "id": "500065" } ],   // [모절 후보, 자절] 순
+  "basis": { "kind": "HUMAN_DECISION",                   // HUMAN_DECISION | RULE | CONTROL — 반드시 있어야 함
+             "decision": "NO_DIRECT_STRICT_MOTHER_RELATION", "judgment_id": "MFR-H02-JOB-37-20", "rationale_code": "DISTINCT_LOCAL_COLON_CONSTRUCTION" },
+  "record": { "table": "frozen_human", "id": "MFR-H02-JOB-37-20#HA-…" }, "note": "…" }
 ```
 
 ---
@@ -222,19 +234,37 @@ V1 `human_notes` 그대로. 채택되지 않은(REJECTED) 결정도 잃지 않�
 
 ---
 
+## 8b. native_relations — BHSA 원 자료 (MILAL 판정이 아님)
+
+BHSA의 절 원자 `mother`와 `rela`를 **절 원자 번호 그대로** 담는다. 절 수준으로 올려 적지 않는다(절 수준 대응은 보기 좋으라고 덧붙이는 참고 칸일 뿐). 판정 상태(status)가 없다 — 원 자료에는 판정이 없기 때문이다.
+
+```jsonc
+{ "id": "NAT-589766",
+  "clause_atom": 589766, "mother_clause_atom": 589760,   // BHSA 2021 clause_atom 노드 (원값)
+  "rela": "Objc",                                        // BHSA rela (절 원자에 없으면 그 절의 rela; 어느 쪽인지 rela_level에 적음)
+  "rela_level": "clause",                                // clause_atom | clause
+  "clause_id": "499638", "mother_clause_id": "499637",   // 참고용 절 대응 (있으면)
+  "source": { "dataset": "BHSA", "version": "2021", "features": ["mother", "rela"] } }
+```
+
+V1은 이것을 `edges`에 `rule="BHSA clause_atom rela=…"`, `status=UNASSIGNED`로 넣었다. 2판에서는 `relations`에서 빼고 여기로 옮긴다. 이유: 같은 목록에 있으면 화면에서 MILAL 판정과 섞여 보이고, 절 수준으로 올리면서 절 원자 정보가 사라지기 때문이다. V1의 `MULTIPLE_NATIVE_HEADS` 대안은 그대로 `issues.ALTERNATIVE_SET`에 남긴다(그것은 "원 자료에 머리가 둘"이라는 관찰이며, about에 절을 적는다).
+
 ## 9. 검증 규칙 (pipeline/milal_check.py)
 
 | 번호 | 검사 | 실패 시 |
 |---|---|---|
-| V1 | JSON Schema 적합 | 읽지 않음 |
+| V1 | JSON Schema 적합 (jsonschema 없으면 **검사 불가** — 통과가 아님) | 읽지 않음 |
 | V2 | `source.bhsa_version == "2021"` | 읽지 않음 |
 | V3 | 관계·묶음·이슈가 가리키는 절·묶음 id가 모두 존재 | 읽지 않음 |
 | V4 | 관계 id 중복 없음, (kind, source, target, rule, record) 중복 없음 | 읽지 않음 |
-| V5 | 절 `word_ids`가 MILALWV words.json의 같은 절(`ccn`)의 낱말과 일치 | 그 절을 '대조 실패'로 표시, 나머지는 읽음 |
+| V5 | 절 `word_ids`가 MILALWV words.json의 같은 절(`ccn`)의 **낱말 번호 전체**와 일치(개수가 아니라 번호) | 그 절을 '대조 실패'로 표시; 실패 절이 10% 넘으면 읽지 않음 |
 | V6 | HIERARCHY 계열 **CONFIRMED** 관계만으로 만든 그래프에 **순환 없음** | 읽지 않음 (MILAL에 보고) |
 | V7 | HIERARCHY 계열 CONFIRMED 관계에서 한 target(자절)에 source(모절)가 둘 이상 → **중복 모절** | 읽지 않음 (MILAL에 보고) |
 | V8 | PROVISIONAL·COMPETING·UNASSIGNED까지 넣었을 때의 순환·중복 모절 | 경고만 (경쟁·미배정은 중복이 정상) |
 | V9 | `evidence_ids`가 모두 evidence에 존재 | 읽지 않음 |
+| V12 | `issues.NO_DIRECT_RELATION`에 `basis`와 `record`가 있음 | 읽지 않음 |
+| V13 | `native_relations`의 절 원자가 nodes의 `clause_atom_ids`에 있음 | 읽지 않음 |
+| V14 | `file_status == MILAL_OUTPUT`이면 `source.milal.commit`·`network_sha256`·`generated_at`이 비어 있지 않음 | 읽지 않음 |
 | V10 | `file_status == TEST_ONLY`면 모든 화면에 '시험 자료' 표시 | — |
 | V11 | 장을 넘는 관계 허용 (검사하지 않음; 단 `scope` 밖 절이면 V3 실패) | — |
 
@@ -255,8 +285,24 @@ MILAL의 규칙·판정·동결 파일은 바꾸지 않는다. 내보내기는 �
 
 ### 연구자 확인 사항
 
-1. **관계 방향**: V1에서 `source`가 머리(모절)인지 확인. 이 규격은 그렇게 고정했다.
-2. **"직접 연결 없음"**: V1 관계망에 칸이 없다. `issues.NO_DIRECT_RELATION`으로 내는 데 동의하는지.
+1. ~~관계 방향~~ → H0.2 기록으로 확인됨(source=모절 후보, target=자절). 이의가 있으면 알려 주십시오.
+2. **"직접 연결 없음"**: V1 관계망에 칸이 없다. `human_notes`의 REJECTED/NO_DIRECT_STRICT_MOTHER_RELATION과 통제 항목을 `issues.NO_DIRECT_RELATION`(basis 필수)으로 내는 데 동의하는지.
 3. **근거 펼치기 깊이**: 검사 항목별(passed/failed/unresolved)로 펼치는 것으로 충분한지, 규칙 안의 관찰값(어떤 낱말·표지)까지 필요한지. 후자는 rule trace에 있는지 확인 필요.
 4. **단위**: MILAL은 절(clause) 단위다. MILALWV 구조 화면은 절 원자 단위다. 절 하나가 절 원자 여럿일 때 관계를 **절의 첫 절 원자**에 그리는 것으로 한다(MILALWV 쪽 결정, MILAL 자료는 그대로).
 5. **발화**: V1에는 발화자·수신자가 없다(P124는 "named identity를 추론하지 않음"). 발화 보기는 묶음(`LOCAL_SPEECH_UNIT`의 `roles.introduction/content`)과 BHSA `domain`만으로 그린다. 발화자 이름은 넣지 않는다.
+
+---
+
+## 2판에서 바뀐 것과 이유 (2026-10-19)
+
+| 바뀐 것 | 이유 |
+|---|---|
+| BHSA 원 관계를 `relations`에서 빼고 `native_relations`(절 원자 번호 그대로)로 | 원 자료를 MILAL 판정 목록에 섞어 절 수준으로 올리면, 화면에서 판정처럼 보이고 절 원자 정보가 사라진다 |
+| 관계 방향을 '확인 필요'에서 '확정'으로 | MILAL H0.2 기록(500062 → 500065)과 P2 명세("each target's mother table")가 source=모절 후보, target=자절임을 보여 준다 |
+| CONTINUATION은 지금 `relations`에 나오지 않음 | V1에서 CONTINUATION은 BHSA 원 관계에서만 생긴다. 칸은 남겨 둔다 |
+| 중복 모절·순환 검사를 HIERARCHY 계열에만 | 병행·포함·종결은 나무가 아니다 |
+| 깊이 계산을 CONFIRMED 관계로만 | PROVISIONAL·COMPETING을 깊이에 넣으면 잠정 판정이 확정처럼 보인다 |
+| `evidence.stance` → `outcome`(PASSED/FAILED/UNRESOLVED/HUMAN) + 선택 `role` | 검사 실패는 반례가 아니다. 반례라는 이름은 MILAL 규칙 문법이 붙인 경우에만 |
+| `observed`에 실제 기록된 것만 | 없는 관찰값을 만들어 넣지 않기 위해 |
+| `NO_DIRECT_RELATION`에 `basis` 필수 | 관계가 없다는 이유로 만들어지지 않게, 판정의 출처를 되짚을 수 있게 |
+| V12·V13·V14 추가, V1은 jsonschema 없으면 '검사 불가' | 통과로 잘못 읽히지 않게 |
