@@ -107,6 +107,7 @@ const Q_RECIPES={
 const Q_EX=[["예시1","명사문 안에서 '여호와'가 주어인 곳"],["예시2","'보라(힌네)' 뒤에 분사가 오는 문장"],["인물","하나님(여호와)이 주어이고 동사가 있는 문장"],["전환b","서술 속에서 다른 말이 앞에 나온 완료형 문장"]];
 function qOpen(key){ const S=view.st; S.mode="query"; S.qMode="blocks"; S.qt=Q_RECIPES[key]||""; const P=qParse(S.qt); if(!P.err) S.qb=qFromParse(P.root); qExec(); render(); scrollTo({top:0}); }
 function qExec(){ const S=view.st; const text=S.qMode==="text"?S.qt:qGen(S.qb||qNew("clause")); const P=qParse(text);
+  if(!SD.allLoaded&&!(stSpans()&&stSpans().every(x=>SD.loaded.has(x[0])))){ S.qres={err:`구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 자동으로 실행합니다.`}; ensureAll().then(()=>{ qExec(); render(); }).catch(()=>{}); return; }
   if(P.err){ S.qres={err:P.err}; return; } let r; try{ r=qRun(P,stSpans(),20000); }catch(e){ S.qres={err:"검색 중 문제가 생겼습니다: "+e.message}; return; }
   S.qres={hits:qHits(r),n:r.out.length,capped:r.capped,ms:r.ms}; S.more=1; }
 /* 블록 화면 */

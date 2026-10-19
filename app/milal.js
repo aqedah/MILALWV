@@ -11,7 +11,7 @@ const ML={}; /* book → {state:"loading"|"ok"|"err", data, byCid, msg} */
 function milalFile(b){ return MILAL_FILES.find(f=>f.book===b); }
 function milalState(b){ return ML[b]; }
 /* 절(cid) → MILAL 절 id(ccn) 역색인, 절 → 첫 절 원자 */
-function milalIndex(){ if(SD.ccnMap) return; SD.ccnMap=new Map(); for(let c=0;c<SD.ccn.length;c++) SD.ccnMap.set(SD.ccn[c],c);
+function milalIndex(){ if(SD.ccnMap&&SD.cFirstA) return; SD.ccnMap=new Map(); for(let c=0;c<SD.ccn.length;c++) SD.ccnMap.set(SD.ccn[c],c);
   SD.cFirstA=new Int32Array(SD.ccn.length).fill(-1); for(let i=0;i<SD.wc.length;i++){ const c=SD.wc[i]; if(SD.cFirstA[c]<0) SD.cFirstA[c]=SD.wa[i]; } }
 function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; if(ML[b]) return ML[b];
   const st=ML[b]={state:"loading"};
@@ -60,7 +60,7 @@ function milalCheck(D){ const fatal=[], warn=[];
   return {fatal,warn}; }
 
 /* 줄(절 원자 aid)에 붙일 MILAL 요약: 들어오는 계층 관계 (이 절이 기대는 모절) */
-function milalForAtom(b,aid){ const st=ML[b]; if(!st||st.state!=="ok") return null; const cid=SD.wc[atomFirstWord(aid)]; const o=st.byCid.get(cid); if(!o) return null;
+function milalForAtom(b,aid){ const st=ML[b]; if(!st||st.state!=="ok") return null; if(!SD.ccnMap||!SD.cFirstA) milalIndex(); const cid=SD.wc[atomFirstWord(aid)]; const o=st.byCid.get(cid); if(!o) return null;
   const firstAtom=SD.cFirstA[cid]===aid; return {o,cid,firstAtom}; }
 function atomFirstWord(aid){ if(!SD.aFirstW){ SD.aFirstW=new Int32Array(SD.can.length).fill(-1); for(let i=0;i<SD.wa.length;i++) if(SD.aFirstW[SD.wa[i]]<0) SD.aFirstW[SD.wa[i]]=i; } return SD.aFirstW[aid]; }
 function milalBadge(b,aid){ const m=milalForAtom(b,aid); if(!m||!m.firstAtom) return ""; const H=m.o.inRel.filter(r=>r.family==="HIERARCHY"&&!r.rule.startsWith("BHSA"));
@@ -107,7 +107,7 @@ function openAtomSheet(b,aid){ const w0=atomFirstWord(aid), cid=SD.wc[w0], vi=SD
   sheet("절 원자 · "+sRef(vi),`<div class="sdetail sheetd">${h}</div>`);
   document.querySelectorAll("#sheetRoot [data-mgo]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); document.getElementById("sheetRoot").innerHTML=""; gotoAtom(b,+x.dataset.mgo); }); }
 /* 절 원자로 이동: 다른 장이면 범위를 바꾸고 구조 화면에서 그 줄을 비춘다 */
-function gotoAtom(b,aid){ const S=view.st, w0=atomFirstWord(aid), vi=SD.vOf[w0], [bb,c,v]=SD.V[vi];
+function gotoAtom(b,aid){ if(!SD.ccnMap||!SD.cFirstA) milalIndex(); const S=view.st, w0=atomFirstWord(aid), vi=SD.vOf[w0], [bb,c,v]=SD.V[vi];
   if(!S.R||S.R.b!==bb||c<S.R.c1||c>S.R.c2) setRange({b:bb,c1:c,c2:c}); S.vc=c; S.mode="verse"; S.rd="struct"; S.sv="tree"; S.milalOn=true; render();
   setTimeout(()=>{ const el=document.querySelector(`.stl [data-sat="${aid}"]`)?.closest(".stl"); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),2200); } },60); }
 

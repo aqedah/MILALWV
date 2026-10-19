@@ -1,13 +1,18 @@
 /* ===== 우상단 메뉴: 계정 · 번역본 · 주야간 · 홈 화면에 추가 · 튜토리얼 · MILAL 소개 · 자료 출처 ===== */
 
 /* --- 번역본 --- */
-const TR_LIST=[{id:"krh",file:"study/bible.json",name:"개역한글"},{id:"none",name:"원문만 (번역 숨김)"}];
-const TR_CACHE={};
+const TR_LIST=[{id:"krh",dir:"study/bible/krh",name:"개역한글"},{id:"none",name:"원문만 (번역 숨김)"}];
+const TR_CACHE={}; /* id → {info, books:{b: [...]}} */
 function trId(){ try{ const v=localStorage.getItem("milal-tr"); return TR_LIST.some(t=>t.id===v)?v:"krh"; }catch(e){ return "krh"; } }
 function trApply(id){ const t=TR_LIST.find(x=>x.id===id)||TR_LIST[0]; try{ localStorage.setItem("milal-tr",t.id); }catch(e){}
-  if(!t.file){ window.BIBLE=null; TR_INFO.tr.name=""; TR_INFO.tr.src=""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
-  if(TR_CACHE[t.id]){ const j=TR_CACHE[t.id]; window.BIBLE=j.books; TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
-  return fetch(t.file+"?v="+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ TR_CACHE[t.id]=j; window.BIBLE=j.books; TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{}); }
+  if(!t.dir){ window.BIBLE=null; TR_INFO.tr.name=""; TR_INFO.tr.src=""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
+  const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books;
+  const info=C.info?Promise.resolve(C.info):fetch(t.dir+"/info.json?v="+(window.STUDY_V||"1")).then(r=>r.json()).then(j=>{ C.info=j; return j; }).catch(()=>({name:t.name}));
+  return info.then(j=>{ TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; const b=(typeof view!=="undefined"&&view.st.R)?view.st.R.b:(lastRange()||{b:1}).b; return bibleBook(b); }); }
+/* 번역 본문 책 하나 (보고 있는 책만 받는다) */
+function bibleBook(b){ const t=TR_LIST.find(x=>x.id===trId()); if(!t||!t.dir) return Promise.resolve(); const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books;
+  if(C.books[b-1]) return Promise.resolve(); if(C.pend[b]) return C.pend[b];
+  return C.pend[b]=fetch(`${t.dir}/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ C.books[b-1]=j; delete C.pend[b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend[b]; }); }
 
 /* --- 주야간 --- */
 function themeGet(){ try{ return localStorage.getItem("milal-theme")||"auto"; }catch(e){ return "auto"; } }
@@ -65,7 +70,7 @@ function drawer(title,body){
 /* --- 메뉴 --- */
 function hostMenuHTML(){ const A=window.MILAL_AUTH, u=A.user;
   return `<button class="menubtn" id="menuBtn" aria-label="메뉴">${u&&u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:`<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`}</button>`; }
-function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId();
+function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId(); if(window.loadFirebase&&!window.__fb) loadFirebase().then(()=>{ if(document.querySelector(".drawer")) openMenu(); });
   const acct=!window.FIREBASE_CONFIG?"":u?`<div class="mrow"><span class="micon">${u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-replace">`:"👤"}</span><span class="mtxt"><b>${esc(u.displayName||"")}</b><small>로그인 중 · 메모가 기기끼리 맞춰집니다</small></span><button class="btn small ghost" id="mOut">로그아웃</button></div>`
     :`<div class="mrow"><span class="micon">👤</span><span class="mtxt"><b>로그인</b><small>Google · 원어 메모를 기기끼리 맞추고 나눌 때만 필요합니다</small></span><button class="btn small" id="mIn"${A.ready?"":" disabled"}>로그인</button></div>`;
   drawer("메뉴",`${acct}

@@ -15,14 +15,15 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 - 하단 탭: 본문 · 구조 · 연구 · 기록 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`). 첫 화면은 최근 본 곳, 없으면 창세기 1장.
 - 우상단 ☰ 메뉴(`app/menu.js`): 로그인 · 번역본(개역한글/원문만, 개역개정 자리) · 밝기(기기/밝게/어둡게) · 홈 화면에 추가 · 처음 쓰는 법(첫 방문에 한 번 자동) · MILAL이란(Marker-Informed Linguistic Analysis of Layers) · 자료 출처.
 - 기록 탭: 내 메모 · 나눔(`shared` 모음, 내 메모의 ↗로 올림; 규칙은 2절).
-- 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦). 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.
+- 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦) → `split_study.py`가 `study/bible/krh/<b>.json`으로 쪼갬. 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.
 - 링크 공유 썸네일 `img/og.jpg`(1200×630), 아이콘 `img/`, `manifest.webmanifest`. 썸네일 원본은 대화에서 만든 HTML(글꼴: Noto Serif Hebrew/KR, IBM Plex Mono).
 - 로그인은 **보기에는 필요 없고**, 원어 메모를 기기끼리 맞출 때만 씁니다(Google 로그인, `firebase.js`, 저장 자리 `users/{uid}/study/notes` 문서 하나에 목록으로).
 - 검색식 대조 건수 227 / 369 / 2260 / 1015 / 3697 모두 Text-Fabric과 같음(2026-10-19 확인). 390px 너비에서 가로 밀림 없음.
 - localStorage 키는 `milal-study-…`로 바꿨습니다.
-- `study/*.json`을 바꾸면 `index.html`의 `STUDY_V` 값을 올립니다(브라우저 캐시 때문).
+- `study/*.json`을 바꾸면 `pipeline/split_study.py study`를 다시 돌리고 `index.html`의 `STUDY_V` 값을 올립니다(브라우저 캐시 때문).
 - 2단계 연결 규격: `docs/MILAL_INTERFACE_DRAFT.md` + `docs/milal_interface.schema.json` (초안, 연구자 승인 전) · 검증기 `pipeline/milal_check.py` · 시험 자료 `test/milal_test_only_job31-38.json`(**TEST_ONLY**) · 앱 읽기 `app/milal.js`(구조 탭 '계층'에서 'MILAL 판정 겹쳐 보기'; 지금은 욥기 시험 자료만).
-- 성능(2026-10-19, 크로미엄 CPU 4~6배 느리게 + 4~12Mbps, gzip): 첫 전송 ≈ 5.3MB(words 3.9 + bible 0.9 + meta 0.46) → 본문까지 7~14초. 파싱 0.2~0.3초, 검색 색인 0.23~0.36초, 구약 전체 검색식 0.3초, 구조 화면 그리기 ≤0.1초, 메모리 81→115MB. **병목은 내려받기뿐**이라 지금은 쪼개지 않고, 5단계에서 Service Worker 캐시 + 책별 분할(읽기 경로)·전체 색인(검색 경로) 분리로 간다.
+- 자료 읽기(2026-10-19 밤 바꿈): `study/meta.json` + `study/index.json`(절 목록·책별 시작 번호) → **보는 책만** `study/books/<b>.json` + `study/bible/krh/<b>.json`. 구약 전체가 필요한 일(낱말 전체 검색·검색식)은 그때 나머지 책을 받는다(`ensureAll()`; 중복 다운로드 없음). 한글 사전 풀이는 `study/lexko.json`으로 따로(낱말 상세 때), Firebase SDK는 첫 화면 뒤 또는 로그인·나눔 누를 때. `words.json`은 파이프라인·검증기 원본으로만 남김. 만들기: `pipeline/split_study.py study`(이어 붙여 words.json과 같은지 검산함).
+- 성능(에뮬레이션, gzip): 첫 화면 전송 ≈ 0.9MB → **4Mbps·CPU 6배 느림에서 2.8초**, 12Mbps·4배에서 1.3초 (전에는 5.3MB → 14초/7초). 전체 책 받기 5~11초(배경), 메모리 30→75→113MB. TF 대조 건수 227/369/2260/1015/3697 그대로.
 - 남은 일: '정할 것' 2·4·5번 · 개역개정 본문 · Firestore 규칙에 나눔(shared) 추가(목사님).
 
 ---

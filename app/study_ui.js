@@ -12,37 +12,65 @@ const PS_K={p1:"1",p2:"2",p3:"3"}, GN_K={m:"남",f:"여",c:"공"}, NU_K={sg:"단
 const FN_K={Subj:"주어",Objc:"목적어",Pred:"서술어",PreO:"서술어+목적어",PreS:"서술어+주어",PreC:"서술어(보어)",Cmpl:"보충어",Adju:"부가어",Time:"때",Loca:"곳",Modi:"꾸밈말",Conj:"접속",Ques:"물음",Nega:"부정",Intj:"감탄",Voct:"부름말",Rela:"관계사",Frnt:"앞에 내세운 말",PrcS:"서술어 보어(주어 접미)",PtcO:"분사+목적어",NCoS:"부정 서술어",Supp:"보충",IntS:"감탄(주어)",PrAd:"서술 부가어",NCop:"부정 서술어",ModS:"꾸밈(주어)",Exst:"있음·없음",ExsS:"있음·없음(주어)",EPPr:"지시 서술어"};
 const DOM_K={N:"서술",Q:"인물의 말",D:"담화(율법·시 등)","?":"구분 안 됨"};
 const GOD_LEX=new Set(["JHWH/",">LHJM/"]);
-function studyLoad(){
-  if(SD||SDload) return SDload;
-  if(!document.getElementById("hebFont")){ const l=document.createElement("link"); l.id="hebFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500&display=swap"; document.head.appendChild(l); }
-  SDerr=""; SDload=Promise.all(["study/meta.json","study/words.json"].map(u=>fetch(u+"?v="+STUDY_V).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })))
-  .then(([m,w])=>{
-    const u8=s=>{ const b=atob(s), a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; };
-    const D={L:m.lex,M:m.morph.map(s=>s.split("|")),FN:m.fun,TY:m.typ,DO:m.dom,V:w.V,heb:w.heb,han:w.han,
-      wl:new Uint16Array(u8(w.wl).buffer),wm:new Uint16Array(u8(w.wm).buffer),wf:u8(w.wf),wg:u8(w.wg),ct:u8(w.ct),cd:u8(w.cd),pt:u8(w.pt),PTY:m.ptyp,BK:m.books};
-    const dec=o=>{ const s=u8(o.s), r=new Uint32Array(s.length); let mx=-1, prev=-1, k=0; for(let i=0;i<s.length;i++){ const c=s[i]; prev=c===0?prev:c===1?++mx:o.x[k++]; r[i]=prev; } return r; };
-    D.wc=dec(w.wc); D.wp=dec(w.wp); D.ws=dec(w.ws); D.wa=dec(w.wa); D.at=u8(w.at); D.ay=u8(w.ay); D.ax=u8(w.ax); D.TXT=m.txt||[];
-    /* BHSA 2021 clause_atom 실제 노드 번호 (MILAL 결과와 잇는 열쇠). 차이 부호화 → 누적 */
-    if(w.can){ D.can=new Uint32Array(w.can.length); let acc=0; for(let i=0;i<w.can.length;i++){ acc+=w.can[i]; D.can[i]=acc; } D.bhsa=w.bhsa||"2021"; }
-    if(w.ccn){ D.ccn=new Uint32Array(w.ccn.length); let acc=0; for(let i=0;i<w.ccn.length;i++){ acc+=w.ccn[i]; D.ccn[i]=acc; } D.bs=w.bs||null; }
-    const N=D.wl.length; D.vOf=new Int32Array(N); D.ref=new Map(); D.ch=new Map(); D.book={};
-    D.V.forEach((x,vi)=>{ const [b,kc,kv,c,v,s,n]=x; for(let j=s;j<s+n;j++) D.vOf[j]=vi;
+/* ===== 자료 읽기: meta.json + index.json(절 목록·책별 시작 번호) → 책별 books/<b>.json 을 필요할 때 채움.
+   전체 배열은 처음부터 전체 크기로 잡아 두고 책 조각을 제자리에 넣는다. 그래서 검색·검색식 코드는 전과 같다. ===== */
+const BOOKLOAD={};
+/* 글꼴: 1단계 히브리어만(첫 화면에 필요), 2단계 제목용 KR 세리프·고정폭(첫 화면 뒤) */
+function fontsLoad(stage){ const add=(id,fam)=>{ if(document.getElementById(id)) return; const l=document.createElement("link"); l.id=id; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?"+fam+"&display=swap"; document.head.appendChild(l); };
+  add("hebFont","family=Noto+Serif+Hebrew:wght@400;600"); if(stage>=2) add("uiFont","family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500"); }
+function studyLoad(firstBook){
+  if(SDload) return SDload;
+  fontsLoad(1);
+  SDerr=""; SDload=Promise.all(["study/meta.json","study/index.json"].map(u=>fetch(u+"?v="+STUDY_V).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })))
+  .then(([m,ix])=>{
+    const N=ix.N, V=ix.V;
+    const D={L:m.lex,M:m.morph.map(s=>s.split("|")),FN:m.fun,TY:m.typ,DO:m.dom,PTY:m.ptyp,BK:m.books,TXT:m.txt||[],
+      V, bs:ix.bs, bhsa:ix.bhsa||"2021", N, nC:ix.nC, nP:ix.nP, nS:ix.nS, nA:ix.nA, bookW:ix.bookW, bookC:ix.bookC, bookP:ix.bookP, bookS:ix.bookS, bookA:ix.bookA,
+      loaded:new Set(), allLoaded:false,
+      heb:new Array(V.length), han:new Array(V.length),
+      wl:new Uint16Array(N), wm:new Uint16Array(N), wf:new Uint8Array(N), wg:new Uint8Array(N),
+      wc:new Uint32Array(N), wp:new Uint32Array(N), ws:new Uint32Array(N), wa:new Uint32Array(N), domW:new Uint8Array(N),
+      ct:new Uint8Array(ix.nC), cd:new Uint8Array(ix.nC), ccn:new Uint32Array(ix.nC), pt:new Uint8Array(ix.nP),
+      at:new Uint8Array(ix.nA), ay:new Uint8Array(ix.nA), ax:new Uint8Array(ix.nA), can:new Uint32Array(ix.nA)};
+    D.vOf=new Int32Array(N); D.ref=new Map(); D.ch=new Map(); D.book={};
+    V.forEach((x,vi)=>{ const [b,kc,kv,c,v,s,n]=x; for(let j=s;j<s+n;j++) D.vOf[j]=vi;
       const k=b+"-"+kc+"-"+kv; if(!D.ref.has(k)) D.ref.set(k,[]); D.ref.get(k).push(vi);
       const kk=b+"-"+kc; if(!D.ch.has(kk)) D.ch.set(kk,[]); D.ch.get(kk).push(vi);
       const B=D.book[b] ||= {a:vi,z:vi,chs:new Set()}; B.z=vi; B.chs.add(kc); });
-    D.domW=new Uint8Array(N); for(let i=0;i<N;i++) D.domW[i]=D.cd[D.wc[i]];
     D.dN=D.DO.indexOf("N"); D.dQ=D.DO.indexOf("Q");
     D.lexByKey={}; D.L.forEach((x,i)=>{ (D.lexByKey[x[1]] ||= []).push(i); });
     D.hv=[]; D.hn=[]; SD=D;
-    if(view.tab==="study") render();
-  }).catch(e=>{ SDload=null; SDerr="원문 자료를 내려받지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요."; if(view.tab==="study") render(); });
+    return loadBook(firstBook||1);
+  }).then(()=>{ if(view.tab==="study") render(); setTimeout(()=>fontsLoad(2),800); })
+  .catch(e=>{ SDload=null; SDerr="원문 자료를 내려받지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요."; if(view.tab==="study") render(); });
   return SDload;
 }
-const sHeb=vi=>SD.hv[vi] ||= SD.heb[vi].split("\t");
-const sHan=vi=>SD.hn[vi] ||= SD.han[vi].split("\t");
-const lexGloss=li=>{ const x=SD.L[li]; return x[9]||(x[4]||"").split(/\s*[\/,;]\s*/).slice(0,2).join(", ")||x[5]; };
+/* 책 하나 채우기 */
+function loadBook(b){ if(!SD) return Promise.reject(new Error("no SD")); if(SD.loaded.has(b)) return Promise.resolve(); if(BOOKLOAD[b]) return BOOKLOAD[b];
+  return BOOKLOAD[b]=fetch(`study/books/${b}.json?v=`+STUDY_V).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(B=>{ fillBook(B); SD.loaded.add(b); if(SD.loaded.size>=39) SD.allLoaded=true;
+    SD.qi=null; SD.ccnMap=null; SD.cFirstA=null; SD.aFirstW=null; if(window.bibleBook) bibleBook(b); }).catch(e=>{ delete BOOKLOAD[b]; throw e; }); }
+function fillBook(B){ const D=SD, u8=s=>{ const b=atob(s), a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; };
+  const w0=B.w0, n=B.n;
+  D.wl.set(new Uint16Array(u8(B.wl).buffer),w0); D.wm.set(new Uint16Array(u8(B.wm).buffer),w0); D.wf.set(u8(B.wf),w0); D.wg.set(u8(B.wg),w0);
+  const dec=(o,base,out)=>{ const s=u8(o.s); let mx=base-1, prev=base-1, k=0; for(let i=0;i<s.length;i++){ const c=s[i]; if(c===1){ mx++; prev=mx; } else if(c===2){ prev=o.x[k++]; if(prev>mx) mx=prev; } out[w0+i]=prev; } };
+  dec(B.wc,B.c0,D.wc); dec(B.wp,B.p0,D.wp); dec(B.ws,D.bookS[B.b-1],D.ws); dec(B.wa,B.a0,D.wa);
+  D.ct.set(u8(B.ct),B.c0); D.cd.set(u8(B.cd),B.c0); D.pt.set(u8(B.pt),B.p0); D.at.set(u8(B.at),B.a0); D.ay.set(u8(B.ay),B.a0); D.ax.set(u8(B.ax),B.a0);
+  let acc=0; for(let i=0;i<B.ccn.length;i++){ acc+=B.ccn[i]; D.ccn[B.c0+i]=acc; } acc=0; for(let i=0;i<B.can.length;i++){ acc+=B.can[i]; D.can[B.a0+i]=acc; }
+  for(let i=w0;i<w0+n;i++) D.domW[i]=D.cd[D.wc[i]];
+  const a=D.book[B.b].a; for(let k=0;k<B.heb.length;k++){ D.heb[a+k]=B.heb[k]; D.han[a+k]=B.han[k]; D.hv[a+k]=undefined; D.hn[a+k]=undefined; } }
+/* 구약 전체가 필요한 일(전체 낱말 검색·검색식) 전에 나머지 책을 받는다 */
+function ensureAll(){ if(!SD) return Promise.reject(new Error("no SD")); if(SD.allLoaded) return Promise.resolve(); if(SD._allP) return SD._allP;
+  const todo=[]; for(let b=1;b<=39;b++) if(!SD.loaded.has(b)) todo.push(b);
+  return SD._allP=Promise.all(todo.map(b=>loadBook(b))).then(()=>{ SD._allP=null; }).catch(e=>{ SD._allP=null; throw e; }); }
+const loadedCount=()=>SD?SD.loaded.size:0;
+/* 한글 사전 풀이(LOG)는 따로 받는다 — 낱말 상세·낱말 검색에서만 필요 */
+let LKload=null; function lexKoLoad(){ if(SD.LK||LKload) return LKload||Promise.resolve(); return LKload=fetch("study/lexko.json?v="+STUDY_V).then(r=>r.json()).then(j=>{ SD.LK=j; LKload=null; render(); }).catch(()=>{ LKload=null; }); }
+const lexKo=li=>SD.LK?(SD.LK[li]||""):"";
+const sHeb=vi=>SD.hv[vi] ||= (SD.heb[vi]||"").split("\t");
+const sHan=vi=>SD.hn[vi] ||= (SD.han[vi]||"").split("\t");
+const lexGloss=li=>{ const x=SD.L[li]; return x[9]||lexKo(li).split(/\s*[\/,;]\s*/).slice(0,2).join(", ")||x[5]; };
 const sRef=vi=>{ const [b,c,v]=SD.V[vi]; return `${PLAN.abbr[b-1]} ${c}:${v===0?"표제":v}`; };
-const krvText=vi=>{ const [b,c,v]=SD.V[vi]; if(!window.BIBLE) return ""; if(v===0) return "(시편 표제 — 이 번역에는 따로 없습니다)"; try{ return BIBLE[b-1][c-1][v-1]||""; }catch(e){ return ""; } };
+const krvText=vi=>{ const [b,c,v]=SD.V[vi]; if(!window.BIBLE||!BIBLE[b-1]) return ""; if(v===0) return "(시편 표제 — 이 번역에는 따로 없습니다)"; try{ return BIBLE[b-1][c-1][v-1]||""; }catch(e){ return ""; } };
 function morphShort(mi){ const m=SD.M[mi]; const sp=m[0];
   if(sp==="verb") return ["동사",VS_K[m[1]]||m[1],VT_S[m[2]]||""].filter(Boolean).join(" ");
   return SP_K[sp]||sp; }
@@ -91,7 +119,7 @@ function openStudyInfo(){ sheet("장 구조 보는 법",`<div class="theory"><p>
 
 function inSpan(vi,sp){ if(!sp) return true; const [b,c]=SD.V[vi]; for(const [B,a,z] of sp) if(b===B&&c>=a&&c<=z) return true; return false; }
 function spanVerses(sp){ if(!sp) return null; const out=[]; for(const [B,a,z] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1]; if(c>=a&&c<=z) out.push(vi); } } return out; }
-function forWords(sp,fn){ if(!sp){ const N=SD.wl.length; for(let i=0;i<N;i++) fn(i); return; } for(const vi of spanVerses(sp)){ const [,,,,,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++) fn(j); } }
+function forWords(sp,fn){ if(!sp){ if(SD.allLoaded){ const N=SD.wl.length; for(let i=0;i<N;i++) fn(i); return; } for(const b of SD.loaded){ const z=SD.book[b].z, end=SD.V[z][5]+SD.V[z][6]; for(let i=SD.V[SD.book[b].a][5];i<end;i++) fn(i); } return; } for(const vi of spanVerses(sp)){ const [,,,,,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++) fn(j); } }
 /* 공통 결과 목록: hits = Map(vi → Set(낱말 번호)) */
 function hitList(hits,more,emptyMsg){
   const vs=[...hits.keys()].sort((a,b)=>a-b); if(!vs.length) return `<p class="lead">${emptyMsg||"찾은 곳이 없습니다."}</p>`;
@@ -153,7 +181,7 @@ function lexSuggest(q){ q=(q||"").trim(); if(!q) return [];
   const strip=s=>s.replace(/[֑-ׇ]/g,""); const heb=/[א-ת]/.test(q), qs=strip(q); const sm=q.match(/^[hH]?\s*(\d{1,4})$/);
   const out=[]; SD.L.forEach((x,i)=>{ let s=-1;
     if(sm) s=x[3]===+sm[1]?0:-1; else if(heb) s=strip(x[0])===qs?0:strip(x[0]).startsWith(qs)?1:-1;
-    else s=(x[9]||"").split(/[,\s()]+/).includes(q)?0:(x[9]||"").includes(q)?1:x[6]===q?1:x[6].startsWith(q)?2:(x[4]||"").includes(q)?3:-1;
+    else s=(x[9]||"").split(/[,\s()]+/).includes(q)?0:(x[9]||"").includes(q)?1:x[6]===q?1:x[6].startsWith(q)?2:lexKo(i).includes(q)?3:-1;
     if(s>=0) out.push([i,s]); });
   return out.sort((a,b)=>a[1]-b[1]||SD.L[b[0]][7]-SD.L[a[0]][7]).slice(0,20).map(x=>x[0]); }
 function verseView(){ const S=view.st; let vi=Math.max(0,Math.min(SD.V.length-1,S.vi|0)); const RV=spanVerses([[S.R.b,S.R.c1,S.R.c2]]); if(!RV.includes(vi)) vi=RV[0]; S.vi=vi;
@@ -185,12 +213,16 @@ function gateHTML(){ const L=lastRange(), RC=recentRanges(); let h=`<section cla
   return h; }
 function renderStudy(){
   const S=view.st;
-  if(!document.getElementById("hebFont")){ const l=document.createElement("link"); l.id="hebFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500&display=swap"; document.head.appendChild(l); }
+  fontsLoad(1);
   let h=`<section class="shead2"><div class="sh1"><button class="sh1t" id="sHome" aria-label="책·장 고르기">${esc(window.APP_NAME||"MILAL")}</button><span class="ssub">히브리어 원문 · BHSA</span><span id="hostAcct">${window.hostMenuHTML?hostMenuHTML():""}</span></div>`;
-  if(!SD){ studyLoad(); return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):"원문 자료를 내려받는 중입니다. 처음 한 번만 받습니다(약 5MB)."}</p>${SDerr?`<button class="sbtn" id="sdRetry">다시 시도</button>`:""}</section>`; }
+  if(!SD){ studyLoad((lastRange()||{b:1}).b); return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):"원문 자료를 내려받는 중입니다."}</p>${SDerr?`<button class="sbtn" id="sdRetry">다시 시도</button>`:""}</section>`; }
   if(S.pick) return h+`</section>`+pickerHTML();
   if(!S.entered||!S.R){ const m=S.mode; setRange(lastRange()||{b:1,c1:1,c2:1}); S.mode=m&&m!=="verse"?m:"verse"; }
   if(RESEARCH_MODES.includes(S.mode)) S.rmode=S.mode;
+  if(!SD.loaded.has(S.R.b)){ loadBook(S.R.b).then(()=>render()).catch(()=>{ SDerr=`${PLAN.full[S.R.b-1]} 자료를 내려받지 못했습니다.`; render(); });
+    return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):PLAN.full[S.R.b-1]+" 자료를 내려받는 중…"}</p></section>`; }
+  const needAll=S.mode==="query"||(S.mode==="word"&&S.lex!=null); if(needAll&&!SD.allLoaded){ ensureAll().then(()=>render()).catch(()=>{}); }
+  if((S.mode==="word"||(S.mode==="verse"&&S.rv>=0))&&!SD.LK) lexKoLoad();
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
@@ -207,10 +239,10 @@ function renderStudy(){
     h+=`<section class="sec">${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>`;
     if(S.lex!=null){ const x=SD.L[S.lex], H=wordHits(); let cnt=0; H.forEach(s=>cnt+=s.size);
       const forms={vs:new Map(),vt:new Map()}; if(x[2]==="verb"){ const ids=new Set([S.lex]); for(let i=0;i<SD.wl.length;i++) if(SD.wl[i]===S.lex){ const m=SD.M[SD.wm[i]]; forms.vs.set(m[1],(forms.vs.get(m[1])||0)+1); forms.vt.set(m[2],(forms.vt.get(m[2])||0)+1); } }
-      h+=`<div class="slexhd">${lexRow(S.lex,`<button class="iconbtn" id="sLexX" aria-label="다른 낱말 찾기">✕</button>`,'data-noop="1"')}${x[4]?`<p class="lead">사전 풀이: ${esc(x[4])}</p>`:""}</div>
+      h+=`<div class="slexhd">${lexRow(S.lex,`<button class="iconbtn" id="sLexX" aria-label="다른 낱말 찾기">✕</button>`,'data-noop="1"')}${lexKo(S.lex)?`<p class="lead">사전 풀이: ${esc(lexKo(S.lex))}</p>`:""}</div>
         <div class="sfilt"><label>누구의 말<select id="sDom"><option value="">모두</option><option value="N"${S.dom==="N"?" selected":""}>서술</option><option value="Q"${S.dom==="Q"?" selected":""}>인물의 말</option><option value="D"${S.dom==="D"?" selected":""}>율법·시 등</option></select></label>
         ${x[2]==="verb"?`<label>줄기<select id="sVs"><option value="">모두</option>${[...forms.vs.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vs===k?" selected":""}>${esc(VS_K[k]||k)} (${n})</option>`).join("")}</select></label><label>형태<select id="sVt"><option value="">모두</option>${[...forms.vt.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vt===k?" selected":""}>${esc(VT_K[k]||k)} (${n})</option>`).join("")}</select></label>`:""}</div>
-        <p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`; }
+        ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`; }
     h+=`</section>`; }
   else { h+=`<section class="sec"><button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div></section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
@@ -363,9 +395,9 @@ function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi),
   return `<div class="sdh"><span class="heb">${esc(x[0])}</span><span><b>${esc(lexGloss(li))}</b><small>${esc(x[6])}${x[3]?` · 스트롱 H${x[3]}`:""}</small></span></div>
    <dl><dt>이 자리의 꼴</dt><dd><span class="heb">${esc(H[j].trim())}</span> ${esc(HN[j])} · ${esc(morphFull(SD.wm[wi]))}${SD.wg[wi]&4?" · 읽기 전통(케레)을 따름":""}</dd>
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
-   ${x[4]?`<dt>사전 풀이</dt><dd>${esc(x[4])}</dd>`:""}<dt>영어 뜻(BHSA)</dt><dd>${esc(x[5])}</dd><dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번${x[8]?" · 아람어":""}</dd></dl>
+   ${lexKo(li)?`<dt>사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>사전 풀이</dt><dd>받는 중…</dd>`}<dt>영어 뜻(BHSA)</dt><dd>${esc(x[5])}</dd><dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번${x[8]?" · 아람어":""}</dd></dl>
    <div class="row"><button class="btn small" data-sfind="${li}">이 낱말이 나오는 곳</button></div>`; }
-function openWordSheet(wi){ const vi=SD.vOf[wi]; sheet(sRef(vi)+" · 낱말",`<div class="sdetail sheetd">${wordDetail(wi)}</div>`);
+function openWordSheet(wi){ if(!SD.LK) lexKoLoad(); const vi=SD.vOf[wi]; sheet(sRef(vi)+" · 낱말",`<div class="sdetail sheetd">${wordDetail(wi)}</div>`);
   const root=document.getElementById("sheetRoot"), close=()=>{ root.innerHTML=""; }, S=view.st;
   root.querySelectorAll("[data-sfind]").forEach(b=>b.onclick=()=>{ close(); S.wide=true; S.mode="word"; S.lex=+b.dataset.sfind; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); });
   root.querySelectorAll("[data-sva]").forEach(b=>b.onclick=()=>{ close(); S.vi=+b.dataset.sva; S.vMode="verse"; S.sel=wi; render(); scrollTo({top:0}); }); }
@@ -418,7 +450,7 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
    <dt>품사</dt><dd>${esc(SP_K[x[2]]||x[2])}${x[8]?" · 아람어":""}</dd>
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
    ${strongBlock(x[3])}
-   ${x[4]?`<dt>한글 사전 풀이</dt><dd>${esc(x[4])}</dd>`:""}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
+   ${lexKo(li)?`<dt>한글 사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>한글 사전 풀이</dt><dd>받는 중…</dd>`}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
    <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button><button class="btn small" data-rnote="${wi}">메모 남기기</button></div>`; }
 function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rpt]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.rw=+b.dataset.rpt; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
@@ -459,7 +491,7 @@ function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L
 /* 나눔: 다른 이들이 올린 원어 메모 */
 let SHL=null, SHerr="";
 function sharedPage(){ const A=window.MILAL_AUTH;
-  if(!window.MILAL_SHARE) return `<section class="sec"><p class="lead">나눔은 서버 연결이 있어야 합니다.</p></section>`;
+  if(!window.MILAL_SHARE){ if(window.loadFirebase) loadFirebase().then(()=>{ if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">${window.FIREBASE_CONFIG?"서버에 연결하는 중…":"나눔은 서버 연결이 있어야 합니다."}</p></section>`; }
   if(!SHL&&!SHerr){ MILAL_SHARE.list().then(L=>{ SHL=L; if(view.st.mode==="notes") render(); }).catch(e=>{ SHerr=e.code||e.message||"불러오지 못했습니다"; if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">나눔 목록을 불러오는 중…</p></section>`; }
   let h=`<section class="sec"><span class="label">나눔 · ${SHL?SHL.length:0}</span><p class="lead">다른 이들이 '내 메모'에서 ↗로 올린 원어 메모입니다. 누르면 그 절로 갑니다.${A.user?"":" 올리려면 로그인하세요."}</p>`;
   if(SHerr) h+=`<p class="lead">${/permission/i.test(SHerr)?"아직 서버 쪽 문이 열리지 않았습니다. 관리자가 Firestore 규칙에 나눔(shared)을 추가하면 보입니다.":esc(SHerr)}</p>`;
