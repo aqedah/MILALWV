@@ -39,7 +39,7 @@ const sHeb=vi=>SD.hv[vi] ||= SD.heb[vi].split("\t");
 const sHan=vi=>SD.hn[vi] ||= SD.han[vi].split("\t");
 const lexGloss=li=>{ const x=SD.L[li]; return x[9]||(x[4]||"").split(/\s*[\/,;]\s*/).slice(0,2).join(", ")||x[5]; };
 const sRef=vi=>{ const [b,c,v]=SD.V[vi]; return `${PLAN.abbr[b-1]} ${c}:${v===0?"표제":v}`; };
-const krvText=vi=>{ const [b,c,v]=SD.V[vi]; if(!window.BIBLE) return ""; if(v===0) return "(시편 표제: 개역개정은 절 번호 없이 시 제목으로 둡니다)"; try{ return BIBLE[b-1][c-1][v-1]||""; }catch(e){ return ""; } };
+const krvText=vi=>{ const [b,c,v]=SD.V[vi]; if(!window.BIBLE) return ""; if(v===0) return "(시편 표제 — 이 번역에는 따로 없습니다)"; try{ return BIBLE[b-1][c-1][v-1]||""; }catch(e){ return ""; } };
 function morphShort(mi){ const m=SD.M[mi]; const sp=m[0];
   if(sp==="verb") return ["동사",VS_K[m[1]]||m[1],VT_S[m[2]]||""].filter(Boolean).join(" ");
   return SP_K[sp]||sp; }
@@ -57,7 +57,7 @@ function stRangeLabel(){ const sp=stSpans(); if(!sp) return "구약 전체"; ret
 function todayOT(){ return null; } /* 통독 일정이 없으므로 늘 없음 */
 function saveRange(R){ try{ localStorage.setItem("milal-study-range",JSON.stringify(R)); }catch(e){} }
 function lastRange(){ try{ const R=JSON.parse(localStorage.getItem("milal-study-range")||"null"); return R&&R.b>=1&&R.b<=39?R:null; }catch(e){ return null; } }
-function setRange(R){ const S=view.st; S.R=R; S.vc=R.c1; S.entered=true; S.pick=false; S.pk=null; S.more=1; saveRange(R); const L=SD&&spanVerses([[R.b,R.c1,R.c2]]); if(L&&L.length&&!L.includes(S.vi)) S.vi=L[0]; S.sel=-1;
+function setRange(R){ const S=view.st; S.home=false; S.R=R; S.vc=R.c1; S.entered=true; S.pick=false; S.pk=null; S.more=1; saveRange(R); const L=SD&&spanVerses([[R.b,R.c1,R.c2]]); if(L&&L.length&&!L.includes(S.vi)) S.vi=L[0]; S.sel=-1;
   try{ let rc=JSON.parse(localStorage.getItem("milal-study-recent")||"[]")||[]; rc=[R,...rc.filter(x=>!(x.b===R.b&&x.c1===R.c1&&x.c2===R.c2))].slice(0,6); localStorage.setItem("milal-study-recent",JSON.stringify(rc)); }catch(e){} }
 function recentRanges(){ try{ return (JSON.parse(localStorage.getItem("milal-study-recent")||"[]")||[]).filter(x=>x&&x.b>=1&&x.b<=39); }catch(e){ return []; } }
 /* '왕상 18', '왕상18', '창 22:1', '열왕기상 18장' */
@@ -183,14 +183,14 @@ function gateHTML(){ const L=lastRange(), RC=recentRanges(); let h=`<section cla
 function renderStudy(){
   const S=view.st;
   if(!document.getElementById("hebFont")){ const l=document.createElement("link"); l.id="hebFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400;600&family=Noto+Serif+KR:wght@600;700&family=IBM+Plex+Mono:wght@500&display=swap"; document.head.appendChild(l); }
-  let h=`<section class="shead2"><div class="sh1"><b class="sh1t">${esc(window.APP_NAME||"MILAL")}</b><span class="ssub">히브리어 원문 · BHSA</span><span id="hostAcct">${window.hostAcctHTML?hostAcctHTML():""}</span></div>`;
+  let h=`<section class="shead2"><div class="sh1"><button class="sh1t" id="sHome" aria-label="처음으로">${esc(window.APP_NAME||"MILAL")}</button><span class="ssub">히브리어 원문 · BHSA</span><span id="hostAcct">${window.hostAcctHTML?hostAcctHTML():""}</span></div>`;
   if(!SD){ studyLoad(); return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):"원문 자료를 내려받는 중입니다. 처음 한 번만 받습니다(약 5MB)."}</p>${SDerr?`<button class="sbtn" id="sdRetry">다시 시도</button>`:""}</section>`; }
   if(S.pick) return h+`</section>`+pickerHTML();
+  if(S.home) return h+`</section>`+gateHTML();
   if((!S.entered||!S.R)&&lastRange()){ const m=S.mode; setRange(lastRange()); S.mode=m||"verse"; }
   if(!S.entered||!S.R) return h+`</section>`+gateHTML();
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
-  h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(rLabel(S.R))} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sNotes" aria-label="원어 메모">✎</button><button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div>
-   <div class="seg smode">${[["verse","원문"],["tool","도구"],["word","낱말"],["query","검색식"],["theory","이론"]].map(([k,n])=>`<button aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div></section>`;
+  h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sNotes" aria-label="원어 메모">✎</button><button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
   if(S.mode==="theory") return h+renderTheory();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
@@ -211,7 +211,7 @@ function renderStudy(){
   else { h+=`<section class="sec"><button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div></section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
-  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
+  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
   return h; }
 function sugHTML(q){ if(!SD||!q) return ""; const L=lexSuggest(q); if(!L.length) return `<p class="lead">찾는 낱말이 없습니다. 다른 말로 넣어 보세요.</p>`; return L.map(li=>lexRow(li)).join(""); }
 function bindStudy(m){
@@ -219,6 +219,7 @@ function bindStudy(m){
   const r=document.getElementById("sdRetry"); if(r) r.onclick=()=>{ studyLoad(); render(); };
   if(!SD) return;
   bindQuery(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
+  const sh=document.getElementById("sHome"); if(sh) sh.onclick=()=>{ S.home=true; S.pick=false; render(); scrollTo({top:0}); };
   const sn=document.getElementById("sNotes"); if(sn) sn.onclick=()=>window.openNotesSheet&&openNotesSheet();
   m.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ setRange(JSON.parse(b.dataset.ar)); S.mode="verse"; render(); scrollTo({top:0}); });
   const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostAcct) bindHostAcct(ha);

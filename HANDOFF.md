@@ -2,7 +2,7 @@
 
 MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '성경연구' 탭을 떼어 내어 새 프로젝트로 시작합니다.
 
-- 만든 사람: 이삭 목사(중앙성서교회)
+- 만든 사람: 이츠학(이츠학아카데미) · 이삭 목사(중앙성서교회)
 - 작성: 2026-10-19
 - 이 문서는 새 저장소의 `HANDOFF.md`로 둡니다. 새 대화(Claude/Codex)를 열 때 가장 먼저 읽게 합니다.
 
@@ -11,7 +11,10 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 ## 현재 상태 (2026-10-19, 첫 판 올림)
 
 - 독립 앱이 돌아갑니다: `index.html` + `host.js`(CBSR이 주던 것 대신) + `study.css` + `app/` 3개 + `study/` 자료 3개.
-- 시작 화면: '어디로 갈까요'(책 → 장) + '최근 본 곳'. 통독 일정·번역 본문은 없고 원문만 보입니다(`window.BIBLE=null`).
+- 시작 화면: '어디로 갈까요'(책 → 장) + '최근 본 곳'. 머리띠의 MILAL 글자와 하단 탭 '홈'이 처음 화면으로 갑니다.
+- 하단 탭: 홈 · 원문 · 도구 · 낱말 · 검색식 · 이론 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`).
+- 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦). 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.
+- 링크 공유 썸네일 `img/og.jpg`(1200×630), 아이콘 `img/`, `manifest.webmanifest`. 썸네일 원본은 대화에서 만든 HTML(글꼴: Noto Serif Hebrew/KR, IBM Plex Mono).
 - 로그인은 **보기에는 필요 없고**, 원어 메모를 기기끼리 맞출 때만 씁니다(Google 로그인, `firebase.js`, 저장 자리 `users/{uid}/study/notes` 문서 하나에 목록으로).
 - 검색식 대조 건수 227 / 369 / 2260 / 1015 / 3697 모두 Text-Fabric과 같음(2026-10-19 확인). 390px 너비에서 가로 밀림 없음.
 - localStorage 키는 `milal-study-…`로 바꿨습니다.

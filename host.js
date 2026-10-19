@@ -12,12 +12,22 @@ const PLAN={
   abbr:["창","출","레","민","신","수","삿","룻","삼상","삼하","왕상","왕하","대상","대하","스","느","에","욥","시","잠","전","아","사","렘","애","겔","단","호","욜","암","옵","욘","미","나","합","습","학","슥","말"]
 };
 
-/* 번역 본문: 지금은 없음(원문만). 나중에 넣으면 BIBLE[책-1][장-1][절-1] 꼴로 둔다 */
-window.BIBLE=null; const TR="krv", TR_INFO={krv:{name:"개역개정"}};
+/* 번역 본문: study/bible.json (pipeline/make_bible.py로 만듦). BIBLE[책-1][장-1][절-1] */
+window.BIBLE=null; const TR="tr", TR_INFO={tr:{name:""}};
+function bibleLoad(){ return fetch("study/bible.json?v="+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ window.BIBLE=j.books; TR_INFO.tr.name=j.name||""; TR_INFO.tr.src=j.src||""; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{}); }
 
 /* 도움 함수 */
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function render(){ const m=document.getElementById("main"); m.innerHTML=renderStudy(); bindStudy(m); }
+function render(){ const m=document.getElementById("main"); m.innerHTML=renderStudy(); bindStudy(m); navSync(); }
+
+/* ===== 하단 탭: 홈 · 원문 · 도구 · 낱말 · 검색식 · 이론 ===== */
+function navSync(){ const S=view.st, cur=S.home||!S.entered||!S.R?"home":S.pick?"":S.mode;
+  document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-selected",b.dataset.nav===cur)); }
+function bindNav(){ document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.onclick=()=>{ const S=view.st, k=b.dataset.nav;
+  if(k==="home"){ S.home=true; S.pick=false; render(); scrollTo({top:0}); return; }
+  if(typeof SD==="undefined"||!SD) return;
+  if(!S.R){ const L=lastRange(); if(L) setRange(L); else { openAddr(); return; } }
+  S.home=false; S.entered=true; S.pick=false; S.mode=k; if(k==="tool"&&S.range==="all") S.range="book"; S.more=1; render(); scrollTo({top:0}); }); }
 function sheet(title,body){
   const root=document.getElementById("sheetRoot");
   root.innerHTML=`<div class="sheet-bg" id="sheetBg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-head"><h3>${esc(title)}</h3><button class="iconbtn sheet-x" id="sheetX" aria-label="닫기">✕</button></div>${body}<div class="row sheet-foot"><button class="btn small" id="sheetClose">닫기</button></div></div></div>`;
@@ -52,4 +62,4 @@ function openNotesSheet(){ const L=studyNotes(); const show=view.snAll?L:L.slice
   const a=document.getElementById("snAll"); if(a) a.onclick=()=>{ view.snAll=!view.snAll; openNotesSheet(); }; }
 
 /* 시작 */
-document.addEventListener("DOMContentLoaded",()=>{ render(); if(!SD) studyIntro(); });
+document.addEventListener("DOMContentLoaded",()=>{ bindNav(); render(); if(!SD) studyIntro(); bibleLoad(); });
