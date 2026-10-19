@@ -32,7 +32,7 @@ else {
   /* 나눔: shared 모음. 읽기는 누구나, 쓰기는 로그인한 사람이 자기 이름으로만 (Firestore 규칙은 HANDOFF 2절) */
   window.MILAL_SHARE={
     list:async()=>{ const q=query(collection(db,"shared"),orderBy("t","desc"),limit(60)); const s=await getDocs(q); return s.docs.map(d=>({id:d.id,...d.data()})); },
-    add:async n=>{ const u=A.user; if(!u) throw new Error("로그인이 필요합니다"); const {b,c,v,heb,gl,st,m,lex,han}=n; return addDoc(collection(db,"shared"),{uid:u.uid,name:u.displayName||"",photo:u.photoURL||"",b,c,v,heb,gl,st:st||0,m:m||"",lex:lex||"",han:han||"",t:Date.now()}); },
+    add:async n=>{ const u=A.user; if(!u) throw new Error("로그인이 필요합니다"); const {b,c,v,heb,gl,st,m,lex,han}=n; return addDoc(collection(db,"shared"),{uid:u.uid,name:(u.displayName||"").slice(0,60),b,c,v,heb:(heb||"").slice(0,200),gl:(gl||"").slice(0,200),st:st||0,m:(m||"").slice(0,500),lex:(lex||"").slice(0,200),han:(han||"").slice(0,200),t:Date.now()}); },  /* 사진은 올리지 않음 */
     remove:async id=>deleteDoc(doc(db,"shared",id))
   };
   window.onNotesSaved=L=>{ if(applying||!A.user) return; setDoc(noteRef(A.user),{list:L,at:Date.now()}).catch(e=>{ console.warn(e); toast("메모를 올리지 못했습니다: "+(e.code||"")); }); };

@@ -120,8 +120,14 @@ service cloud.firestore {
     // 나눔(기록 탭 → 나눔): 읽기는 누구나, 올리기는 로그인한 사람이 자기 uid로만, 내리기는 올린 사람만
     match /shared/{id} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.m.size() <= 500;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','name','b','c','v','heb','gl','st','m','lex','han','t'])
+        && request.resource.data.b is int && request.resource.data.b >= 1 && request.resource.data.b <= 39
+        && request.resource.data.c is int && request.resource.data.v is int
+        && request.resource.data.m is string && request.resource.data.m.size() <= 500
+        && request.resource.data.heb.size() <= 200 && request.resource.data.gl.size() <= 200
+        && request.resource.data.name.size() <= 60;
       allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
       allow update: if false;
     }
