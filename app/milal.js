@@ -70,7 +70,7 @@ function milalBadge(b,aid){ const m=milalForAtom(b,aid); if(!m||!m.firstAtom) re
   if(m.o.badWords) t+=`<em class="mb mb-x">낱말 불일치</em>`; return t; }
 /* 묶음 시작 줄: 머리띠 */
 function milalGroupHead(b,aid){ const m=milalForAtom(b,aid); if(!m||!m.firstAtom) return ""; const gs=m.o.groups.filter(x=>x.first&&x.g.kind!=="ENCLOSING_SPEECH_HYPOTHESIS"); if(!gs.length) return "";
-  const st=ML[b]; return gs.map(({g})=>{ const G=st.byGid.get(g.id), H=G.inRel.filter(r=>r.family==="HIERARCHY"), c=H.find(r=>r.status==="CONFIRMED"), p=H.find(r=>r.status==="PROVISIONAL"), q=H.filter(r=>r.status==="COMPETING"), un=G.issues.find(s=>s.kind==="UNRESOLVED");
+  const st=ML[b]; return gs.map(({g})=>{ const G=st.byGid.get(g.id), H=unitMothers(st,g), c=H.find(r=>r.status==="CONFIRMED"), p=H.find(r=>r.status==="PROVISIONAL"), q=H.filter(r=>r.status==="COMPETING"), un=G.issues.find(s=>s.kind==="UNRESOLVED");
     const bd=c?`<em class="mb mb-c">${MK_KO[c.kind]} 확정</em>`:q.length?`<em class="mb mb-q">모절 경쟁 ${q.length}</em>`:p?`<em class="mb mb-p">${MK_KO[p.kind]} 잠정</em>`:un?`<em class="mb mb-i">모절 미결</em>`:`<em class="mb mb-u">모절 자료 없음</em>`;
     return `<div class="mgh"><b>${esc(MG_KO[g.kind]||g.kind)}</b> <small>${esc(g.first)}–${esc(g.last)} · ${g.members.length}절${st.test?" · 시험 자료":""}</small> ${bd}</div>`; }).join(""); }
 
@@ -127,3 +127,32 @@ function speechView(b,c){ const vis=SD.ch.get(b+"-"+c)||[]; const atoms=[], seen
     const heb=words.slice(0,14).map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim()+(words.length>14?" …":"");
     h+=`<button class="spb d-${dom==="N"?"n":dom==="Q"?"q":"d"}" style="--qd:${Math.min(q,4)}" data-sat="${blk[0].at.a}"><span class="spm"><b>${esc(DOM_K[dom]||dom)}${q>1?` ${q}단`:""}</b><small>${v0===v1?v0:v0+"–"+v1}절 · ${blk.length}줄</small></span><span class="heb">${esc(heb)}</span></button>`; }
   return h+`</div>`; }
+
+/* 단위의 모절 후보: 단위 밖에서 들어오는 계층 관계만 (단위 안 도입→내용은 그 단위의 모절이 아님) */
+function unitMothers(st,g){ return st.byGid.get(g.id).inRel.filter(r=>r.family==="HIERARCHY"&&!(r.source.type==="clause"&&g.members.includes(r.source.id))); }
+/* ===== 발언·단위 지도: 장을 넘는 구조를 묶음(MILAL 판정) 순서로. 검증되지 않은 사이는 선을 긋지 않고 '순서만'으로 ===== */
+function unitMapView(b){ const S=view.st, f=milalFile(b); if(!f) return `<section class="sec"><p class="lead">이 책에는 MILAL 자료가 없어 지도를 그릴 수 없습니다. 지도는 MILAL이 묶은 발언 단위로 그립니다.</p></section>`;
+  const st=milalLoad(b); if(!st||st.state==="loading") return `<section class="sec"><p class="lead">MILAL 자료 불러오는 중…</p></section>`;
+  if(st.state==="err") return `<section class="sec"><p class="lead">MILAL 자료를 읽지 않음: ${esc(st.msg)}</p></section>`;
+  const D=st.data, base=D.groups.filter(g=>g.kind!=="ENCLOSING_SPEECH_HYPOTHESIS"&&g.kind!=="SURFACE_EVENT_ANCHOR"&&g.kind!=="UNCOVERED_SOURCE_CONTEXT");
+  const pos=g=>{ const c=st.nodeCid.get(g.members[0]); return c!=null?SD.cFirstA[c]:1e9; }; base.sort((x,y)=>pos(x)-pos(y));
+  const sc=D.source.scope, lab=`${PLAN.full[b-1]} ${sc.chapters?sc.chapters[0]+"–"+sc.chapters[1]+"장":""}`;
+  let h=`<div class="srcnote"><span>이 지도는 <b>MILAL 묶음(판정)</b>을 본문 순서로 늘어놓은 것입니다. 단위 사이에 <b>확정된 계층 관계</b>가 있을 때만 선을 긋고, 없으면 순서만 보입니다.${st.test?' <em class="mb mb-t">시험 자료</em>':""}</span><span class="lead">범위: ${esc(lab)} · 단위 ${base.length}개 · 누르면 그 장의 구조로 갑니다.</span></div><div class="umap">`;
+  const relBetween=(a,c)=>{ const G=st.byGid.get(c.id); return G.inRel.filter(r=>r.family==="HIERARCHY"&&r.source.type==="group"&&r.source.id===a.id); };
+  const pairPar=(a,c)=>{ const ia=(a.roles&&a.roles.introduction||[])[0], ic=(c.roles&&c.roles.introduction||[])[0]; if(!ia||!ic) return null; const o=st.byCid.get(st.nodeCid.get(ia)); return o&&o.outRel.find(r=>r.kind==="PARALLEL"&&r.target.type==="clause"&&r.target.id===ic); };
+  const curC=S.vc; 
+  base.forEach((g,i)=>{ const G=st.byGid.get(g.id), H=unitMothers(st,g), c=H.find(r=>r.status==="CONFIRMED"), q=H.filter(r=>r.status==="COMPETING"), p=H.find(r=>r.status==="PROVISIONAL"), un=G.issues.find(s=>s.kind==="UNRESOLVED");
+    const c0=st.nodeCid.get(g.members[0]), aid=c0!=null?SD.cFirstA[c0]:null; const [ch0]=g.first.split(":").map(Number), [ch1]=g.last.split(":").map(Number); const here=curC>=ch0&&curC<=ch1;
+    const dom=(()=>{ const cnt={N:0,Q:0,D:0}; g.members.forEach(m=>{ const cc=st.nodeCid.get(m); if(cc!=null){ const d=SD.DO[SD.cd[cc]]; cnt[d in cnt?d:"D"]++; } }); const t=g.members.length||1; return cnt.N/t>0.6?"서술":cnt.Q/t>0.6?"인물의 말":"섞임"; })();
+    if(i>0){ const a=base[i-1], R=relBetween(a,g), rc=R.find(r=>r.status==="CONFIRMED"), rq=R.filter(r=>r.status==="COMPETING"), rp=R.find(r=>r.status==="PROVISIONAL"), par=pairPar(a,g);
+      let k="none", t="순서만 · 직접 관계 미검증"; if(rc){ k="c"; t=`${MK_KO[rc.kind]} 확정`; } else if(rq.length){ k="q"; t=`${MK_KO[rq[0].kind]} 경쟁 ${rq.length}`; } else if(rp){ k="p"; t=`${MK_KO[rp.kind]} 잠정`; }
+      /* '직접 연결 없음' 판정은 about=[모절 후보, 자절]이 각각 앞 단위·이 단위에 속할 때만 이 사이에 표시 */
+      const inU=(e,u)=>e.type==="group"?e.id===u.id:u.members.includes(e.id);
+      const nd=D.issues.find(s=>s.kind==="NO_DIRECT_RELATION"&&Array.isArray(s.about)&&s.about.length===2&&inU(s.about[0],a)&&inU(s.about[1],g)); if(k==="none"&&nd){ k="nd"; t="직접 연결 없음(판정)"; }
+      h+=`<div class="ulink u-${k}"><i></i><span>${esc(t)}${par?` · 도입 구문 병행 ${esc(MS_KO[par.status])}`:""}</span></div>`; }
+    h+=`<button class="unit${here?" here":""}" ${aid!=null?`data-mgo="${aid}"`:""}><span class="uk">${esc(MG_KO[g.kind]||g.kind)}</span><b>${esc(g.first===g.last?g.first:g.first+"–"+g.last)}</b><small>${g.members.length}절 · ${dom}${g.roles&&g.roles.introduction?" · 도입 "+g.roles.introduction.length+"절":""}</small><span class="ubd">${c?`<em class="mb mb-c">모절 ${MK_KO[c.kind]} 확정</em>`:q.length?`<em class="mb mb-q">모절 경쟁 ${q.length}</em>`:p?`<em class="mb mb-p">모절 ${MK_KO[p.kind]} 잠정</em>`:un?`<em class="mb mb-i">모절 미결</em>`:`<em class="mb mb-u">모절 자료 없음</em>`}</span></button>`; });
+  h+=`</div>`;
+  const enc=D.groups.filter(g=>g.kind==="ENCLOSING_SPEECH_HYPOTHESIS"); if(enc.length){ const alts=D.issues.filter(s=>s.kind==="ALTERNATIVE_SET"&&s.subkind==="OVERLAPPING_GROUPING_HYPOTHESES");
+    h+=`<section class="sec"><span class="label">큰 발언 가설 <small>(겹치는 묶음 — 기본 지도에 적용하지 않음)</small></span>${enc.map(g=>`<div class="mrel"><div><b>${esc(MG_KO[g.kind])}</b> ${esc(g.first)}–${esc(g.last)} · ${g.members.length}절</div><small>${alts.some(a=>a.options.includes(g.id))?"다른 가설과 경쟁":""}</small></div>`).join("")}</section>`; }
+  const una=D.issues.filter(s=>s.kind==="UNASSIGNED_CLAUSE"); if(una.length) h+=`<p class="lead">어느 단위에도 들지 않은 절 ${una.length}개 (미배정 — '관계 없음'이 아니라 '배정 안 됨').</p>`;
+  return h; }

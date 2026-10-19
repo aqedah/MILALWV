@@ -284,3 +284,17 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .spb .spm{display:grid;gap:1px;white-space:nowrap}.spb .spm b{font-size:13px}.spb .spm small{color:var(--muted);font-size:12px}.spb .heb{font-size:17px;direction:rtl;text-align:right;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;justify-self:end;max-width:100%}
 .stvn .stfb{display:block;font-size:10.5px;padding:0;margin-top:2px}
 .mgo{border:0;background:none;color:var(--accent);font:inherit;font-size:inherit;padding:0 2px;text-decoration:underline;cursor:pointer}.mobs{display:block;color:var(--muted);font-size:12.5px}
+
+/* 발언·단위 지도 */
+.seg.svm.sv3{grid-template-columns:1fr 1fr 1fr;width:230px}
+.umap{display:grid;gap:0;margin:4px 0 10px}
+.unit{display:grid;gap:3px;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+.unit.here{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.unit .uk{font-size:11.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 6px;justify-self:start}
+.unit b{font-size:16px}.unit small{color:var(--muted);font-size:12.5px}
+.ulink{display:grid;grid-template-columns:24px 1fr;align-items:center;gap:8px;padding:2px 0 2px 14px;min-height:28px}.ulink i{display:block;width:0;height:100%;min-height:24px;border-left:2px dotted var(--line);justify-self:center}
+.ulink span{font-size:12px;color:var(--muted)}
+.ulink.u-c i{border-left:3px solid #2F6B3A}.ulink.u-c span{color:#2F6B3A;font-weight:700}
+.ulink.u-p i{border-left:2px dashed var(--accent)}.ulink.u-p span{color:var(--accent)}
+.ulink.u-q i{border-left:3px double #B5542D}.ulink.u-q span{color:#B5542D;font-weight:700}
+.ulink.u-nd i{border-left:0;border-top:2px solid #8A1C1C;height:0;min-height:0;width:16px}.ulink.u-nd span{color:#8A1C1C}

@@ -199,8 +199,8 @@ function renderStudy(){
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
     h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
-      <div class="svrow">${rd==="struct"?`<div class="seg svm">${[["tree","계층"],["speech","발화"]].map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
-      ${rd==="read"?readView(S.R.b,vc):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true))}
+      <div class="svrow">${rd==="struct"?`<div class="seg svm sv3">${[["tree","계층"],["speech","발화"],["map","지도"]].map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
+      ${rd==="read"?readView(S.R.b,vc):((S.sv||"tree")==="map"?unitMapView(S.R.b):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true)))}
       ${multi&&k<chs.length-1?`<button class="sbtn snextch" id="sVcN2">${chs[k+1]}${u} 이어서 보기 ›</button>`:""}</section>`; }
   else if(S.mode==="query") h+=renderQuery();
   else if(S.mode==="word"){
@@ -267,6 +267,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
+  m.querySelectorAll(".umap [data-mgo]").forEach(b=>b.onclick=()=>gotoAtom(S.R.b,+b.dataset.mgo));
   const fa=document.getElementById("sFoldAll"); if(fa) fa.onclick=()=>{ S.foldAll=!S.foldAll; S.fold={}; render(); toast(S.foldAll?"인물의 말을 모두 접었습니다. 이야기 뼈대만 보입니다.":"인물의 말을 모두 펼쳤습니다."); };
   const gt=document.getElementById("sGoToday"); if(gt) gt.onclick=()=>{ const m=S.mode; setRange(todayOT()); S.mode=m; render(); scrollTo({top:0}); };
   const ml=document.getElementById("sMulti"); if(ml) ml.onclick=()=>{ S.pick=true; S.pk={b:S.R.b,c1:null,c2:null}; render(); scrollTo({top:0}); };
