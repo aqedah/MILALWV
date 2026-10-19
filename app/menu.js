@@ -45,13 +45,30 @@ function openAbout(){
   <p>묻는 질문은 하나입니다. <b>"이 문장은 앞뒤 문장과 어떤 관계를 맺으며, 그 관계는 본문을 이해하는 데 무엇을 밝혀 주는가?"</b></p>
   <p class="lead">제작: 이츠학(이츠학아카데미) · 무료·비영리로 운영합니다(BHSA CC BY-NC 4.0). <a href="https://www.youtube.com/@이츠학아카데미" target="_blank" rel="noopener">유튜브</a> · <a href="https://github.com/aqedah/MILALWV" target="_blank" rel="noopener">GitHub</a></p>`); }
 
+/* --- 오른쪽 서랍: 오른쪽에서 나오고, 오른쪽으로 밀면(스와이프) 닫힘 --- */
+function drawer(title,body){
+  const root=document.getElementById("sheetRoot"), was=!!root.querySelector(".drawer.in");
+  root.innerHTML=`<div class="sheet-bg drawer-bg" id="sheetBg"><div class="drawer" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-head"><h3>${esc(title)}</h3><button class="iconbtn sheet-x" id="sheetX" aria-label="닫기">✕</button></div>${body}</div></div>`;
+  const bg=root.querySelector("#sheetBg"), d=root.querySelector(".drawer");
+  const close=()=>{ d.classList.add("out"); bg.classList.add("out"); setTimeout(()=>{ if(root.contains(bg)) root.innerHTML=""; },220); };
+  bg.onclick=e=>{ if(e.target===bg) close(); }; root.querySelector("#sheetX").onclick=close;
+  if(was){ d.classList.add("in","noanim"); bg.classList.add("in","noanim"); } else requestAnimationFrame(()=>{ d.classList.add("in"); bg.classList.add("in"); });
+  /* 스와이프 */
+  let x0=null,y0=null,dx=0,drag=false;
+  d.addEventListener("touchstart",e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; dx=0; drag=false; },{passive:true});
+  d.addEventListener("touchmove",e=>{ if(x0==null) return; const t=e.touches[0]; const mx=t.clientX-x0, my=t.clientY-y0;
+    if(!drag&&Math.abs(mx)>12&&Math.abs(mx)>Math.abs(my)*1.3) drag=true;
+    if(drag){ dx=Math.max(0,mx); d.style.transition="none"; d.style.transform=`translateX(${dx}px)`; } },{passive:true});
+  d.addEventListener("touchend",()=>{ if(drag&&dx>d.offsetWidth*0.28){ d.style.transition=""; close(); } else { d.style.transition=""; d.style.transform=""; } x0=null; drag=false; });
+  return close; }
+
 /* --- 메뉴 --- */
 function hostMenuHTML(){ const A=window.MILAL_AUTH, u=A.user;
   return `<button class="menubtn" id="menuBtn" aria-label="메뉴">${u&&u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:`<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`}</button>`; }
 function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId();
   const acct=!window.FIREBASE_CONFIG?"":u?`<div class="mrow"><span class="micon">${u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-replace">`:"👤"}</span><span class="mtxt"><b>${esc(u.displayName||"")}</b><small>로그인 중 · 메모가 기기끼리 맞춰집니다</small></span><button class="btn small ghost" id="mOut">로그아웃</button></div>`
     :`<div class="mrow"><span class="micon">👤</span><span class="mtxt"><b>로그인</b><small>Google · 원어 메모를 기기끼리 맞추고 나눌 때만 필요합니다</small></span><button class="btn small" id="mIn"${A.ready?"":" disabled"}>로그인</button></div>`;
-  sheet("메뉴",`${acct}
+  drawer("메뉴",`${acct}
    <div class="mgrp">번역본</div><div class="seg sseg mseg">${TR_LIST.map(t=>`<button aria-checked="${tr===t.id}" data-mtr="${t.id}">${esc(t.name.replace(/ \(.*\)/,""))}</button>`).join("")}</div><p class="lead" style="margin:2px 0 0">개역개정은 준비되는 대로 넣습니다.</p>
    <div class="mgrp">밝기</div><div class="seg sseg mseg">${[["auto","기기 설정대로"],["light","밝게"],["dark","어둡게"]].map(([k,n])=>`<button aria-checked="${th===k}" data-mth="${k}">${n}</button>`).join("")}</div>
    <div class="mlist">

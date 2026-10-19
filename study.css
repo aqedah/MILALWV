@@ -258,3 +258,10 @@ main{grid-template-columns:minmax(0,1fr)}.sec{min-width:0}.stlines,.stl{min-widt
 .mlist{display:grid;gap:4px;margin-top:6px}.mitem{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:11px 12px;font:inherit;font-size:15px;text-align:left;cursor:pointer}.mitem span{width:24px;text-align:center;flex:none}
 ol.tut{margin:0;padding-left:20px;display:grid;gap:8px}ol.tut li{font-size:15.5px;line-height:1.65}
 .snshare{border:0;background:none;color:var(--accent);font-size:18px;padding:0 6px;cursor:pointer}
+
+/* 오른쪽 서랍 */
+.sheet-bg.drawer-bg{align-items:stretch;justify-content:flex-end;background:rgba(0,0,0,0);transition:background .2s}.sheet-bg.drawer-bg.in{background:rgba(0,0,0,.35)}.sheet-bg.drawer-bg.out{background:rgba(0,0,0,0)}
+.drawer{background:var(--card);color:var(--ink);width:min(86vw,360px);height:100%;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));padding-top:calc(18px + env(safe-area-inset-top,0px));display:grid;gap:10px;align-content:start;overflow-y:auto;overflow-x:hidden;box-shadow:-8px 0 24px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .22s ease}
+.drawer.in{transform:translateX(0)}.drawer.out{transform:translateX(100%)!important}
+.drawer .sheet-head{top:-18px}
+.drawer.noanim,.drawer-bg.noanim{transition:none}

@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aqedah.github.io/MILALWV/docs/milal_interface.schema.json",
+  "title": "MILALWV-IF-1 — MILAL → MILALWV 연결 규격 (초안)",
+  "type": "object",
+  "required": ["schema", "file_status", "source", "nodes", "groups", "relations", "evidence", "issues", "notes"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "MILALWV-IF-1" },
+    "file_status": { "enum": ["TEST_ONLY", "MILAL_OUTPUT"] },
+    "source": {
+      "type": "object",
+      "required": ["schema_version", "bhsa_version", "milal", "generated_at", "scope"],
+      "properties": {
+        "schema_version": { "const": "MILALWV-IF-1" },
+        "bhsa_version": { "const": "2021" },
+        "milal": {
+          "type": "object",
+          "required": ["stage", "rules_version"],
+          "properties": {
+            "stage": { "type": "string" },
+            "rules_version": { "type": "string" },
+            "commit": { "type": "string" },
+            "network_schema": { "type": "string" },
+            "network_sha256": { "type": "string" },
+            "input_receipt": { "type": "object" }
+          }
+        },
+        "generated_at": { "type": "string" },
+        "scope": {
+          "type": "object",
+          "required": ["book", "bhsa_book"],
+          "properties": {
+            "book": { "type": "string" },
+            "bhsa_book": { "type": "string" },
+            "chapters": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 }
+          }
+        },
+        "scientific_status": { "type": "string" },
+        "test_note": { "type": "string" }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "ch", "vs", "word_ids"],
+        "properties": {
+          "id": { "$ref": "#/$defs/nodeId" },
+          "pos": { "type": "integer" },
+          "ch": { "type": "integer" },
+          "vs": { "type": "integer" },
+          "type": { "type": "string" },
+          "domain": { "type": "string" },
+          "text": { "type": "string" },
+          "word_ids": { "type": "array", "items": { "type": "integer" }, "minItems": 1 },
+          "clause_atom_ids": { "type": "array", "items": { "type": "integer" } },
+          "native_self_annotations": { "type": "array" },
+          "meta": { "type": "object" }
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "members"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "enum": ["LOCAL_SPEECH_UNIT", "CONDITIONAL_RESPONSE_UNIT", "UNRESOLVED_SCOPE_FRAGMENT", "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS", "ENCLOSING_SPEECH_HYPOTHESIS", "SURFACE_EVENT_ANCHOR", "UNCOVERED_SOURCE_CONTEXT"] },
+          "members": { "type": "array", "items": { "$ref": "#/$defs/nodeId" }, "minItems": 1 },
+          "first": { "type": "string" }, "last": { "type": "string" },
+          "roles": { "type": "object", "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } } },
+          "observed": { "type": "array" },
+          "status": { "type": "string" }, "textual": { "type": "string" },
+          "frame_id": { "type": ["string", "null"] }, "source_id": { "type": ["string", "null"] },
+          "interpretation_dependencies": { "type": "array" },
+          "disposition": { "type": "string" }, "mother_table_status": { "type": "string" },
+          "candidate_count": { "type": "integer" }, "candidate_rule_summary": { "type": "object" },
+          "common_mothers": { "type": "array" }, "possible_mothers": { "type": "array" }, "peers": { "type": "array" },
+          "rule_notes": { "type": "array", "items": { "type": "object", "required": ["rule", "status"], "properties": { "trace_id": { "type": "string" }, "rule": { "type": "string" }, "status": { "type": "string" }, "other": { "type": "string" }, "failed": { "type": "array" }, "unresolved": { "type": "array" } } } }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "family", "kind", "status", "source", "target", "rule", "record"],
+        "properties": {
+          "id": { "type": "string" },
+          "family": { "enum": ["HIERARCHY", "GROUPING", "CLOSURE", "LITERARY"] },
+          "kind": { "enum": ["SUBORDINATE", "PARALLEL", "FRAME_CONTENT", "CONTINUATION", "CLOSURE", "MEMBERSHIP"] },
+          "status": { "enum": ["CONFIRMED", "PROVISIONAL", "COMPETING", "UNASSIGNED"] },
+          "source": { "$ref": "#/$defs/endpoint" },
+          "target": { "$ref": "#/$defs/endpoint" },
+          "rule": { "type": "string", "minLength": 1 },
+          "record": { "$ref": "#/$defs/record" },
+          "evidence_clause_ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } },
+          "evidence_ids": { "type": "array", "items": { "type": "string" } },
+          "note": { "type": "string" },
+          "extra": { "type": "object" }
+        },
+        "allOf": [
+          { "if": { "properties": { "kind": { "enum": ["SUBORDINATE", "FRAME_CONTENT", "CONTINUATION"] } } }, "then": { "properties": { "family": { "const": "HIERARCHY" } } } },
+          { "if": { "properties": { "kind": { "enum": ["PARALLEL", "MEMBERSHIP"] } } }, "then": { "properties": { "family": { "const": "GROUPING" } } } },
+          { "if": { "properties": { "kind": { "const": "CLOSURE" } } }, "then": { "properties": { "family": { "const": "CLOSURE" } } } }
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "rule_id", "stance"],
+        "properties": {
+          "id": { "type": "string" },
+          "rule_id": { "type": "string" },
+          "check": { "type": "string" },
+          "stance": { "enum": ["SUPPORTS", "OPPOSES", "UNRESOLVED"] },
+          "observed": { "type": "object", "properties": { "clause_ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" } }, "word_ids": { "type": "array", "items": { "type": "integer" } }, "features": { "type": "object" } } },
+          "text": { "type": "string" },
+          "record": { "$ref": "#/$defs/record" }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "enum": ["ALTERNATIVE_SET", "UNRESOLVED", "SCOPE_CONFLICT", "UNASSIGNED_CLAUSE", "NO_DIRECT_RELATION"] },
+          "subkind": { "type": "string" },
+          "about": { "oneOf": [ { "$ref": "#/$defs/endpoint" }, { "type": "array", "items": { "$ref": "#/$defs/endpoint" } } ] },
+          "options": { "type": "array", "items": { "type": "string" } },
+          "competing": { "type": "boolean" },
+          "rule_id": { "type": "string" },
+          "unresolved_checks": { "type": "array", "items": { "type": "string" } },
+          "record": { "$ref": "#/$defs/record" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["record", "decision"],
+        "properties": {
+          "record": { "$ref": "#/$defs/record" },
+          "source_clause_id": { "$ref": "#/$defs/nodeId" }, "target_clause_id": { "$ref": "#/$defs/nodeId" },
+          "decision": { "type": "string" }, "effect": { "type": "string" }, "rationale_code": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nodeId": { "type": "string", "pattern": "^[0-9]+$", "description": "BHSA 2021 clause 노드 번호 (문자열)" },
+    "record": { "type": "object", "required": ["table", "id"], "properties": { "table": { "type": "string" }, "id": { "type": "string" } } },
+    "endpoint": {
+      "oneOf": [
+        { "type": "object", "required": ["type", "id"], "properties": { "type": { "const": "clause" }, "id": { "$ref": "#/$defs/nodeId" } }, "additionalProperties": false },
+        { "type": "object", "required": ["type", "id"], "properties": { "type": { "const": "group" }, "id": { "type": "string" } }, "additionalProperties": false },
+        { "type": "object", "required": ["type", "ids"], "properties": { "type": { "const": "clause_set" }, "ids": { "type": "array", "items": { "$ref": "#/$defs/nodeId" }, "minItems": 1 } }, "additionalProperties": false }
+      ]
+    }
+  }
+}

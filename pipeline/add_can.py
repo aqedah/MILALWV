@@ -1,6 +1,11 @@
-"""words.json에 BHSA 2021 clause_atom 실제 노드 번호(can)를 넣는다.
+"""words.json에 BHSA 2021 실제 노드 번호를 넣는다.
 
-BHSA 전체를 다시 돌리지 않고 otype.tf + oslots.tf + book.tf 세 파일만 읽는다.
+- can: 절 원자(aid)마다 clause_atom 노드 번호 (앞 것과의 차이로 저장)
+- ccn: 절(cid)마다 clause 노드 번호 (앞 것과의 차이로 저장)
+- bs : 책(1~39)마다 BHSA 첫 낱말 번호 → MILAL이 주는 word_ids를 앱 낱말 번호로 바꾸는 열쇠
+- bhsa: "2021"
+
+BHSA 전체를 다시 돌리지 않고 otype.tf · oslots.tf · book.tf 를 읽고, tab.tf 로 검산한다.
 - aid(절 원자 번호, 0부터)는 build_study.py가 책을 개역 순서로 돌며 매긴 것이라
   BHSA 노드 번호와 차례가 다르다(BHSA는 타나크 순서). 그래서 실제 번호를 따로 넣는다.
 - 검산: 한 절 원자(aid)에 속한 모든 낱말이 BHSA에서도 같은 clause_atom 노드여야 하고,
@@ -38,7 +43,9 @@ def slots_of(s):
         else: out.append((int(p), int(p)))
     return out
 node = None
+CL_LO, CL_HI = rng["clause"]
 w2ca = array.array("i", [0]) * (W_HI + 2)   # 낱말 슬롯 → clause_atom 노드
+w2cl = array.array("i", [0]) * (W_HI + 2)   # 낱말 슬롯 → clause 노드
 book_slots = {}
 for ln in body(TF + "/oslots.tf"):
     if not ln.strip(): continue
@@ -49,6 +56,9 @@ for ln in body(TF + "/oslots.tf"):
     if CA_LO <= node <= CA_HI:
         for a, b in slots_of(s):
             for w in range(a, b + 1): w2ca[w] = node
+    elif CL_LO <= node <= CL_HI:
+        for a, b in slots_of(s):
+            for w in range(a, b + 1): w2cl[w] = node
     elif BK_LO <= node <= BK_HI:
         book_slots[node] = slots_of(s)
 
@@ -91,7 +101,7 @@ def dec(o):
         else: prev = o["x"][k]; k += 1
         r.append(prev)
     return r
-wa = dec(w["wa"]); at = u8(w["at"])
+wa = dec(w["wa"]); wc = dec(w["wc"]); at = u8(w["at"])
 N = len(wa)
 assert N == len(slot_seq), (N, len(slot_seq))
 nA = max(wa) + 1
@@ -103,12 +113,21 @@ for i in range(N):
     elif can[a] != n: bad += 1
 for a in range(nA):
     if min(255, tab[can[a]]) != at[a]: badtab += 1
-print("words", N, "atoms", nA, "mismatch", bad, "tab mismatch", badtab)
+nC = max(wc) + 1
+ccn = [0] * nC; badc = 0
+for i in range(N):
+    n = w2cl[slot_seq[i]]; c = wc[i]
+    if ccn[c] == 0: ccn[c] = n
+    elif ccn[c] != n: badc += 1
+bs = [book_slots[bnode[b]][0][0] for b in BH]
+print("words", N, "atoms", nA, "mismatch", bad, "tab mismatch", badtab, "| clauses", nC, "mismatch", badc, "| Job first slot", bs[17])
 print("first atoms (aid → BHSA node):", [(a, can[a]) for a in range(5)], "… Job first:", can[wa[slot_seq.index(book_slots[bnode['Iob']][0][0])]])
-assert bad == 0 and badtab == 0 and all(can)
+assert bad == 0 and badtab == 0 and all(can) and badc == 0 and all(ccn)
 # 저장: 차이 부호화(앞 노드와의 차이, 대부분 1)로 작게. 앱에서는 누적해서 쓴다.
 d = [can[0]] + [can[a] - can[a - 1] for a in range(1, nA)]
 w["can"] = d
+w["ccn"] = [ccn[0]] + [ccn[c] - ccn[c - 1] for c in range(1, nC)]
+w["bs"] = bs
 w["bhsa"] = "2021"
 json.dump(w, open(ST + "/words.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-print("wrote can (", nA, ") to", ST + "/words.json")
+print("wrote can (", nA, ") ccn (", nC, ") bs (", len(bs), ") to", ST + "/words.json")
