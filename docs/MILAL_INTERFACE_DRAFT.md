@@ -306,3 +306,12 @@ MILAL의 규칙·판정·동결 파일은 바꾸지 않는다. 내보내기는 �
 | `observed`에 실제 기록된 것만 | 없는 관찰값을 만들어 넣지 않기 위해 |
 | `NO_DIRECT_RELATION`에 `basis` 필수 | 관계가 없다는 이유로 만들어지지 않게, 판정의 출처를 되짚을 수 있게 |
 | V12·V13·V14 추가, V1은 jsonschema 없으면 '검사 불가' | 통과로 잘못 읽히지 않게 |
+
+---
+
+## 11. 연구자 승인 기록의 분리 (2026-10-20)
+
+- **분석 파일(IF-1)은 승인 과정에서 수정하지 않는다.** 승인은 별도 `study/milal/approvals.json`(규격 `MILALWV-APPROVAL-1`)에 기록한다. `pipeline/milal_approve.py`가 쓰며, `--approver`·`--status`·`--scope`를 사람이 직접 줘야 한다(자동 APPROVED 없음, TEST_ONLY 파일은 승인 불가, 일부 범위에 APPROVED 불가 → PARTIAL).
+- 기록 한 건: `if1_sha256`(승인 대상 IF-1 파일 해시) · `v1_network_sha256` · `milal{stage, rules_version, commit}` · `approver` · `date` · `scope`(ALL / RELATIONS:[id…] / CHAPTERS:[a,b]) · `status`(APPROVED / PARTIAL / REJECTED) · `note`.
+- 앱은 받은 IF-1 파일의 바이트 SHA-256을 계산해 **같은 해시의 기록만** 적용한다. 기록이 없거나 해시가 다르면 UNREVIEWED("승인 전 — 검증 대기"). PARTIAL이면 범위에 든 관계에만 "승인" 배지. 파일 안의 `review.status`는 **읽되 믿지 않는다**(파일이 자기를 승인할 수 없음; APPROVED라 적혀 있어도 기록이 없으면 무시하고 비고에 남김).
+- 전환: 기존 `review` 칸은 변환기가 늘 `{"status":"UNREVIEWED"}`로 쓰며 정보용으로만 남긴다(V16은 그대로). 승인은 approvals.json 쪽이 유일한 출처다. 나중에 `review` 칸을 없애도 앱은 영향 없다.
