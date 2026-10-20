@@ -6,7 +6,7 @@
 
 | 것 | 어디 | 확인 |
 |---|---|---|
-| MILAL 저장소 | 예: `C:\Users\yisaa\MILAL` (최신 `main`) | `git -C C:\Users\yisaa\MILAL log -1 --format=%H` → 커밋 해시 적어 두기 |
+| MILAL 저장소 | 예: `C:\MILAL` (최신 `main`) | `git -C C:\MILAL log -1 --format=%H` → 커밋 해시 적어 두기 |
 | `P2_REVIEW.zip` | `MILAL\results\mfr03_p2_20261002\release_a_v2\P2_REVIEW.zip` (SHA256 `0a96d235…`) | 없으면 P2 단계 산출물을 먼저 찾아야 함(`results/`는 Git에 없음) |
 | Python 3.11+ | `MILAL\.venv` 또는 시스템 python | `python --version` |
 | (선택) BHSA + text-fabric | `C:\Users\yisaa\text-fabric-data\github\ETCBC\bhsa\tf\2021` (있음) | `pip show text-fabric`; 있으면 BHSA 대조 게이트가 돈다 |
@@ -14,7 +14,7 @@
 ## 1. 실행 (PowerShell, MILAL 폴더에서)
 
 ```powershell
-cd C:\Users\yisaa\MILAL
+cd C:\MILAL
 .\scripts\run_milal_v1_windows.ps1 -Bhsa 'C:\Users\yisaa\text-fabric-data\github\ETCBC\bhsa\tf\2021' -NoOpen
 ```
 
@@ -26,13 +26,13 @@ cd C:\Users\yisaa\MILAL
 
 ```powershell
 cd C:\Users\yisaa\MILALWV
-python pipeline\milal_export_v1.py C:\Users\yisaa\MILAL\results\mfr03_v1_<날짜시각>\real study\milal\job.json `
-  --review-zip C:\Users\yisaa\MILAL\results\mfr03_p2_20261002\release_a_v2\P2_REVIEW.zip `
+python pipeline\milal_export_v1.py C:\MILAL\results\mfr03_v1_<날짜시각>\real study\milal\job.json `
+  --review-zip C:\MILAL\results\mfr03_p2_20261002\release_a_v2\P2_REVIEW.zip `
   --commit <0단계에서 적은 MILAL 커밋 해시> --compare study\milal\job.compare.json
 python pipeline\milal_check.py study\milal\job.json --words study\words.json
 ```
 
-- 변환기가 `LOSSLESS`를 찍고(절·묶음·관계 수, edge id 집합, 상태 분포, 방향, 근거 참조, 사람 메모가 모두 보존), 검증기가 V1~V16 **모두 PASS**(낱말 불일치 0건)여야 한다.
+- 변환기가 `ROUNDTRIP_EXACT`(또는 `STRUCTURAL_PRESERVATION_PASS`)를 찍고(절·묶음·관계 수, edge id 집합, 상태 분포, 방향, 근거 참조, 사람 메모가 모두 보존), 검증기가 V1~V16 **모두 PASS**(낱말 불일치 0건)여야 한다.
 - 둘 중 하나라도 실패하면 그 절·원인을 보고하고 멈춘다. 연구자 승인 전에는 `review.status`가 `UNREVIEWED`라 앱에 "승인 전 — 검증 대기"로 뜬다.
 
 ## 3. 앱에 연결
