@@ -1,0 +1,76 @@
+{
+ "input": {
+  "file": "test/v1_fixture/V1_RELATION_NETWORK.json",
+  "network_sha256": "0ee6e831305892cd9b039da60207a657e8ae0ffcfe1c119b7f01222921e5ff0b",
+  "stage": "MFR.0.3-V1",
+  "review_zip": "test/v1_fixture/synthetic_P2_REVIEW.zip",
+  "review_zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+ },
+ "counts": {
+  "clauses": [
+   19,
+   19
+  ],
+  "groups": [
+   18,
+   18
+  ],
+  "edges_total": 39,
+  "relations": 24,
+  "native_relations": 15,
+  "relations+native == edges": true,
+  "alternatives": [
+   3,
+   3
+  ],
+  "unassigned": [
+   4,
+   4
+  ],
+  "human_notes": [
+   1,
+   1
+  ],
+  "no_direct_relation_issues": 1,
+  "evidence": 24
+ },
+ "ids": {
+  "edge_ids_preserved": true,
+  "missing": [],
+  "extra": []
+ },
+ "status_distribution_equal": true,
+ "status_v1": {
+  "COMPETING": 4,
+  "PROVISIONAL": 16,
+  "CONFIRMED": 1,
+  "UNASSIGNED": 3
+ },
+ "status_out": {
+  "COMPETING": 4,
+  "PROVISIONAL": 16,
+  "CONFIRMED": 1,
+  "UNASSIGNED": 3
+ },
+ "direction_preserved": true,
+ "evidence_refs_valid": true,
+ "evidence_coverage": {
+  "relations_with_trace_source": 21,
+  "relations_without_evidence": 0,
+  "note": ""
+ },
+ "created_only": [
+  "family",
+  "evidence[] (trace 를 펼친 것)",
+  "issues.NO_DIRECT_RELATION (human_notes 의 직접 모절 기각에서)",
+  "issues.UNRESOLVED (groups.rule_notes 의 미결에서)",
+  "native_relations[].id (원본 edge_id 는 origin_edge_id 에)"
+ ],
+ "dropped": [
+  "legend",
+  "counts",
+  "base_group_ids(그룹 kind 로 복원 가능)",
+  "V1_DISPLAY_TREE.json(화면 배치)"
+ ],
+ "lossless": true
+}

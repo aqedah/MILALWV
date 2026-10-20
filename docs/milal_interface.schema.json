@@ -66,6 +66,15 @@
             },
             "input_receipt": {
               "type": "object"
+            },
+            "v1_fingerprint": {
+              "type": "string"
+            },
+            "review_zip_sha256": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           }
         },
@@ -99,6 +108,9 @@
           "type": "string"
         },
         "test_note": {
+          "type": "string"
+        },
+        "exporter": {
           "type": "string"
         }
       }
@@ -171,15 +183,8 @@
             "type": "string"
           },
           "kind": {
-            "enum": [
-              "LOCAL_SPEECH_UNIT",
-              "CONDITIONAL_RESPONSE_UNIT",
-              "UNRESOLVED_SCOPE_FRAGMENT",
-              "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS",
-              "ENCLOSING_SPEECH_HYPOTHESIS",
-              "SURFACE_EVENT_ANCHOR",
-              "UNCOVERED_SOURCE_CONTEXT"
-            ]
+            "type": "string",
+            "description": "MILAL 묶음 종류 그대로 (V1에서 본 것: LOCAL_SPEECH_UNIT, CONDITIONAL_RESPONSE_UNIT, UNRESOLVED_SCOPE_FRAGMENT, NARRATIVE_REPORT_SEGMENT_HYPOTHESIS, ENCLOSING_SPEECH_HYPOTHESIS, SURFACE_EVENT_ANCHOR, UNCOVERED_SOURCE_CONTEXT, REPORT_INTRODUCTION, REPORT_CONTENT …). 새 이름을 막지 않는다"
           },
           "members": {
             "type": "array",
@@ -199,9 +204,10 @@
             "additionalProperties": {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/nodeId"
+                "type": "string"
               }
-            }
+            },
+            "description": "키는 MILAL이 정함. 값이 숫자 문자열이면 절 id, 아니면 관찰 특징 이름"
           },
           "observed": {
             "type": "array"
@@ -210,7 +216,10 @@
             "type": "string"
           },
           "textual": {
-            "type": "string"
+            "type": [
+              "boolean",
+              "string"
+            ]
           },
           "frame_id": {
             "type": [
@@ -637,21 +646,27 @@
         "type": "object",
         "required": [
           "id",
-          "clause_atom",
-          "mother_clause_atom",
           "rela",
           "rela_level",
-          "source"
+          "source",
+          "clause_id",
+          "mother_clause_id"
         ],
         "properties": {
           "id": {
             "type": "string"
           },
           "clause_atom": {
-            "type": "integer"
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "mother_clause_atom": {
-            "type": "integer"
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "rela": {
             "type": "string"
@@ -688,7 +703,49 @@
                 }
               }
             }
+          },
+          "origin_edge_id": {
+            "type": "string"
+          },
+          "annotation_indexes": {
+            "type": "array"
+          },
+          "origin_status": {
+            "type": "string"
+          },
+          "origin_kind": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/$defs/record"
           }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "UNREVIEWED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        },
+        "by": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
         }
       }
     }

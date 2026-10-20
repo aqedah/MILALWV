@@ -331,7 +331,7 @@ function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalL
   else if(!S.milalOn) m=`<button class="mtog" data-milal="1">MILAL 판정 겹쳐 보기 ▸</button>`;
   else if(!st||st.state==="loading") m=`<span>MILAL 판정 불러오는 중…</span>`;
   else if(st.state==="err") m=`<span>MILAL 자료를 읽지 않음: ${esc(st.msg)}</span> <button class="mtog" data-milal="0">끄기</button>`;
-  else m=`<span>MILAL 판정 ${st.test?'<em class="mb mb-t">시험 자료</em>':""} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
+  else m=`<span>MILAL 판정 ${milalBadgeFile(st)} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
   return `<div class="srcnote"><span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다.</span></div>`; }
 /* 장 구조 보기: ETCBC 절 원자(clause atom)를 들여쓰기(tab)대로 */
 const MAINLINE=new Set(["Way0","WayX"]), BACKGR=new Set(["NmCl","AjCl","Ptcp","XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"]);

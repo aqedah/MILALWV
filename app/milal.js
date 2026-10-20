@@ -7,6 +7,8 @@ const MS_KO={CONFIRMED:"확정",PROVISIONAL:"잠정",COMPETING:"경쟁",UNASSIGN
 const MG_KO={LOCAL_SPEECH_UNIT:"발언 단위",CONDITIONAL_RESPONSE_UNIT:"조건부 응답 단위",UNRESOLVED_SCOPE_FRAGMENT:"범위 미결 조각",NARRATIVE_REPORT_SEGMENT_HYPOTHESIS:"서술 보고 구간(가설)",ENCLOSING_SPEECH_HYPOTHESIS:"큰 발언 가설",SURFACE_EVENT_ANCHOR:"표면 사건 표지",UNCOVERED_SOURCE_CONTEXT:"덮이지 않은 출처 문맥"};
 const MI_KO={ALTERNATIVE_SET:"대안 묶음",UNRESOLVED:"미결",SCOPE_CONFLICT:"범위 충돌",UNASSIGNED_CLAUSE:"미배정 절",NO_DIRECT_RELATION:"직접 연결 없음(판정)"};
 const ML={}; /* book → {state:"loading"|"ok"|"err", data, byCid, msg} */
+/* 자료 상태 배지: 시험 자료 / 승인 전 / 승인됨 — '검증된 MILAL 자료'는 연구자 승인(APPROVED) 뒤에만 */
+function milalBadgeFile(st){ if(!st||st.state!=="ok") return ""; if(st.test) return '<em class="mb mb-t">시험 자료</em>'; return st.review==="APPROVED"?'<em class="mb mb-c">연구자 승인</em>':'<em class="mb mb-i">승인 전 — 검증 대기</em>'; }
 
 function milalFile(b){ return MILAL_FILES.find(f=>f.book===b); }
 function milalState(b){ return ML[b]; }
@@ -24,7 +26,9 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
     /* V5: 절의 BHSA 낱말 번호 전체 대조 (앱 낱말 i → 책 첫 슬롯 bs[b-1] + 책 안 순번) */
     const slots=new Map(); if(SD.bs){ for(const v of SD.V){ const b=v[0], bf=SD.book[b].a!=null?SD.V[SD.book[b].a][5]:0; for(let i=v[5];i<v[5]+v[6];i++){ const c=SD.wc[i]; if(byCid.has(c)){ (slots.get(c)||slots.set(c,[]).get(c)).push(SD.bs[b-1]+(i-bf)); } } } }
     let badN=0; for(const [c,o] of byCid){ const got=slots.get(c)||[]; const want=o.node.word_ids; if(got.length!==want.length||got.some((x,k)=>x!==want[k])){ const a=new Set(got); if(got.length!==want.length||want.some(x=>!a.has(x))){ o.badWords=true; badN++; } } }
-    if(badN>byCid.size*0.1){ st.state="err"; st.msg=`낱말 번호 대조 실패가 ${badN}절 (10% 초과) — 자료판이 다를 수 있음`; render(); return; }
+    /* 실제 출력은 불일치 0건이 완료 기준. 시험 자료만 10% 까지 봐준다 */
+    if(D.file_status==="MILAL_OUTPUT"?badN>0:badN>byCid.size*0.1){ const bad=[...byCid.values()].filter(o=>o.badWords).slice(0,5).map(o=>o.node.ch+":"+o.node.vs+"(#"+o.node.id+")"); st.state="err"; st.msg=`낱말 번호 대조 실패 ${badN}절 (예: ${bad.join(", ")}) — 자료판이 다르거나 변환이 어긋남. 연구자 확인 전에는 읽지 않음`; render(); return; }
+    if(unmatched.length&&D.file_status==="MILAL_OUTPUT"){ st.state="err"; st.msg=`앱 자료에 없는 절 id ${unmatched.length}개 (예: ${unmatched.slice(0,3).join(", ")})`; render(); return; }
     const gid=new Map(D.groups.map(g=>[g.id,g])), ev=new Map(D.evidence.map(e=>[e.id,e]));
     /* 절 끝점은 절에, 묶음 끝점은 묶음에 붙인다 (묶음 관계를 첫 절에 붙이면 뜻이 어긋난다) */
     const endCids=e=>e.type==="clause"?[nodeCid.get(e.id)]:e.type==="clause_set"?e.ids.map(i=>nodeCid.get(i)):[];
@@ -38,7 +42,7 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
       cs.forEach(c=>byCid.has(c)&&byCid.get(c).issues.push(s)); gs.forEach(g=>byGid.has(g)&&byGid.get(g).issues.push(s)); }
     /* BHSA 원 자료(native_relations): 절 원자 번호로 색인 — MILAL 판정과 다른 층 */
     const natByAtom=new Map(); for(const x of D.native_relations||[]) natByAtom.set(x.clause_atom,x);
-    Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,warn:chk.warn,test:D.file_status==="TEST_ONLY"}); render();
+    Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,warn:chk.warn,test:D.file_status==="TEST_ONLY",review:(D.review&&D.review.status)||"UNREVIEWED"}); render();
   }).catch(e=>{ st.state="err"; st.msg=String(e.message||e); render(); });
   return st; }
 /* 가벼운 검증 (V2·V3·V6·V7·V9; 전체 검사는 pipeline/milal_check.py) */
@@ -93,7 +97,7 @@ function openAtomSheet(b,aid){ const w0=atomFirstWord(aid), cid=SD.wc[w0], vi=SD
       return `<div class="mrel"><div>${lab(r)} ${arrow+endLab(dir==="in"?r.source:r.target)}</div><small>규칙 ${esc(r.rule)} · 출처 ${esc(r.record.table)} #${esc(r.record.id)}${r.extra&&r.extra.rela?" · rela="+esc(r.extra.rela):""}</small>${r.note?`<small>${esc(r.note)}</small>`:""}${evs.length?`<ul class="mev">${evs.map(e=>{ const oc={PASSED:["c","통과"],FAILED:["x","실패"],UNRESOLVED:["u","미결"],HUMAN:["c","연구자"]}[e.outcome]||["u",e.outcome]; const role=e.role?` <em class="mb mb-${e.role==="COUNTEREVIDENCE"?"x":"u"}">${e.role==="COUNTEREVIDENCE"?"반례":e.role==="REQUIRED"?"필수":"보조"}</em>`:""; const obs=(e.observed?.clause_ids||[]).map(i=>{ const c=st.nodeCid.get(i); return c!=null?`<button class="mgo" data-mgo="${SD.cFirstA[c]}">${esc(sRef(SD.vOf[atomFirstWord(SD.cFirstA[c])]))}</button>`:""; }).join(" ");
       return `<li><em class="mb mb-${oc[0]}">${oc[1]}</em>${role} ${esc(e.rule_id)}${e.check?" · "+esc(e.check):""} — ${esc(e.text||"")}${obs?` <span class="mobs">관찰: ${obs}</span>`:""}</li>`; }).join("")}</ul>`:""}</div>`; };
     const mil=r=>true;
-    h+=`<div class="src3"><span class="label">MILAL 판정${st.test?' <em class="mb mb-t">시험 자료 — 실제 판정 아님</em>':""}</span>`;
+    h+=`<div class="src3"><span class="label">MILAL 판정 ${milalBadgeFile(st)}${st.test?" <small>— 실제 판정 아님</small>":st.review!=="APPROVED"?" <small>— 연구자 승인 전</small>":""}</span>`;
     h+=`<p class="lead" style="margin:2px 0 6px">${esc(D.source.milal.stage)} · 규칙 ${esc(D.source.milal.rules_version)} · ${esc(D.source.generated_at.slice(0,10))}${!st.test&&D.source.milal.commit?` · 커밋 ${esc(D.source.milal.commit.slice(0,8))}`:""}${o.badWords?' · <em class="mb mb-x">낱말 대조 실패</em>':""}</p>`;
     if(o.groups.length){ h+=`<span class="label">속한 묶음</span>`; for(const {g} of o.groups){ const G=st.byGid.get(g.id); h+=`<div class="mrel"><div><b>${esc(MG_KO[g.kind]||g.kind)}</b> ${esc(g.first)}–${esc(g.last)} · ${g.members.length}절${g.roles&&g.roles.introduction&&g.roles.introduction.includes(o.node.id)?" · <b>이 절이 도입</b>":""}</div>${G.inRel.map(r=>`<small>${lab(r)} ${r.kind==="PARALLEL"?"↔":r.kind==="CLOSURE"?"← 닫는 것:":"← 모절·틀:"} ${endLab(r.source)} · 규칙 ${esc(r.rule)}</small>`).join("")}${G.outRel.filter(r=>r.kind!=="MEMBERSHIP").map(r=>`<small>${lab(r)} → ${endLab(r.target)} · 규칙 ${esc(r.rule)}</small>`).join("")}${G.issues.map(s=>`<small><b>${esc(MI_KO[s.kind]||s.kind)}</b>${s.unresolved_checks?" · "+esc(s.unresolved_checks.join(", ")):""}${s.options?" · "+s.options.map(x=>{ const gg=st.gid.get(x); return gg?esc((MG_KO[gg.kind]||gg.kind)+" "+gg.first+"–"+gg.last):esc(x); }).join(" / "):""}</small>`).join("")}</div>`; } }
     const inM=o.inRel, outM=o.outRel;
@@ -137,7 +141,7 @@ function unitMapView(b){ const S=view.st, f=milalFile(b); if(!f) return `<sectio
   const D=st.data, base=D.groups.filter(g=>g.kind!=="ENCLOSING_SPEECH_HYPOTHESIS"&&g.kind!=="SURFACE_EVENT_ANCHOR"&&g.kind!=="UNCOVERED_SOURCE_CONTEXT");
   const pos=g=>{ const c=st.nodeCid.get(g.members[0]); return c!=null?SD.cFirstA[c]:1e9; }; base.sort((x,y)=>pos(x)-pos(y));
   const sc=D.source.scope, lab=`${PLAN.full[b-1]} ${sc.chapters?sc.chapters[0]+"–"+sc.chapters[1]+"장":""}`;
-  let h=`<div class="srcnote"><span>이 지도는 <b>MILAL 묶음(판정)</b>을 본문 순서로 늘어놓은 것입니다. 단위 사이에 <b>확정된 계층 관계</b>가 있을 때만 선을 긋고, 없으면 순서만 보입니다.${st.test?' <em class="mb mb-t">시험 자료</em>':""}</span><span class="lead">범위: ${esc(lab)} · 단위 ${base.length}개 · 누르면 그 장의 구조로 갑니다.</span></div><div class="umap">`;
+  let h=`<div class="srcnote"><span>이 지도는 <b>MILAL 묶음(판정)</b>을 본문 순서로 늘어놓은 것입니다. 단위 사이에 <b>확정된 계층 관계</b>가 있을 때만 선을 긋고, 없으면 순서만 보입니다. ${milalBadgeFile(st)}</span><span class="lead">범위: ${esc(lab)} · 단위 ${base.length}개 · 누르면 그 장의 구조로 갑니다.</span></div><div class="umap">`;
   const relBetween=(a,c)=>{ const G=st.byGid.get(c.id); return G.inRel.filter(r=>r.family==="HIERARCHY"&&r.source.type==="group"&&r.source.id===a.id); };
   const pairPar=(a,c)=>{ const ia=(a.roles&&a.roles.introduction||[])[0], ic=(c.roles&&c.roles.introduction||[])[0]; if(!ia||!ic) return null; const o=st.byCid.get(st.nodeCid.get(ia)); return o&&o.outRel.find(r=>r.kind==="PARALLEL"&&r.target.type==="clause"&&r.target.id===ic); };
   const curC=S.vc; 

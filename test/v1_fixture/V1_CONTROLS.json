@@ -1,0 +1,195 @@
+[
+ {
+  "check": "FRAME_FOLD",
+  "control_id": "S-FOLD",
+  "observations": {
+   "folded_children": [
+    [
+     "clause",
+     "103"
+    ],
+    [
+     "group",
+     "cA"
+    ]
+   ],
+   "folded_label": "וַיַּעַן אֱלִיפַז וַיֹּאמַר׃",
+   "frame_content_edges": [
+    {
+     "content": "cA",
+     "edge": "V1-EDGE-5f536897d310bd988401",
+     "status": "PROVISIONAL"
+    }
+   ],
+   "intro_group": "iA",
+   "second_clause_parent": "103"
+  },
+  "passed": true,
+  "title": "fold"
+ },
+ {
+  "check": "PAIR_RELATION_REPORT",
+  "control_id": "S-PAIR",
+  "observations": {
+   "106": {
+    "display_parent": "105",
+    "edges": [
+     [
+      "CONTINUATION",
+      "UNASSIGNED",
+      "BHSA clause_atom rela=NA"
+     ],
+     [
+      "SUBORDINATE",
+      "UNASSIGNED",
+      "BHSA clause_atom rela=Objc"
+     ]
+    ],
+    "native_heads": [
+     "105"
+    ],
+    "ref": "2:2",
+    "top_item": 2
+   },
+   "110": {
+    "display_parent": "cB",
+    "edges": [
+     [
+      "CONTINUATION",
+      "COMPETING",
+      "BHSA clause_atom rela=NA"
+     ],
+     [
+      "CONTINUATION",
+      "UNASSIGNED",
+      "BHSA clause_atom rela=NA"
+     ]
+    ],
+    "native_heads": [
+     "109"
+    ],
+    "ref": "3:2",
+    "top_item": 3
+   },
+   "direct_edges": [],
+   "direct_relation": "기록된 직접 관계선 없음",
+   "same_top_item": false
+  },
+  "passed": true,
+  "title": "pair"
+ },
+ {
+  "check": "FRAMES_AND_ALTERNATIVES",
+  "control_id": "S-FRAMES",
+  "observations": {
+   "alternatives_applicable": {
+    "V1-ALT-9252e86400f42b25": true
+   },
+   "frames": [
+    {
+     "alternatives": [
+      {
+       "alternative": "V1-ALT-9252e86400f42b25",
+       "option": "E1",
+       "range": "3:1–4:2",
+       "role": [
+        "initial_introduction_clause_ids"
+       ]
+      }
+     ],
+     "frame_content": [
+      {
+       "content": "cB",
+       "content_range": "3:2–3:2",
+       "edge": "V1-EDGE-ede76e10ade7e9e04539",
+       "status": "PROVISIONAL"
+      }
+     ],
+     "group": "iB",
+     "parallels": [],
+     "ref": "3:1"
+    },
+    {
+     "alternatives": [
+      {
+       "alternative": "V1-ALT-9252e86400f42b25",
+       "option": "E1",
+       "range": "3:1–4:2",
+       "role": [
+        "internal_introduction_clause_ids"
+       ]
+      },
+      {
+       "alternative": "V1-ALT-9252e86400f42b25",
+       "option": "E2",
+       "range": "4:1–4:2",
+       "role": [
+        "initial_introduction_clause_ids"
+       ]
+      }
+     ],
+     "frame_content": [
+      {
+       "content": "cC",
+       "content_range": "4:2–4:2",
+       "edge": "V1-EDGE-3faa54bf02a2bb158da0",
+       "status": "UNASSIGNED"
+      }
+     ],
+     "group": "iC",
+     "parallels": [
+      {
+       "other": "iA",
+       "rule": "G3 CONSTRUCTION_PARALLELISM",
+       "status": "PROVISIONAL"
+      }
+     ],
+     "ref": "4:1"
+    }
+   ]
+  },
+  "passed": true,
+  "title": "frames"
+ },
+ {
+  "check": "TOP_LEVEL_CANDIDATE",
+  "control_id": "S-TOP",
+  "observations": {
+   "in_unassigned_panel": true,
+   "top_item": {
+    "id": "V1-RUN-100-101",
+    "justification": {
+     "top": "UNASSIGNED"
+    },
+    "type": "unassigned_run"
+   },
+   "top_item_index": 0,
+   "top_level_candidates": 7
+  },
+  "passed": true,
+  "title": "top"
+ },
+ {
+  "check": "INDEPENDENT_REVIEW",
+  "control_id": "S-INDEP",
+  "observations": {
+   "edges": [
+    {
+     "kind": "CLOSURE",
+     "other": "gA",
+     "rule": "G5 DIRECT_LOCAL_CLOSURE",
+     "status": "UNASSIGNED"
+    }
+   ],
+   "groups": [
+    {
+     "id": "U-102",
+     "kind": "UNCOVERED_SOURCE_CONTEXT"
+    }
+   ],
+   "own_top_level_row": true
+  },
+  "passed": true,
+  "title": "indep"
+ }
+]

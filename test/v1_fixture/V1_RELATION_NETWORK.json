@@ -1,0 +1,1907 @@
+{
+ "alternatives": [
+  {
+   "alternative_id": "V1-ALT-e624eaef297d9eac",
+   "competing": false,
+   "kind": "OVERLAPPING_GROUPING_HYPOTHESES",
+   "note": "겹치는 묶음 가설. 기본 화면에는 적용하지 않음; 하나를 골라 적용해 볼 수 있음.",
+   "options": [
+    "E3"
+   ]
+  },
+  {
+   "alternative_id": "V1-ALT-9252e86400f42b25",
+   "competing": true,
+   "kind": "OVERLAPPING_GROUPING_HYPOTHESES",
+   "note": "겹치는 묶음 가설. 기본 화면에는 적용하지 않음; 하나를 골라 적용해 볼 수 있음.",
+   "options": [
+    "E1",
+    "E2"
+   ]
+  },
+  {
+   "alternative_id": "V1-ALT-5d1575f64ff6b977",
+   "clause_id": "111",
+   "competing": true,
+   "kind": "MULTIPLE_NATIVE_HEADS",
+   "note": "BHSA 원 데이터에서 모절 후보가 둘 이상. 화면에서는 어느 쪽에도 넣지 않음.",
+   "options": [
+    "109",
+    "110"
+   ]
+  }
+ ],
+ "base_group_ids": [
+  "gA",
+  "gB",
+  "gC",
+  "nN"
+ ],
+ "clauses": [
+  {
+   "ch": 1,
+   "domain": "Q",
+   "id": "100",
+   "native_self_annotations": [],
+   "pos": 0,
+   "ref": "1:1",
+   "text": "אִישׁ הָיָה ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1000,
+    1001
+   ]
+  },
+  {
+   "ch": 1,
+   "domain": "Q",
+   "id": "101",
+   "native_self_annotations": [],
+   "pos": 1,
+   "ref": "1:1",
+   "text": "וְהָיָה תָּם ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1010,
+    1011
+   ]
+  },
+  {
+   "ch": 1,
+   "domain": "Q",
+   "id": "102",
+   "native_self_annotations": [],
+   "pos": 2,
+   "ref": "1:2",
+   "text": "תַּמּוּ דִּבְרֵי ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1020,
+    1021
+   ]
+  },
+  {
+   "ch": 2,
+   "domain": "Q",
+   "id": "103",
+   "native_self_annotations": [],
+   "pos": 3,
+   "ref": "2:1",
+   "text": "וַיַּעַן אֱלִיפַז ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1030,
+    1031
+   ]
+  },
+  {
+   "ch": 2,
+   "domain": "Q",
+   "id": "104",
+   "native_self_annotations": [],
+   "pos": 4,
+   "ref": "2:1",
+   "text": "וַיֹּאמַר׃ ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1040,
+    1041
+   ]
+  },
+  {
+   "ch": 2,
+   "domain": "Q",
+   "id": "105",
+   "native_self_annotations": [],
+   "pos": 5,
+   "ref": "2:2",
+   "text": "הֲנִסָּה דָבָר ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1050,
+    1051
+   ]
+  },
+  {
+   "ch": 2,
+   "domain": "Q",
+   "id": "106",
+   "native_self_annotations": [],
+   "pos": 6,
+   "ref": "2:2",
+   "text": "עְצֹר בְּמִלִּין ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1060,
+    1061
+   ]
+  },
+  {
+   "ch": 2,
+   "domain": "Q",
+   "id": "107",
+   "native_self_annotations": [
+    1
+   ],
+   "pos": 7,
+   "ref": "2:3",
+   "text": "מִי יוּכָל׃ ",
+   "type": "X",
+   "vs": 3,
+   "word_ids": [
+    1070,
+    1071
+   ]
+  },
+  {
+   "ch": 3,
+   "domain": "Q",
+   "id": "108",
+   "native_self_annotations": [],
+   "pos": 8,
+   "ref": "3:1",
+   "text": "וַיַּעַן בִּלְדַּד ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1080,
+    1081
+   ]
+  },
+  {
+   "ch": 3,
+   "domain": "Q",
+   "id": "109",
+   "native_self_annotations": [],
+   "pos": 9,
+   "ref": "3:1",
+   "text": "וַיֹּאמַר׃ ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1090,
+    1091
+   ]
+  },
+  {
+   "ch": 3,
+   "domain": "Q",
+   "id": "110",
+   "native_self_annotations": [],
+   "pos": 10,
+   "ref": "3:2",
+   "text": "עַד־אָן ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1100,
+    1101
+   ]
+  },
+  {
+   "ch": 3,
+   "domain": "Q",
+   "id": "111",
+   "native_self_annotations": [],
+   "pos": 11,
+   "ref": "3:2",
+   "text": "תְּמַלֶּל־אֵלֶּה׃ ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1110,
+    1111
+   ]
+  },
+  {
+   "ch": 4,
+   "domain": "Q",
+   "id": "112",
+   "native_self_annotations": [],
+   "pos": 12,
+   "ref": "4:1",
+   "text": "וַיַּעַן צֹפַר ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1120,
+    1121
+   ]
+  },
+  {
+   "ch": 4,
+   "domain": "Q",
+   "id": "113",
+   "native_self_annotations": [],
+   "pos": 13,
+   "ref": "4:1",
+   "text": "וַיֹּאמַר׃ ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1130,
+    1131
+   ]
+  },
+  {
+   "ch": 4,
+   "domain": "Q",
+   "id": "114",
+   "native_self_annotations": [],
+   "pos": 14,
+   "ref": "4:2",
+   "text": "אִם־אָמַר אִישׁ ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1140,
+    1141
+   ]
+  },
+  {
+   "ch": 4,
+   "domain": "Q",
+   "id": "115",
+   "native_self_annotations": [],
+   "pos": 15,
+   "ref": "4:2",
+   "text": "כִּי יְבֻלָּע׃ ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1150,
+    1151
+   ]
+  },
+  {
+   "ch": 5,
+   "domain": "Q",
+   "id": "116",
+   "native_self_annotations": [],
+   "pos": 16,
+   "ref": "5:1",
+   "text": "וַיִּשְׁבְּתוּ ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1160,
+    1161
+   ]
+  },
+  {
+   "ch": 5,
+   "domain": "Q",
+   "id": "117",
+   "native_self_annotations": [],
+   "pos": 17,
+   "ref": "5:1",
+   "text": "מֵעֲנוֹת ",
+   "type": "X",
+   "vs": 1,
+   "word_ids": [
+    1170,
+    1171
+   ]
+  },
+  {
+   "ch": 5,
+   "domain": "Q",
+   "id": "118",
+   "native_self_annotations": [],
+   "pos": 18,
+   "ref": "5:2",
+   "text": "וַיְהִי ",
+   "type": "X",
+   "vs": 2,
+   "word_ids": [
+    1180,
+    1181
+   ]
+  }
+ ],
+ "counts": {
+  "alternatives": 3,
+  "base_groups": 4,
+  "by_kind": {
+   "CLOSURE": 3,
+   "CONTINUATION": 12,
+   "FRAME_CONTENT": 3,
+   "MEMBERSHIP": 12,
+   "PARALLEL": 5,
+   "SUBORDINATE": 4
+  },
+  "by_kind_status": {
+   "CLOSURE:PROVISIONAL": 1,
+   "CLOSURE:UNASSIGNED": 2,
+   "CONTINUATION:COMPETING": 2,
+   "CONTINUATION:UNASSIGNED": 10,
+   "FRAME_CONTENT:PROVISIONAL": 2,
+   "FRAME_CONTENT:UNASSIGNED": 1,
+   "MEMBERSHIP:COMPETING": 4,
+   "MEMBERSHIP:PROVISIONAL": 8,
+   "PARALLEL:PROVISIONAL": 4,
+   "PARALLEL:UNASSIGNED": 1,
+   "SUBORDINATE:CONFIRMED": 1,
+   "SUBORDINATE:PROVISIONAL": 1,
+   "SUBORDINATE:UNASSIGNED": 2
+  },
+  "by_status": {
+   "COMPETING": 6,
+   "CONFIRMED": 1,
+   "PROVISIONAL": 16,
+   "UNASSIGNED": 16
+  },
+  "clauses": 19,
+  "edges": 39,
+  "groups": 18,
+  "unassigned_clauses": 4
+ },
+ "edges": [
+  {
+   "edge_id": "V1-EDGE-03278a907e2e9d099dd9",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X9",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "iB",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-184161a51b8a1a8332e9",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X1",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "iA",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-19dd9601046901b61fc7",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X4",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gB",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "cB",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-20227b9e258e9824d50b",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X5",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gC",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "iC",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-322a4b62c34b16d98887",
+   "evidence_clause_ids": [
+    "100",
+    "101"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "101#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "100",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "101",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-33b2ae32af0d657f39ba",
+   "evidence_clause_ids": [
+    "105",
+    "116"
+   ],
+   "kind": "PARALLEL",
+   "note": "EXACT; MACHINE_PROVISIONAL",
+   "record": {
+    "id": "P1-1",
+    "table": "frozen_typed_relations"
+   },
+   "rule": "P1-A1 PARATACTIC",
+   "source": {
+    "id": "105",
+    "type": "clause"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "116",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-35ff8f27dfa3ef0da414",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X6",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gC",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "cC",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-399269e65291086323b5",
+   "evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "kind": "SUBORDINATE",
+   "note": "사람 판정 채택: ACCEPTED_AS_LOCAL_MOTHER (LOCAL)",
+   "record": {
+    "id": "H-1#a",
+    "table": "frozen_human"
+   },
+   "rule": "HUMAN H-1",
+   "source": {
+    "id": "114",
+    "type": "clause"
+   },
+   "status": "CONFIRMED",
+   "target": {
+    "id": "115",
+    "type": "clause"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-3c4a99606334c020598a",
+   "evidence_clause_ids": [
+    "108",
+    "109"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "109#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "108",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "109",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-3c588bda9da5918f2a84",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X12",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "cA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "anc",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-3faa54bf02a2bb158da0",
+   "evidence_clause_ids": [],
+   "kind": "FRAME_CONTENT",
+   "note": "틀–내용 규칙 미결: complete_member_scope",
+   "record": {
+    "id": "T-C",
+    "table": "P2_RULE_TRACE"
+   },
+   "rule": "G1",
+   "source": {
+    "id": "iC",
+    "type": "group"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "cC",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-4e6ba0dbf7e6dfacfffe",
+   "evidence_clause_ids": [
+    "113",
+    "114"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "114#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "113",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "114",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-542d131f45840ae0f54f",
+   "evidence_clause_ids": [
+    "108"
+   ],
+   "kind": "CLOSURE",
+   "note": "ENDPOINT; 모절 주장 아님",
+   "record": {
+    "id": "X13",
+    "table": "context_relations"
+   },
+   "rule": "G5 LOCAL_SCOPE_ENDPOINT",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "108",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-581f90983ebc54981f7b",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X7",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "gB",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-5cc26aa81cf34ec719f7",
+   "evidence_clause_ids": [
+    "105",
+    "107"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "107#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "105",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "107",
+    "type": "clause"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-5d76858f31e8002df2c0",
+   "evidence_clause_ids": [
+    "103",
+    "104"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "104#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "103",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "104",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-5f536897d310bd988401",
+   "evidence_clause_ids": [
+    "103"
+   ],
+   "kind": "FRAME_CONTENT",
+   "note": "P2 기계 판정 모절(INTRA_REPORT); 사람 승인 아님",
+   "proposal_ids": [
+    "T-A"
+   ],
+   "record": {
+    "id": "MA-A",
+    "table": "graph.assertions"
+   },
+   "rule": "G1",
+   "source": {
+    "id": "iA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "cA",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-603ccc713f06f09eb93f",
+   "evidence_clause_ids": [
+    "116",
+    "117"
+   ],
+   "kind": "PARALLEL",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "record": {
+    "id": "117#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "Coor",
+   "rule": "BHSA clause_atom rela=Coor",
+   "source": {
+    "id": "116",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "117",
+    "type": "clause"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-62c116867d14626b708e",
+   "evidence_clause_ids": [
+    "104",
+    "105"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "105#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "104",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "105",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-70b3c524d878392948cf",
+   "evidence_clause_ids": [],
+   "kind": "SUBORDINATE",
+   "note": "앵커 절 사이에서만 통과(EXACT_ANCHOR_CLAUSES_ONLY)",
+   "record": {
+    "id": "T-N",
+    "table": "P2_RULE_TRACE"
+   },
+   "rule": "G2 ANCHOR_RELATION",
+   "source": {
+    "id": "cA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "anc",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-7a80e86d72ab0dfe0565",
+   "evidence_clause_ids": [
+    "118"
+   ],
+   "kind": "CLOSURE",
+   "note": "CLOSURE; 모절 주장 아님",
+   "record": {
+    "id": "X15",
+    "table": "context_relations"
+   },
+   "rule": "G5 TERMINATES_ENCLOSING_GROUP",
+   "source": {
+    "id": "118",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "E1",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-894f3df6bd77234ddcdf",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X10",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "E2",
+    "type": "group"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "gC",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    1
+   ],
+   "edge_id": "V1-EDGE-981c51fb8cdaed55e38d",
+   "evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "115#1",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "114",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "115",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-9efe54810e1b8c7f5035",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X2",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "cA",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    1
+   ],
+   "edge_id": "V1-EDGE-a514f33ed26547f7c455",
+   "evidence_clause_ids": [
+    "105",
+    "106"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "106#1",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "105",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "106",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-b1bcb28494d6dc78907f",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X11",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "E3",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "gA",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    1
+   ],
+   "edge_id": "V1-EDGE-b3a3c23648b6ab1d5f6c",
+   "evidence_clause_ids": [
+    "109",
+    "111"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "111#1",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "109",
+    "type": "clause"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "111",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-b9260411ba1c542d6fdb",
+   "evidence_clause_ids": [],
+   "kind": "PARALLEL",
+   "note": "도입 구문만 대응(단위 전체 병행 아님)",
+   "record": {
+    "id": "T-K",
+    "table": "P2_RULE_TRACE"
+   },
+   "rule": "G3 CONSTRUCTION_PARALLELISM",
+   "source": {
+    "id": "iA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "iC",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-bc27d195d0a92cc6d5d2",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X3",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "gB",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "iB",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-bdb56370abe7cea3030d",
+   "evidence_clause_ids": [
+    "112",
+    "113"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "113#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "112",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "113",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-c4410e6259918e5079d6",
+   "evidence_clause_ids": [
+    "103",
+    "104",
+    "108",
+    "109"
+   ],
+   "kind": "PARALLEL",
+   "note": "WHOLE; MACHINE_PROVISIONAL",
+   "record": {
+    "id": "P1-2",
+    "table": "frozen_typed_relations"
+   },
+   "rule": "P1-A2 CONSTRUCTION_PARALLELISM_PROVISIONAL",
+   "source": {
+    "ids": [
+     "103",
+     "104"
+    ],
+    "type": "clause_set"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "ids": [
+     "108",
+     "109"
+    ],
+    "type": "clause_set"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-c5c59f01306dc1d62faf",
+   "evidence_clause_ids": [],
+   "kind": "PARALLEL",
+   "note": "단위 전체 병행(잠정). 모절이 같다는 뜻은 아님",
+   "proposal_ids": [
+    "T-P"
+   ],
+   "record": {
+    "id": "MA-P",
+    "table": "graph.assertions"
+   },
+   "rule": "G3 MACRO_PARATACTIC",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "gB",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-d1045e87e907cdf220ce",
+   "evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "kind": "SUBORDINATE",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "record": {
+    "id": "115#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "Adju",
+   "rule": "BHSA clause_atom rela=Adju",
+   "source": {
+    "id": "114",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "115",
+    "type": "clause"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-d59d4f3f4b771feb6480",
+   "evidence_clause_ids": [
+    "110",
+    "111"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "111#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "110",
+    "type": "clause"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "111",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-d5eedab20ce238826e2f",
+   "evidence_clause_ids": [
+    "102"
+   ],
+   "kind": "CLOSURE",
+   "note": "CLOSURE; 모절 주장 아님",
+   "record": {
+    "id": "X14",
+    "table": "context_relations"
+   },
+   "rule": "G5 DIRECT_LOCAL_CLOSURE",
+   "source": {
+    "id": "102",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "gA",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-d821a5955680a50f1c0f",
+   "evidence_clause_ids": [
+    "105",
+    "106"
+   ],
+   "kind": "SUBORDINATE",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "record": {
+    "id": "106#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "Objc",
+   "rule": "BHSA clause_atom rela=Objc",
+   "source": {
+    "id": "105",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "106",
+    "type": "clause"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-ede76e10ade7e9e04539",
+   "evidence_clause_ids": [
+    "108"
+   ],
+   "kind": "FRAME_CONTENT",
+   "note": "P2 기계 판정 모절(INTRA_REPORT); 사람 승인 아님",
+   "proposal_ids": [
+    "T-B"
+   ],
+   "record": {
+    "id": "MA-B",
+    "table": "graph.assertions"
+   },
+   "rule": "G1",
+   "source": {
+    "id": "iB",
+    "type": "group"
+   },
+   "status": "PROVISIONAL",
+   "target": {
+    "id": "cB",
+    "type": "group"
+   }
+  },
+  {
+   "edge_id": "V1-EDGE-f94c2b088063cf6d8c01",
+   "evidence_clause_ids": [],
+   "kind": "MEMBERSHIP",
+   "note": "정확한 구성원 포함. 모절 주장 아님",
+   "record": {
+    "id": "X8",
+    "table": "context_relations"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "status": "COMPETING",
+   "target": {
+    "id": "gC",
+    "type": "group"
+   }
+  },
+  {
+   "annotation_indexes": [
+    0
+   ],
+   "edge_id": "V1-EDGE-fcbccbf50c973190940c",
+   "evidence_clause_ids": [
+    "109",
+    "110"
+   ],
+   "kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "record": {
+    "id": "110#0",
+    "table": "raw_clauses.native_annotations"
+   },
+   "rela": "NA",
+   "rule": "BHSA clause_atom rela=NA",
+   "source": {
+    "id": "109",
+    "type": "clause"
+   },
+   "status": "UNASSIGNED",
+   "target": {
+    "id": "110",
+    "type": "clause"
+   }
+  }
+ ],
+ "groups": [
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:1",
+   "frame_id": null,
+   "id": "U-100",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:1",
+   "members": [
+    "100"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-100",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:1",
+   "frame_id": null,
+   "id": "U-101",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:1",
+   "members": [
+    "101"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-101",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:2",
+   "frame_id": null,
+   "id": "U-102",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:2",
+   "members": [
+    "102"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-102",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "E3",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "2:3",
+   "members": [
+    "103",
+    "104",
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "103",
+     "104"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E3",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "gA",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "2:3",
+   "members": [
+    "103",
+    "104",
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "105",
+     "106",
+     "107"
+    ],
+    "initial_introduction_clause_ids": [
+     "103",
+     "104"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "iA",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "2:1",
+   "members": [
+    "103",
+    "104"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "iA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:2",
+   "frame_id": null,
+   "id": "cA",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "2:3",
+   "members": [
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "cA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:2",
+   "frame_id": null,
+   "id": "anc",
+   "interpretation_dependencies": [],
+   "kind": "SURFACE_EVENT_ANCHOR",
+   "last": "2:2",
+   "members": [
+    "106"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [
+    "TIME_PHRASE"
+   ],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "observed_features": [
+     "TIME_PHRASE"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "anc",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "E1",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "4:2",
+   "members": [
+    "108",
+    "109",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "108",
+     "109"
+    ],
+    "internal_introduction_clause_ids": [
+     "112",
+     "113"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E1",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 1,
+   "candidate_rule_summary": {
+    "G2:MACRO_HYPOTACTIC:UNRESOLVED": 1
+   },
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "gB",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "3:2",
+   "members": [
+    "108",
+    "109",
+    "110",
+    "111"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "110",
+     "111"
+    ],
+    "initial_introduction_clause_ids": [
+     "108",
+     "109"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "iB",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "3:1",
+   "members": [
+    "108",
+    "109"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [
+    {
+     "failed": [
+      "explicit_subject"
+     ],
+     "other": "cC",
+     "rule": "G1",
+     "status": "FAILED",
+     "trace_id": "T-F",
+     "unresolved": []
+    }
+   ],
+   "source_id": "iB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:2",
+   "frame_id": null,
+   "id": "cB",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "3:2",
+   "members": [
+    "110",
+    "111"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "cB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "E2",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "4:2",
+   "members": [
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "112",
+     "113"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E2",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "gC",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "4:2",
+   "members": [
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "114",
+     "115"
+    ],
+    "initial_introduction_clause_ids": [
+     "112",
+     "113"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "iC",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "4:1",
+   "members": [
+    "112",
+    "113"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "iC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:2",
+   "frame_id": null,
+   "id": "cC",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "4:2",
+   "members": [
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [
+    {
+     "failed": [
+      "explicit_subject"
+     ],
+     "other": "iB",
+     "rule": "G1",
+     "status": "FAILED",
+     "trace_id": "T-F",
+     "unresolved": []
+    }
+   ],
+   "source_id": "cC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "5:1",
+   "frame_id": null,
+   "id": "nN",
+   "interpretation_dependencies": [],
+   "kind": "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS",
+   "last": "5:1",
+   "members": [
+    "116",
+    "117"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "outer_narrative_clause_ids": [
+     "116",
+     "117"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "nN",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "5:2",
+   "frame_id": null,
+   "id": "U-118",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "5:2",
+   "members": [
+    "118"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-118",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  }
+ ],
+ "human_notes": [
+  {
+   "decision": "REJECTED_AS_DIRECT_MOTHER",
+   "effect": "NO_DIRECT",
+   "rationale_code": "COLON",
+   "record": {
+    "id": "H-1#b",
+    "table": "frozen_human"
+   },
+   "source_clause_id": "112",
+   "target_clause_id": "115"
+  }
+ ],
+ "legend": {
+  "kinds": {
+   "CLOSURE": "종결",
+   "CONTINUATION": "계속",
+   "FRAME_CONTENT": "틀–내용",
+   "MEMBERSHIP": "포함",
+   "PARALLEL": "병행",
+   "SUBORDINATE": "종속"
+  },
+  "statuses": {
+   "COMPETING": "경쟁",
+   "CONFIRMED": "확정",
+   "PROVISIONAL": "잠정",
+   "UNASSIGNED": "미배정"
+  }
+ },
+ "p2_contract": {
+  "no_synthetic_root": true
+ },
+ "rule_notes_trace_ids": [
+  "T-F"
+ ],
+ "schema": "MILAL-V1-RELATION-NETWORK-1",
+ "source": {
+  "manifest_verified": [
+   "90_run_metadata.json",
+   "P2_MACRO_HIERARCHY_REPORT.md",
+   "P2_MOTHER_TABLE.csv",
+   "P2_RELATIONS_AND_ALTERNATIVES.json",
+   "P2_RULE_TRACE.csv",
+   "P2_VALIDATION_AND_COVERAGE.md"
+  ],
+  "member_sha256": {
+   "90_run_metadata.json": "e060b9d781013816c8526867fbc147bc7dba2b92d87cf0be3911f03ef424ec8c",
+   "P2_MACRO_HIERARCHY_REPORT.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196",
+   "P2_MOTHER_TABLE.csv": "cafee2fc66cd0e42c20eb04525b455377213fa00de4ca0d543c9b9b2b489612c",
+   "P2_RELATIONS_AND_ALTERNATIVES.json": "3b2a1bc914b1017eb2e30e16258064ddc0fd434e1707ca3eade6aa689bb01258",
+   "P2_RULE_TRACE.csv": "91531e0b6e37a8850f5e0cb8dd1d4d11e5f87ec83c9ab8b435f46a06a051664a",
+   "P2_VALIDATION_AND_COVERAGE.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196"
+  },
+  "p2_code_fingerprint": "synthetic",
+  "p2_scientific_status": "SYNTHETIC",
+  "p2_stage": "MFR.0.3-P2",
+  "p2_status": "SYNTHETIC",
+  "zip_bytes": 22808,
+  "zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+ },
+ "stage": "MFR.0.3-V1",
+ "unassigned_clause_ids": [
+  "100",
+  "101",
+  "102",
+  "118"
+ ]
+}

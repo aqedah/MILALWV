@@ -166,9 +166,10 @@ for a in sorted(caset):
     if m is None: continue
     rl = rela.get(a, "NA"); lvl = "clause_atom"
     if rl in ("", "NA"): rl = rela_cl.get(int(ca2cl[a]), "NA"); lvl = "clause"   # 절 원자에 없으면 절의 rela
-    x = dict(id="NAT-" + str(a), clause_atom=a, mother_clause_atom=m, rela=rl, rela_level=lvl, clause_id=ca2cl[a],
-             source=dict(dataset="BHSA", version="2021", features=["mother", "rela"]))
-    if m in ca2cl: x["mother_clause_id"] = ca2cl[m]
+    if m not in ca2cl: continue   # 모절이 시험 범위 밖이면 뺀다 (실제 출력은 책 전체라 이런 일이 없음)
+    if ca2cl[m] == ca2cl[a]: continue   # 같은 절 안의 절 원자 사이 관계는 V1 처럼 절 속성으로 두고 관계에 넣지 않음
+    x = dict(id="NAT-" + str(a), clause_atom=a, mother_clause_atom=m, rela=rl, rela_level=lvl, clause_id=ca2cl[a], mother_clause_id=ca2cl[m],
+             origin_edge_id="TEST-NATIVE-" + str(a), source=dict(dataset="BHSA", version="2021", features=["mother", "rela"]))
     NAT.append(x)
 nat = len(NAT)
 # 8) 이슈 (가상)

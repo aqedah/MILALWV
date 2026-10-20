@@ -1,0 +1,133 @@
+{
+ "bhsa": "NOT_RUN (no --bhsa given)",
+ "contract": {
+  "frozen_layers_modified": false,
+  "human_fields_prefilled": [
+   "review_status=UNREVIEWED"
+  ],
+  "new_relations_accepted": 0,
+  "no_synthetic_root": true
+ },
+ "controls": {
+  "S-FOLD": true,
+  "S-FRAMES": true,
+  "S-INDEP": true,
+  "S-PAIR": true,
+  "S-TOP": true
+ },
+ "counts": {
+  "alternatives": 3,
+  "base_groups": 4,
+  "by_kind": {
+   "CLOSURE": 3,
+   "CONTINUATION": 12,
+   "FRAME_CONTENT": 3,
+   "MEMBERSHIP": 12,
+   "PARALLEL": 5,
+   "SUBORDINATE": 4
+  },
+  "by_kind_status": {
+   "CLOSURE:PROVISIONAL": 1,
+   "CLOSURE:UNASSIGNED": 2,
+   "CONTINUATION:COMPETING": 2,
+   "CONTINUATION:UNASSIGNED": 10,
+   "FRAME_CONTENT:PROVISIONAL": 2,
+   "FRAME_CONTENT:UNASSIGNED": 1,
+   "MEMBERSHIP:COMPETING": 4,
+   "MEMBERSHIP:PROVISIONAL": 8,
+   "PARALLEL:PROVISIONAL": 4,
+   "PARALLEL:UNASSIGNED": 1,
+   "SUBORDINATE:CONFIRMED": 1,
+   "SUBORDINATE:PROVISIONAL": 1,
+   "SUBORDINATE:UNASSIGNED": 2
+  },
+  "by_status": {
+   "COMPETING": 6,
+   "CONFIRMED": 1,
+   "PROVISIONAL": 16,
+   "UNASSIGNED": 16
+  },
+  "clauses": 19,
+  "edges": 39,
+  "groups": 18,
+  "unassigned_clauses": 4
+ },
+ "display_sha256": "877d75cd927e594a9f7990878e9a786c9c54c6612fdf55aeec2d58fbe07f6523",
+ "environment": {
+  "python": "3.13.16",
+  "system": "Linux"
+ },
+ "gates": {
+  "ALTERNATIVES_COMPLETE": true,
+  "BASE_DISJOINT": true,
+  "CLAUSE_COVERAGE": true,
+  "COMPETING_SHOWN": true,
+  "CONTROLS": true,
+  "DISPLAY_JUSTIFIED": true,
+  "DISPLAY_PARTITION": true,
+  "EDGE_ENDPOINTS": true,
+  "EDGE_LOSSLESS": true,
+  "GROUP_COVERAGE": true,
+  "HTML_EMBEDS_NETWORK": true,
+  "NEST_ACYCLIC": true,
+  "NETWORK_UNCHANGED_BY_VIEW": true,
+  "NO_SYNTHETIC_ROOT": true,
+  "REVIEW_FIELDS_BLANK": true,
+  "SOURCE_MANIFEST": true,
+  "STATUS_DERIVATION": true,
+  "UNASSIGNED_PANEL": true,
+  "UNASSIGNED_SHOWN": true
+ },
+ "input": {
+  "manifest_verified": [
+   "90_run_metadata.json",
+   "P2_MACRO_HIERARCHY_REPORT.md",
+   "P2_MOTHER_TABLE.csv",
+   "P2_RELATIONS_AND_ALTERNATIVES.json",
+   "P2_RULE_TRACE.csv",
+   "P2_VALIDATION_AND_COVERAGE.md"
+  ],
+  "member_sha256": {
+   "90_run_metadata.json": "e060b9d781013816c8526867fbc147bc7dba2b92d87cf0be3911f03ef424ec8c",
+   "P2_MACRO_HIERARCHY_REPORT.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196",
+   "P2_MOTHER_TABLE.csv": "cafee2fc66cd0e42c20eb04525b455377213fa00de4ca0d543c9b9b2b489612c",
+   "P2_RELATIONS_AND_ALTERNATIVES.json": "3b2a1bc914b1017eb2e30e16258064ddc0fd434e1707ca3eade6aa689bb01258",
+   "P2_RULE_TRACE.csv": "91531e0b6e37a8850f5e0cb8dd1d4d11e5f87ec83c9ab8b435f46a06a051664a",
+   "P2_VALIDATION_AND_COVERAGE.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196"
+  },
+  "p2_code_fingerprint": "synthetic",
+  "p2_scientific_status": "SYNTHETIC",
+  "p2_stage": "MFR.0.3-P2",
+  "p2_status": "SYNTHETIC",
+  "zip_bytes": 22808,
+  "zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+ },
+ "negative_mutations": {
+  "ALTERNATIVES_COMPLETE": true,
+  "BASE_DISJOINT": true,
+  "BHSA_TEXT_AND_WORDS": true,
+  "CLAUSE_COVERAGE": true,
+  "COMPETING_SHOWN": true,
+  "CONTROLS": true,
+  "DISPLAY_JUSTIFIED": true,
+  "DISPLAY_PARTITION": true,
+  "EDGE_ENDPOINTS": true,
+  "EDGE_LOSSLESS": true,
+  "GROUP_COVERAGE": true,
+  "HTML_EMBEDS_NETWORK": true,
+  "NEST_ACYCLIC": true,
+  "NETWORK_UNCHANGED_BY_VIEW": true,
+  "NO_SYNTHETIC_ROOT": true,
+  "REVIEW_FIELDS_BLANK": true,
+  "SOURCE_MANIFEST": true,
+  "STATUS_DERIVATION": true,
+  "UNASSIGNED_PANEL": true,
+  "UNASSIGNED_SHOWN": true
+ },
+ "network_sha256": "abc84bf05e939e58ffe133c0c1c1f6075db6b269b37adbc85bb4845cd28a0ace",
+ "scientific_status": "PRESENTATION_OF_MACHINE_PROVISIONAL_P2; NO_NEW_RELATION_ACCEPTED",
+ "stage": "MFR.0.3-V1",
+ "status": "TECHNICALLY_VALIDATED_PRESENTATION_LAYER",
+ "top_level_candidates": 7,
+ "v1_fingerprint": "0f3bacda7ac8e7f8c8c1b6c1bb054f664fa6131979ffe15aa50c87713a21917a"
+}

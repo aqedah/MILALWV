@@ -1,0 +1,2377 @@
+{
+ "schema": "MILALWV-IF-1",
+ "file_status": "TEST_ONLY",
+ "review": {
+  "status": "UNREVIEWED",
+  "note": "연구자 승인 전 — 화면에 '승인 전'으로 표시"
+ },
+ "source": {
+  "schema_version": "MILALWV-IF-1",
+  "bhsa_version": "2021",
+  "milal": {
+   "stage": "MFR.0.3-V1",
+   "rules_version": "MFR.0.3",
+   "commit": "",
+   "network_schema": "MILAL-V1-RELATION-NETWORK-1",
+   "network_sha256": "0ee6e831305892cd9b039da60207a657e8ae0ffcfe1c119b7f01222921e5ff0b",
+   "v1_fingerprint": "0f3bacda7ac8e7f8c8c1b6c1bb054f664fa6131979ffe15aa50c87713a21917a",
+   "input_receipt": {
+    "manifest_verified": [
+     "90_run_metadata.json",
+     "P2_MACRO_HIERARCHY_REPORT.md",
+     "P2_MOTHER_TABLE.csv",
+     "P2_RELATIONS_AND_ALTERNATIVES.json",
+     "P2_RULE_TRACE.csv",
+     "P2_VALIDATION_AND_COVERAGE.md"
+    ],
+    "member_sha256": {
+     "90_run_metadata.json": "e060b9d781013816c8526867fbc147bc7dba2b92d87cf0be3911f03ef424ec8c",
+     "P2_MACRO_HIERARCHY_REPORT.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196",
+     "P2_MOTHER_TABLE.csv": "cafee2fc66cd0e42c20eb04525b455377213fa00de4ca0d543c9b9b2b489612c",
+     "P2_RELATIONS_AND_ALTERNATIVES.json": "3b2a1bc914b1017eb2e30e16258064ddc0fd434e1707ca3eade6aa689bb01258",
+     "P2_RULE_TRACE.csv": "91531e0b6e37a8850f5e0cb8dd1d4d11e5f87ec83c9ab8b435f46a06a051664a",
+     "P2_VALIDATION_AND_COVERAGE.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196"
+    },
+    "p2_code_fingerprint": "synthetic",
+    "p2_scientific_status": "SYNTHETIC",
+    "p2_stage": "MFR.0.3-P2",
+    "p2_status": "SYNTHETIC",
+    "zip_bytes": 22808,
+    "zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+   },
+   "review_zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+  },
+  "generated_at": "2026-10-20T00:24:39Z",
+  "scope": {
+   "book": "Job",
+   "bhsa_book": "Iob",
+   "chapters": [
+    1,
+    5
+   ]
+  },
+  "scientific_status": "PRESENTATION_OF_MACHINE_PROVISIONAL_P2; NO_NEW_RELATION_ACCEPTED",
+  "exporter": "pipeline/milal_export_v1.py 1.0",
+  "test_note": "MILAL V1 자체 시험(--self-test)의 합성 관계망을 변환한 것. 실제 욥기 판정이 아님."
+ },
+ "nodes": [
+  {
+   "id": "100",
+   "pos": 0,
+   "ch": 1,
+   "vs": 1,
+   "type": "X",
+   "text": "אִישׁ הָיָה ",
+   "domain": "Q",
+   "word_ids": [
+    1000,
+    1001
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "101",
+   "pos": 1,
+   "ch": 1,
+   "vs": 1,
+   "type": "X",
+   "text": "וְהָיָה תָּם ",
+   "domain": "Q",
+   "word_ids": [
+    1010,
+    1011
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "102",
+   "pos": 2,
+   "ch": 1,
+   "vs": 2,
+   "type": "X",
+   "text": "תַּמּוּ דִּבְרֵי ",
+   "domain": "Q",
+   "word_ids": [
+    1020,
+    1021
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "103",
+   "pos": 3,
+   "ch": 2,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיַּעַן אֱלִיפַז ",
+   "domain": "Q",
+   "word_ids": [
+    1030,
+    1031
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "104",
+   "pos": 4,
+   "ch": 2,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיֹּאמַר׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1040,
+    1041
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "105",
+   "pos": 5,
+   "ch": 2,
+   "vs": 2,
+   "type": "X",
+   "text": "הֲנִסָּה דָבָר ",
+   "domain": "Q",
+   "word_ids": [
+    1050,
+    1051
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "106",
+   "pos": 6,
+   "ch": 2,
+   "vs": 2,
+   "type": "X",
+   "text": "עְצֹר בְּמִלִּין ",
+   "domain": "Q",
+   "word_ids": [
+    1060,
+    1061
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "107",
+   "pos": 7,
+   "ch": 2,
+   "vs": 3,
+   "type": "X",
+   "text": "מִי יוּכָל׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1070,
+    1071
+   ],
+   "native_self_annotations": [
+    1
+   ]
+  },
+  {
+   "id": "108",
+   "pos": 8,
+   "ch": 3,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיַּעַן בִּלְדַּד ",
+   "domain": "Q",
+   "word_ids": [
+    1080,
+    1081
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "109",
+   "pos": 9,
+   "ch": 3,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיֹּאמַר׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1090,
+    1091
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "110",
+   "pos": 10,
+   "ch": 3,
+   "vs": 2,
+   "type": "X",
+   "text": "עַד־אָן ",
+   "domain": "Q",
+   "word_ids": [
+    1100,
+    1101
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "111",
+   "pos": 11,
+   "ch": 3,
+   "vs": 2,
+   "type": "X",
+   "text": "תְּמַלֶּל־אֵלֶּה׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1110,
+    1111
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "112",
+   "pos": 12,
+   "ch": 4,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיַּעַן צֹפַר ",
+   "domain": "Q",
+   "word_ids": [
+    1120,
+    1121
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "113",
+   "pos": 13,
+   "ch": 4,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיֹּאמַר׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1130,
+    1131
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "114",
+   "pos": 14,
+   "ch": 4,
+   "vs": 2,
+   "type": "X",
+   "text": "אִם־אָמַר אִישׁ ",
+   "domain": "Q",
+   "word_ids": [
+    1140,
+    1141
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "115",
+   "pos": 15,
+   "ch": 4,
+   "vs": 2,
+   "type": "X",
+   "text": "כִּי יְבֻלָּע׃ ",
+   "domain": "Q",
+   "word_ids": [
+    1150,
+    1151
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "116",
+   "pos": 16,
+   "ch": 5,
+   "vs": 1,
+   "type": "X",
+   "text": "וַיִּשְׁבְּתוּ ",
+   "domain": "Q",
+   "word_ids": [
+    1160,
+    1161
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "117",
+   "pos": 17,
+   "ch": 5,
+   "vs": 1,
+   "type": "X",
+   "text": "מֵעֲנוֹת ",
+   "domain": "Q",
+   "word_ids": [
+    1170,
+    1171
+   ],
+   "native_self_annotations": []
+  },
+  {
+   "id": "118",
+   "pos": 18,
+   "ch": 5,
+   "vs": 2,
+   "type": "X",
+   "text": "וַיְהִי ",
+   "domain": "Q",
+   "word_ids": [
+    1180,
+    1181
+   ],
+   "native_self_annotations": []
+  }
+ ],
+ "groups": [
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:1",
+   "frame_id": null,
+   "id": "U-100",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:1",
+   "members": [
+    "100"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-100",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:1",
+   "frame_id": null,
+   "id": "U-101",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:1",
+   "members": [
+    "101"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-101",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "1:2",
+   "frame_id": null,
+   "id": "U-102",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "1:2",
+   "members": [
+    "102"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-102",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "E3",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "2:3",
+   "members": [
+    "103",
+    "104",
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "103",
+     "104"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E3",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "gA",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "2:3",
+   "members": [
+    "103",
+    "104",
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "105",
+     "106",
+     "107"
+    ],
+    "initial_introduction_clause_ids": [
+     "103",
+     "104"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:1",
+   "frame_id": null,
+   "id": "iA",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "2:1",
+   "members": [
+    "103",
+    "104"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "iA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:2",
+   "frame_id": null,
+   "id": "cA",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "2:3",
+   "members": [
+    "105",
+    "106",
+    "107"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "cA",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "2:2",
+   "frame_id": null,
+   "id": "anc",
+   "interpretation_dependencies": [],
+   "kind": "SURFACE_EVENT_ANCHOR",
+   "last": "2:2",
+   "members": [
+    "106"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [
+    "TIME_PHRASE"
+   ],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "observed_features": [
+     "TIME_PHRASE"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "anc",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "E1",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "4:2",
+   "members": [
+    "108",
+    "109",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "108",
+     "109"
+    ],
+    "internal_introduction_clause_ids": [
+     "112",
+     "113"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E1",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 1,
+   "candidate_rule_summary": {
+    "G2:MACRO_HYPOTACTIC:UNRESOLVED": 1
+   },
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "gB",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "3:2",
+   "members": [
+    "108",
+    "109",
+    "110",
+    "111"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "110",
+     "111"
+    ],
+    "initial_introduction_clause_ids": [
+     "108",
+     "109"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:1",
+   "frame_id": null,
+   "id": "iB",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "3:1",
+   "members": [
+    "108",
+    "109"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [
+    {
+     "failed": [
+      "explicit_subject"
+     ],
+     "other": "cC",
+     "rule": "G1",
+     "status": "FAILED",
+     "trace_id": "T-F",
+     "unresolved": []
+    }
+   ],
+   "source_id": "iB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "3:2",
+   "frame_id": null,
+   "id": "cB",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "3:2",
+   "members": [
+    "110",
+    "111"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "cB",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "E2",
+   "interpretation_dependencies": [],
+   "kind": "ENCLOSING_SPEECH_HYPOTHESIS",
+   "last": "4:2",
+   "members": [
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "initial_introduction_clause_ids": [
+     "112",
+     "113"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "E2",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "gC",
+   "interpretation_dependencies": [],
+   "kind": "LOCAL_SPEECH_UNIT",
+   "last": "4:2",
+   "members": [
+    "112",
+    "113",
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "floor_content_clause_ids": [
+     "114",
+     "115"
+    ],
+    "initial_introduction_clause_ids": [
+     "112",
+     "113"
+    ],
+    "internal_introduction_clause_ids": []
+   },
+   "rule_notes": [],
+   "source_id": "gC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:1",
+   "frame_id": null,
+   "id": "iC",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_INTRODUCTION",
+   "last": "4:1",
+   "members": [
+    "112",
+    "113"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "iC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "4:2",
+   "frame_id": null,
+   "id": "cC",
+   "interpretation_dependencies": [],
+   "kind": "REPORT_CONTENT",
+   "last": "4:2",
+   "members": [
+    "114",
+    "115"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [
+    {
+     "failed": [
+      "explicit_subject"
+     ],
+     "other": "iB",
+     "rule": "G1",
+     "status": "FAILED",
+     "trace_id": "T-F",
+     "unresolved": []
+    }
+   ],
+   "source_id": "cC",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "5:1",
+   "frame_id": null,
+   "id": "nN",
+   "interpretation_dependencies": [],
+   "kind": "NARRATIVE_REPORT_SEGMENT_HYPOTHESIS",
+   "last": "5:1",
+   "members": [
+    "116",
+    "117"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {
+    "outer_narrative_clause_ids": [
+     "116",
+     "117"
+    ]
+   },
+   "rule_notes": [],
+   "source_id": "nN",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  },
+  {
+   "candidate_count": 0,
+   "candidate_rule_summary": {},
+   "common_mothers": [],
+   "disposition": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "first": "5:2",
+   "frame_id": null,
+   "id": "U-118",
+   "interpretation_dependencies": [],
+   "kind": "UNCOVERED_SOURCE_CONTEXT",
+   "last": "5:2",
+   "members": [
+    "118"
+   ],
+   "mother_table_status": "NO_SUPPORTED_MOTHER_NOT_PROVEN_ROOT",
+   "observed": [],
+   "peers": [],
+   "possible_mothers": [],
+   "roles": {},
+   "rule_notes": [],
+   "source_id": "U-118",
+   "status": "MACHINE_PROVISIONAL",
+   "textual": true
+  }
+ ],
+ "relations": [
+  {
+   "id": "V1-EDGE-03278a907e2e9d099dd9",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "COMPETING",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "target": {
+    "id": "iB",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X9",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-e855b6c07e4e6f8b"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-184161a51b8a1a8332e9",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "target": {
+    "id": "iA",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X1",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-1c4686b01c66bc0a"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-19dd9601046901b61fc7",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gB",
+    "type": "group"
+   },
+   "target": {
+    "id": "cB",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X4",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-2e3b037b6ee6692f"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-20227b9e258e9824d50b",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gC",
+    "type": "group"
+   },
+   "target": {
+    "id": "iC",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X5",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-baed965d51659261"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-33b2ae32af0d657f39ba",
+   "family": "GROUPING",
+   "kind": "PARALLEL",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "105",
+    "type": "clause"
+   },
+   "target": {
+    "id": "116",
+    "type": "clause"
+   },
+   "rule": "P1-A1 PARATACTIC",
+   "record": {
+    "id": "P1-1",
+    "table": "frozen_typed_relations"
+   },
+   "evidence_clause_ids": [
+    "105",
+    "116"
+   ],
+   "evidence_ids": [
+    "EV-3272701428f7150a"
+   ],
+   "note": "EXACT; MACHINE_PROVISIONAL"
+  },
+  {
+   "id": "V1-EDGE-35ff8f27dfa3ef0da414",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gC",
+    "type": "group"
+   },
+   "target": {
+    "id": "cC",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X6",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-34282bf27b4dbdec"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-399269e65291086323b5",
+   "family": "HIERARCHY",
+   "kind": "SUBORDINATE",
+   "status": "CONFIRMED",
+   "source": {
+    "id": "114",
+    "type": "clause"
+   },
+   "target": {
+    "id": "115",
+    "type": "clause"
+   },
+   "rule": "HUMAN H-1",
+   "record": {
+    "id": "H-1#a",
+    "table": "frozen_human"
+   },
+   "evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "evidence_ids": [
+    "EV-797207a51326ea60"
+   ],
+   "note": "사람 판정 채택: ACCEPTED_AS_LOCAL_MOTHER (LOCAL)"
+  },
+  {
+   "id": "V1-EDGE-3c588bda9da5918f2a84",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "cA",
+    "type": "group"
+   },
+   "target": {
+    "id": "anc",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X12",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-7397c2548031edc0"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-3faa54bf02a2bb158da0",
+   "family": "HIERARCHY",
+   "kind": "FRAME_CONTENT",
+   "status": "UNASSIGNED",
+   "source": {
+    "id": "iC",
+    "type": "group"
+   },
+   "target": {
+    "id": "cC",
+    "type": "group"
+   },
+   "rule": "G1",
+   "record": {
+    "id": "T-C",
+    "table": "P2_RULE_TRACE"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-bb72508e6654591a"
+   ],
+   "note": "틀–내용 규칙 미결: complete_member_scope"
+  },
+  {
+   "id": "V1-EDGE-542d131f45840ae0f54f",
+   "family": "CLOSURE",
+   "kind": "CLOSURE",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "target": {
+    "id": "108",
+    "type": "clause"
+   },
+   "rule": "G5 LOCAL_SCOPE_ENDPOINT",
+   "record": {
+    "id": "X13",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [
+    "108"
+   ],
+   "evidence_ids": [
+    "EV-922e9b442e9a0ff0"
+   ],
+   "note": "ENDPOINT; 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-581f90983ebc54981f7b",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "COMPETING",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "target": {
+    "id": "gB",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X7",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-d91c6917a3560fc7"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-5f536897d310bd988401",
+   "family": "HIERARCHY",
+   "kind": "FRAME_CONTENT",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "iA",
+    "type": "group"
+   },
+   "target": {
+    "id": "cA",
+    "type": "group"
+   },
+   "rule": "G1",
+   "record": {
+    "id": "MA-A",
+    "table": "graph.assertions"
+   },
+   "evidence_clause_ids": [
+    "103"
+   ],
+   "evidence_ids": [
+    "EV-2a23f397d9e2b9f8"
+   ],
+   "note": "P2 기계 판정 모절(INTRA_REPORT); 사람 승인 아님",
+   "extra": {
+    "proposal_ids": [
+     "T-A"
+    ]
+   }
+  },
+  {
+   "id": "V1-EDGE-70b3c524d878392948cf",
+   "family": "HIERARCHY",
+   "kind": "SUBORDINATE",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "cA",
+    "type": "group"
+   },
+   "target": {
+    "id": "anc",
+    "type": "group"
+   },
+   "rule": "G2 ANCHOR_RELATION",
+   "record": {
+    "id": "T-N",
+    "table": "P2_RULE_TRACE"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-10ab165f8650f2ca"
+   ],
+   "note": "앵커 절 사이에서만 통과(EXACT_ANCHOR_CLAUSES_ONLY)"
+  },
+  {
+   "id": "V1-EDGE-7a80e86d72ab0dfe0565",
+   "family": "CLOSURE",
+   "kind": "CLOSURE",
+   "status": "UNASSIGNED",
+   "source": {
+    "id": "118",
+    "type": "clause"
+   },
+   "target": {
+    "id": "E1",
+    "type": "group"
+   },
+   "rule": "G5 TERMINATES_ENCLOSING_GROUP",
+   "record": {
+    "id": "X15",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [
+    "118"
+   ],
+   "evidence_ids": [
+    "EV-81e3d0fad30ca1de"
+   ],
+   "note": "CLOSURE; 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-894f3df6bd77234ddcdf",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "COMPETING",
+   "source": {
+    "id": "E2",
+    "type": "group"
+   },
+   "target": {
+    "id": "gC",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X10",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-14fb81422b0c22a7"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-9efe54810e1b8c7f5035",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "target": {
+    "id": "cA",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X2",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-ee37f80f79ea3a93"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-b1bcb28494d6dc78907f",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "E3",
+    "type": "group"
+   },
+   "target": {
+    "id": "gA",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X11",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-013a341509b3b174"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-b9260411ba1c542d6fdb",
+   "family": "GROUPING",
+   "kind": "PARALLEL",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "iA",
+    "type": "group"
+   },
+   "target": {
+    "id": "iC",
+    "type": "group"
+   },
+   "rule": "G3 CONSTRUCTION_PARALLELISM",
+   "record": {
+    "id": "T-K",
+    "table": "P2_RULE_TRACE"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-13f39723ff9df297"
+   ],
+   "note": "도입 구문만 대응(단위 전체 병행 아님)"
+  },
+  {
+   "id": "V1-EDGE-bc27d195d0a92cc6d5d2",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gB",
+    "type": "group"
+   },
+   "target": {
+    "id": "iB",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X3",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-170915faeffa3662"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-c4410e6259918e5079d6",
+   "family": "GROUPING",
+   "kind": "PARALLEL",
+   "status": "PROVISIONAL",
+   "source": {
+    "ids": [
+     "103",
+     "104"
+    ],
+    "type": "clause_set"
+   },
+   "target": {
+    "ids": [
+     "108",
+     "109"
+    ],
+    "type": "clause_set"
+   },
+   "rule": "P1-A2 CONSTRUCTION_PARALLELISM_PROVISIONAL",
+   "record": {
+    "id": "P1-2",
+    "table": "frozen_typed_relations"
+   },
+   "evidence_clause_ids": [
+    "103",
+    "104",
+    "108",
+    "109"
+   ],
+   "evidence_ids": [
+    "EV-5502b3707cea4034"
+   ],
+   "note": "WHOLE; MACHINE_PROVISIONAL"
+  },
+  {
+   "id": "V1-EDGE-c5c59f01306dc1d62faf",
+   "family": "GROUPING",
+   "kind": "PARALLEL",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "gA",
+    "type": "group"
+   },
+   "target": {
+    "id": "gB",
+    "type": "group"
+   },
+   "rule": "G3 MACRO_PARATACTIC",
+   "record": {
+    "id": "MA-P",
+    "table": "graph.assertions"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-55de4230e332eb32"
+   ],
+   "note": "단위 전체 병행(잠정). 모절이 같다는 뜻은 아님",
+   "extra": {
+    "proposal_ids": [
+     "T-P"
+    ]
+   }
+  },
+  {
+   "id": "V1-EDGE-d5eedab20ce238826e2f",
+   "family": "CLOSURE",
+   "kind": "CLOSURE",
+   "status": "UNASSIGNED",
+   "source": {
+    "id": "102",
+    "type": "clause"
+   },
+   "target": {
+    "id": "gA",
+    "type": "group"
+   },
+   "rule": "G5 DIRECT_LOCAL_CLOSURE",
+   "record": {
+    "id": "X14",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [
+    "102"
+   ],
+   "evidence_ids": [
+    "EV-3c4fa73f4813ee0c"
+   ],
+   "note": "CLOSURE; 모절 주장 아님"
+  },
+  {
+   "id": "V1-EDGE-ede76e10ade7e9e04539",
+   "family": "HIERARCHY",
+   "kind": "FRAME_CONTENT",
+   "status": "PROVISIONAL",
+   "source": {
+    "id": "iB",
+    "type": "group"
+   },
+   "target": {
+    "id": "cB",
+    "type": "group"
+   },
+   "rule": "G1",
+   "record": {
+    "id": "MA-B",
+    "table": "graph.assertions"
+   },
+   "evidence_clause_ids": [
+    "108"
+   ],
+   "evidence_ids": [
+    "EV-f44ad495c8dde88c"
+   ],
+   "note": "P2 기계 판정 모절(INTRA_REPORT); 사람 승인 아님",
+   "extra": {
+    "proposal_ids": [
+     "T-B"
+    ]
+   }
+  },
+  {
+   "id": "V1-EDGE-f94c2b088063cf6d8c01",
+   "family": "GROUPING",
+   "kind": "MEMBERSHIP",
+   "status": "COMPETING",
+   "source": {
+    "id": "E1",
+    "type": "group"
+   },
+   "target": {
+    "id": "gC",
+    "type": "group"
+   },
+   "rule": "G5 EXACT_MEMBER_INCLUSION",
+   "record": {
+    "id": "X8",
+    "table": "context_relations"
+   },
+   "evidence_clause_ids": [],
+   "evidence_ids": [
+    "EV-0f08e6bfa7de481e"
+   ],
+   "note": "정확한 구성원 포함. 모절 주장 아님"
+  }
+ ],
+ "evidence": [
+  {
+   "id": "EV-e855b6c07e4e6f8b",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X9"
+   }
+  },
+  {
+   "id": "EV-1c4686b01c66bc0a",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X1"
+   }
+  },
+  {
+   "id": "EV-2e3b037b6ee6692f",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X4"
+   }
+  },
+  {
+   "id": "EV-baed965d51659261",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X5"
+   }
+  },
+  {
+   "id": "EV-3272701428f7150a",
+   "rule_id": "P1-A1",
+   "check": "PARATACTIC",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": [
+     "105",
+     "116"
+    ]
+   },
+   "text": "EXACT; MACHINE_PROVISIONAL",
+   "record": {
+    "id": "P1-1",
+    "table": "frozen_typed_relations"
+   }
+  },
+  {
+   "id": "EV-34282bf27b4dbdec",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X6"
+   }
+  },
+  {
+   "id": "EV-797207a51326ea60",
+   "rule_id": "HUMAN",
+   "check": "H-1",
+   "outcome": "HUMAN",
+   "observed": {
+    "clause_ids": [
+     "114",
+     "115"
+    ]
+   },
+   "text": "사람 판정 채택: ACCEPTED_AS_LOCAL_MOTHER (LOCAL)",
+   "record": {
+    "id": "H-1#a",
+    "table": "frozen_human"
+   }
+  },
+  {
+   "id": "EV-7397c2548031edc0",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X12"
+   }
+  },
+  {
+   "id": "EV-bb72508e6654591a",
+   "rule_id": "G1",
+   "check": "complete_member_scope",
+   "outcome": "UNRESOLVED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "REPORT_CONTENT_DEPENDENCY: complete_member_scope 미결",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-C"
+   }
+  },
+  {
+   "id": "EV-922e9b442e9a0ff0",
+   "rule_id": "G5",
+   "check": "LOCAL_SCOPE_ENDPOINT",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "LOCAL_SCOPE_ENDPOINT 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X13"
+   }
+  },
+  {
+   "id": "EV-d91c6917a3560fc7",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X7"
+   }
+  },
+  {
+   "id": "EV-2a23f397d9e2b9f8",
+   "rule_id": "G1",
+   "check": "REPORT_CONTENT_DEPENDENCY",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "REPORT_CONTENT_DEPENDENCY 통과",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-A"
+   }
+  },
+  {
+   "id": "EV-10ab165f8650f2ca",
+   "rule_id": "G2",
+   "check": "ANCHOR_RELATION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "ANCHOR_RELATION 통과",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-N"
+   }
+  },
+  {
+   "id": "EV-81e3d0fad30ca1de",
+   "rule_id": "G5",
+   "check": "TERMINATES_ENCLOSING_GROUP",
+   "outcome": "UNRESOLVED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "TERMINATES_ENCLOSING_GROUP 미결 (검사 항목 이름 없음)",
+   "record": {
+    "table": "context_relations",
+    "id": "X15"
+   }
+  },
+  {
+   "id": "EV-14fb81422b0c22a7",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X10"
+   }
+  },
+  {
+   "id": "EV-ee37f80f79ea3a93",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X2"
+   }
+  },
+  {
+   "id": "EV-013a341509b3b174",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X11"
+   }
+  },
+  {
+   "id": "EV-13f39723ff9df297",
+   "rule_id": "G3",
+   "check": "CONSTRUCTION_PARALLELISM",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "CONSTRUCTION_PARALLELISM 통과",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-K"
+   }
+  },
+  {
+   "id": "EV-170915faeffa3662",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X3"
+   }
+  },
+  {
+   "id": "EV-5502b3707cea4034",
+   "rule_id": "P1-A2",
+   "check": "CONSTRUCTION_PARALLELISM_PROVISIONAL",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": [
+     "103",
+     "104",
+     "108",
+     "109"
+    ]
+   },
+   "text": "WHOLE; MACHINE_PROVISIONAL",
+   "record": {
+    "id": "P1-2",
+    "table": "frozen_typed_relations"
+   }
+  },
+  {
+   "id": "EV-55de4230e332eb32",
+   "rule_id": "G3",
+   "check": "MACRO_PARATACTIC",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "MACRO_PARATACTIC 통과",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-P"
+   }
+  },
+  {
+   "id": "EV-3c4fa73f4813ee0c",
+   "rule_id": "G5",
+   "check": "DIRECT_LOCAL_CLOSURE",
+   "outcome": "UNRESOLVED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "DIRECT_LOCAL_CLOSURE 미결 (검사 항목 이름 없음)",
+   "record": {
+    "table": "context_relations",
+    "id": "X14"
+   }
+  },
+  {
+   "id": "EV-f44ad495c8dde88c",
+   "rule_id": "G1",
+   "check": "REPORT_CONTENT_DEPENDENCY",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "REPORT_CONTENT_DEPENDENCY 통과",
+   "record": {
+    "table": "P2_RULE_TRACE",
+    "id": "T-B"
+   }
+  },
+  {
+   "id": "EV-0f08e6bfa7de481e",
+   "rule_id": "G5",
+   "check": "EXACT_MEMBER_INCLUSION",
+   "outcome": "PASSED",
+   "observed": {
+    "clause_ids": []
+   },
+   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "record": {
+    "table": "context_relations",
+    "id": "X8"
+   }
+  }
+ ],
+ "issues": [
+  {
+   "id": "V1-ALT-e624eaef297d9eac",
+   "kind": "ALTERNATIVE_SET",
+   "subkind": "OVERLAPPING_GROUPING_HYPOTHESES",
+   "options": [
+    "E3"
+   ],
+   "competing": false,
+   "note": "겹치는 묶음 가설. 기본 화면에는 적용하지 않음; 하나를 골라 적용해 볼 수 있음."
+  },
+  {
+   "id": "V1-ALT-9252e86400f42b25",
+   "kind": "ALTERNATIVE_SET",
+   "subkind": "OVERLAPPING_GROUPING_HYPOTHESES",
+   "options": [
+    "E1",
+    "E2"
+   ],
+   "competing": true,
+   "note": "겹치는 묶음 가설. 기본 화면에는 적용하지 않음; 하나를 골라 적용해 볼 수 있음."
+  },
+  {
+   "id": "V1-ALT-5d1575f64ff6b977",
+   "kind": "ALTERNATIVE_SET",
+   "subkind": "MULTIPLE_NATIVE_HEADS",
+   "options": [
+    "109",
+    "110"
+   ],
+   "competing": true,
+   "note": "BHSA 원 데이터에서 모절 후보가 둘 이상. 화면에서는 어느 쪽에도 넣지 않음.",
+   "about": {
+    "type": "clause",
+    "id": "111"
+   }
+  },
+  {
+   "id": "ISS-UNA-100",
+   "kind": "UNASSIGNED_CLAUSE",
+   "about": {
+    "type": "clause",
+    "id": "100"
+   }
+  },
+  {
+   "id": "ISS-UNA-101",
+   "kind": "UNASSIGNED_CLAUSE",
+   "about": {
+    "type": "clause",
+    "id": "101"
+   }
+  },
+  {
+   "id": "ISS-UNA-102",
+   "kind": "UNASSIGNED_CLAUSE",
+   "about": {
+    "type": "clause",
+    "id": "102"
+   }
+  },
+  {
+   "id": "ISS-UNA-118",
+   "kind": "UNASSIGNED_CLAUSE",
+   "about": {
+    "type": "clause",
+    "id": "118"
+   }
+  },
+  {
+   "id": "ISS-NDR-H-1-b",
+   "kind": "NO_DIRECT_RELATION",
+   "about": [
+    {
+     "type": "clause",
+     "id": "112"
+    },
+    {
+     "type": "clause",
+     "id": "115"
+    }
+   ],
+   "basis": {
+    "kind": "HUMAN_DECISION",
+    "decision": "REJECTED_AS_DIRECT_MOTHER",
+    "judgment_id": "H-1",
+    "rationale_code": "COLON"
+   },
+   "record": {
+    "id": "H-1#b",
+    "table": "frozen_human"
+   },
+   "note": "연구자가 이 후보(source)를 target 의 직접 모절로 기각함. 다른 연결의 유무는 말하지 않음"
+  }
+ ],
+ "notes": [
+  {
+   "decision": "REJECTED_AS_DIRECT_MOTHER",
+   "effect": "NO_DIRECT",
+   "rationale_code": "COLON",
+   "record": {
+    "id": "H-1#b",
+    "table": "frozen_human"
+   },
+   "source_clause_id": "112",
+   "target_clause_id": "115"
+  }
+ ],
+ "native_relations": [
+  {
+   "id": "NAT-V1-EDGE-322a4b62c34b16d98887",
+   "origin_edge_id": "V1-EDGE-322a4b62c34b16d98887",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "101",
+   "mother_clause_id": "100",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "101#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-3c4a99606334c020598a",
+   "origin_edge_id": "V1-EDGE-3c4a99606334c020598a",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "109",
+   "mother_clause_id": "108",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "109#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-4e6ba0dbf7e6dfacfffe",
+   "origin_edge_id": "V1-EDGE-4e6ba0dbf7e6dfacfffe",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "114",
+   "mother_clause_id": "113",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "114#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-5cc26aa81cf34ec719f7",
+   "origin_edge_id": "V1-EDGE-5cc26aa81cf34ec719f7",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "107",
+   "mother_clause_id": "105",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "107#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-5d76858f31e8002df2c0",
+   "origin_edge_id": "V1-EDGE-5d76858f31e8002df2c0",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "104",
+   "mother_clause_id": "103",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "104#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-603ccc713f06f09eb93f",
+   "origin_edge_id": "V1-EDGE-603ccc713f06f09eb93f",
+   "rela": "Coor",
+   "rela_level": "clause",
+   "clause_id": "117",
+   "mother_clause_id": "116",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "PARALLEL",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "117#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-62c116867d14626b708e",
+   "origin_edge_id": "V1-EDGE-62c116867d14626b708e",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "105",
+   "mother_clause_id": "104",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "105#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-981c51fb8cdaed55e38d",
+   "origin_edge_id": "V1-EDGE-981c51fb8cdaed55e38d",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "115",
+   "mother_clause_id": "114",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    1
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "115#1",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-a514f33ed26547f7c455",
+   "origin_edge_id": "V1-EDGE-a514f33ed26547f7c455",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "106",
+   "mother_clause_id": "105",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    1
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "106#1",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-b3a3c23648b6ab1d5f6c",
+   "origin_edge_id": "V1-EDGE-b3a3c23648b6ab1d5f6c",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "111",
+   "mother_clause_id": "109",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    1
+   ],
+   "origin_status": "COMPETING",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "111#1",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-bdb56370abe7cea3030d",
+   "origin_edge_id": "V1-EDGE-bdb56370abe7cea3030d",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "113",
+   "mother_clause_id": "112",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "113#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-d1045e87e907cdf220ce",
+   "origin_edge_id": "V1-EDGE-d1045e87e907cdf220ce",
+   "rela": "Adju",
+   "rela_level": "clause",
+   "clause_id": "115",
+   "mother_clause_id": "114",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "SUBORDINATE",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "115#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-d59d4f3f4b771feb6480",
+   "origin_edge_id": "V1-EDGE-d59d4f3f4b771feb6480",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "111",
+   "mother_clause_id": "110",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "COMPETING",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "111#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-d821a5955680a50f1c0f",
+   "origin_edge_id": "V1-EDGE-d821a5955680a50f1c0f",
+   "rela": "Objc",
+   "rela_level": "clause",
+   "clause_id": "106",
+   "mother_clause_id": "105",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "SUBORDINATE",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "106#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  },
+  {
+   "id": "NAT-V1-EDGE-fcbccbf50c973190940c",
+   "origin_edge_id": "V1-EDGE-fcbccbf50c973190940c",
+   "rela": "NA",
+   "rela_level": "clause",
+   "clause_id": "110",
+   "mother_clause_id": "109",
+   "clause_atom": null,
+   "mother_clause_atom": null,
+   "annotation_indexes": [
+    0
+   ],
+   "origin_status": "UNASSIGNED",
+   "origin_kind": "CONTINUATION",
+   "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "source": {
+    "dataset": "BHSA",
+    "version": "2021",
+    "features": [
+     "mother",
+     "rela"
+    ]
+   },
+   "record": {
+    "id": "110#0",
+    "table": "raw_clauses.native_annotations"
+   }
+  }
+ ]
+}

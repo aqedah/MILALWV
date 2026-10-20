@@ -1,0 +1,10 @@
+{
+ "errors": 0,
+ "failures": 0,
+ "kind": "SYNTHETIC_SELF_TEST",
+ "skipped": 0,
+ "stage": "MFR.0.3-V1",
+ "synthetic_run_passed": true,
+ "tests_run": 16,
+ "v1_fingerprint": "0f3bacda7ac8e7f8c8c1b6c1bb054f664fa6131979ffe15aa50c87713a21917a"
+}

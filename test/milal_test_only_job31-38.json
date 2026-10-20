@@ -11833,12 +11833,14 @@
  ],
  "native_relations": [
   {
-   "id": "NAT-589749",
-   "clause_atom": 589749,
-   "mother_clause_atom": 589745,
+   "id": "NAT-589750",
+   "clause_atom": 589750,
+   "mother_clause_atom": 589749,
    "rela": "NA",
    "rela_level": "clause",
-   "clause_id": "499621",
+   "clause_id": "499622",
+   "mother_clause_id": "499621",
+   "origin_edge_id": "TEST-NATIVE-589750",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11849,29 +11851,14 @@
    }
   },
   {
-   "id": "NAT-589750",
-   "clause_atom": 589750,
-   "mother_clause_atom": 589749,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499622",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499621"
-  },
-  {
    "id": "NAT-589753",
    "clause_atom": 589753,
    "mother_clause_atom": 589752,
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499625",
+   "mother_clause_id": "499624",
+   "origin_edge_id": "TEST-NATIVE-589753",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11879,8 +11866,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499624"
+   }
   },
   {
    "id": "NAT-589754",
@@ -11889,6 +11875,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499626",
+   "mother_clause_id": "499625",
+   "origin_edge_id": "TEST-NATIVE-589754",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11896,8 +11884,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499625"
+   }
   },
   {
    "id": "NAT-589755",
@@ -11906,6 +11893,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499627",
+   "mother_clause_id": "499624",
+   "origin_edge_id": "TEST-NATIVE-589755",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11913,8 +11902,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499624"
+   }
   },
   {
    "id": "NAT-589756",
@@ -11923,6 +11911,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499628",
+   "mother_clause_id": "499627",
+   "origin_edge_id": "TEST-NATIVE-589756",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11930,8 +11920,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499627"
+   }
   },
   {
    "id": "NAT-589757",
@@ -11940,6 +11929,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499629",
+   "mother_clause_id": "499628",
+   "origin_edge_id": "TEST-NATIVE-589757",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11947,8 +11938,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499628"
+   }
   },
   {
    "id": "NAT-589758",
@@ -11957,6 +11947,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499630",
+   "mother_clause_id": "499628",
+   "origin_edge_id": "TEST-NATIVE-589758",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11964,8 +11956,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499628"
+   }
   },
   {
    "id": "NAT-589759",
@@ -11974,6 +11965,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499631",
+   "mother_clause_id": "499630",
+   "origin_edge_id": "TEST-NATIVE-589759",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11981,8 +11974,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499630"
+   }
   },
   {
    "id": "NAT-589760",
@@ -11991,6 +11983,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499632",
+   "mother_clause_id": "499631",
+   "origin_edge_id": "TEST-NATIVE-589760",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -11998,8 +11992,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499631"
+   }
   },
   {
    "id": "NAT-589761",
@@ -12008,6 +12001,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499633",
+   "mother_clause_id": "499627",
+   "origin_edge_id": "TEST-NATIVE-589761",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12015,8 +12010,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499627"
+   }
   },
   {
    "id": "NAT-589762",
@@ -12025,6 +12019,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499634",
+   "mother_clause_id": "499633",
+   "origin_edge_id": "TEST-NATIVE-589762",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12032,8 +12028,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499633"
+   }
   },
   {
    "id": "NAT-589763",
@@ -12042,6 +12037,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499635",
+   "mother_clause_id": "499627",
+   "origin_edge_id": "TEST-NATIVE-589763",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12049,8 +12046,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499627"
+   }
   },
   {
    "id": "NAT-589764",
@@ -12059,6 +12055,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499636",
+   "mother_clause_id": "499635",
+   "origin_edge_id": "TEST-NATIVE-589764",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12066,8 +12064,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499635"
+   }
   },
   {
    "id": "NAT-589765",
@@ -12076,6 +12073,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499637",
+   "mother_clause_id": "499635",
+   "origin_edge_id": "TEST-NATIVE-589765",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12083,8 +12082,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499635"
+   }
   },
   {
    "id": "NAT-589766",
@@ -12093,6 +12091,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499638",
+   "mother_clause_id": "499635",
+   "origin_edge_id": "TEST-NATIVE-589766",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12100,8 +12100,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499635"
+   }
   },
   {
    "id": "NAT-589767",
@@ -12110,6 +12109,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499639",
+   "mother_clause_id": "499638",
+   "origin_edge_id": "TEST-NATIVE-589767",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12117,8 +12118,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499638"
+   }
   },
   {
    "id": "NAT-589768",
@@ -12127,6 +12127,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499640",
+   "mother_clause_id": "499639",
+   "origin_edge_id": "TEST-NATIVE-589768",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12134,8 +12136,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499639"
+   }
   },
   {
    "id": "NAT-589769",
@@ -12144,6 +12145,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499641",
+   "mother_clause_id": "499640",
+   "origin_edge_id": "TEST-NATIVE-589769",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12151,8 +12154,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499640"
+   }
   },
   {
    "id": "NAT-589770",
@@ -12161,6 +12163,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499642",
+   "mother_clause_id": "499640",
+   "origin_edge_id": "TEST-NATIVE-589770",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12168,8 +12172,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499640"
+   }
   },
   {
    "id": "NAT-589771",
@@ -12178,6 +12181,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499643",
+   "mother_clause_id": "499642",
+   "origin_edge_id": "TEST-NATIVE-589771",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12185,8 +12190,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499642"
+   }
   },
   {
    "id": "NAT-589772",
@@ -12195,6 +12199,8 @@
    "rela": "Cmpl",
    "rela_level": "clause",
    "clause_id": "499644",
+   "mother_clause_id": "499643",
+   "origin_edge_id": "TEST-NATIVE-589772",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12202,8 +12208,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499643"
+   }
   },
   {
    "id": "NAT-589773",
@@ -12212,6 +12217,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499645",
+   "mother_clause_id": "499642",
+   "origin_edge_id": "TEST-NATIVE-589773",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12219,8 +12226,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499642"
+   }
   },
   {
    "id": "NAT-589774",
@@ -12229,6 +12235,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499646",
+   "mother_clause_id": "499645",
+   "origin_edge_id": "TEST-NATIVE-589774",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12236,8 +12244,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499645"
+   }
   },
   {
    "id": "NAT-589775",
@@ -12246,6 +12253,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499647",
+   "mother_clause_id": "499646",
+   "origin_edge_id": "TEST-NATIVE-589775",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12253,8 +12262,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499646"
+   }
   },
   {
    "id": "NAT-589776",
@@ -12263,6 +12271,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499648",
+   "mother_clause_id": "499646",
+   "origin_edge_id": "TEST-NATIVE-589776",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12270,8 +12280,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499646"
+   }
   },
   {
    "id": "NAT-589777",
@@ -12280,6 +12289,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499649",
+   "mother_clause_id": "499648",
+   "origin_edge_id": "TEST-NATIVE-589777",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12287,8 +12298,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499648"
+   }
   },
   {
    "id": "NAT-589778",
@@ -12297,6 +12307,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499650",
+   "mother_clause_id": "499649",
+   "origin_edge_id": "TEST-NATIVE-589778",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12304,8 +12316,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499649"
+   }
   },
   {
    "id": "NAT-589779",
@@ -12314,6 +12325,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499651",
+   "mother_clause_id": "499649",
+   "origin_edge_id": "TEST-NATIVE-589779",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12321,8 +12334,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499649"
+   }
   },
   {
    "id": "NAT-589780",
@@ -12331,6 +12343,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499652",
+   "mother_clause_id": "499651",
+   "origin_edge_id": "TEST-NATIVE-589780",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12338,8 +12352,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499651"
+   }
   },
   {
    "id": "NAT-589781",
@@ -12348,6 +12361,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499653",
+   "mother_clause_id": "499642",
+   "origin_edge_id": "TEST-NATIVE-589781",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12355,8 +12370,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499642"
+   }
   },
   {
    "id": "NAT-589782",
@@ -12365,6 +12379,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499654",
+   "mother_clause_id": "499653",
+   "origin_edge_id": "TEST-NATIVE-589782",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12372,8 +12388,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499653"
+   }
   },
   {
    "id": "NAT-589783",
@@ -12382,6 +12397,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499655",
+   "mother_clause_id": "499654",
+   "origin_edge_id": "TEST-NATIVE-589783",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12389,8 +12406,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499654"
+   }
   },
   {
    "id": "NAT-589784",
@@ -12399,6 +12415,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499656",
+   "mother_clause_id": "499640",
+   "origin_edge_id": "TEST-NATIVE-589784",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12406,8 +12424,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499640"
+   }
   },
   {
    "id": "NAT-589785",
@@ -12416,6 +12433,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499657",
+   "mother_clause_id": "499656",
+   "origin_edge_id": "TEST-NATIVE-589785",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12423,8 +12442,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499656"
+   }
   },
   {
    "id": "NAT-589786",
@@ -12433,6 +12451,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499658",
+   "mother_clause_id": "499657",
+   "origin_edge_id": "TEST-NATIVE-589786",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12440,8 +12460,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499657"
+   }
   },
   {
    "id": "NAT-589787",
@@ -12450,6 +12469,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499659",
+   "mother_clause_id": "499656",
+   "origin_edge_id": "TEST-NATIVE-589787",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12457,8 +12478,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499656"
+   }
   },
   {
    "id": "NAT-589788",
@@ -12467,6 +12487,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499660",
+   "mother_clause_id": "499659",
+   "origin_edge_id": "TEST-NATIVE-589788",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12474,8 +12496,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499659"
+   }
   },
   {
    "id": "NAT-589789",
@@ -12484,6 +12505,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499661",
+   "mother_clause_id": "499660",
+   "origin_edge_id": "TEST-NATIVE-589789",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12491,8 +12514,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499660"
+   }
   },
   {
    "id": "NAT-589790",
@@ -12501,6 +12523,8 @@
    "rela": "Subj",
    "rela_level": "clause",
    "clause_id": "499662",
+   "mother_clause_id": "499661",
+   "origin_edge_id": "TEST-NATIVE-589790",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12508,8 +12532,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499661"
+   }
   },
   {
    "id": "NAT-589791",
@@ -12518,6 +12541,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499663",
+   "mother_clause_id": "499662",
+   "origin_edge_id": "TEST-NATIVE-589791",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12525,25 +12550,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499662"
-  },
-  {
-   "id": "NAT-589792",
-   "clause_atom": 589792,
-   "mother_clause_atom": 589789,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499661",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499661"
+   }
   },
   {
    "id": "NAT-589793",
@@ -12552,6 +12559,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499664",
+   "mother_clause_id": "499659",
+   "origin_edge_id": "TEST-NATIVE-589793",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12559,8 +12568,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499659"
+   }
   },
   {
    "id": "NAT-589794",
@@ -12569,6 +12577,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499665",
+   "mother_clause_id": "499664",
+   "origin_edge_id": "TEST-NATIVE-589794",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12576,8 +12586,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499664"
+   }
   },
   {
    "id": "NAT-589795",
@@ -12586,6 +12595,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499666",
+   "mother_clause_id": "499665",
+   "origin_edge_id": "TEST-NATIVE-589795",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12593,8 +12604,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499665"
+   }
   },
   {
    "id": "NAT-589796",
@@ -12603,6 +12613,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499667",
+   "mother_clause_id": "499666",
+   "origin_edge_id": "TEST-NATIVE-589796",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12610,8 +12622,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499666"
+   }
   },
   {
    "id": "NAT-589797",
@@ -12620,6 +12631,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499668",
+   "mother_clause_id": "499659",
+   "origin_edge_id": "TEST-NATIVE-589797",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12627,8 +12640,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499659"
+   }
   },
   {
    "id": "NAT-589798",
@@ -12637,6 +12649,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499669",
+   "mother_clause_id": "499668",
+   "origin_edge_id": "TEST-NATIVE-589798",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12644,8 +12658,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499668"
+   }
   },
   {
    "id": "NAT-589799",
@@ -12654,6 +12667,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499670",
+   "mother_clause_id": "499640",
+   "origin_edge_id": "TEST-NATIVE-589799",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12661,8 +12676,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499640"
+   }
   },
   {
    "id": "NAT-589800",
@@ -12671,6 +12685,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499671",
+   "mother_clause_id": "499670",
+   "origin_edge_id": "TEST-NATIVE-589800",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12678,8 +12694,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499670"
+   }
   },
   {
    "id": "NAT-589801",
@@ -12688,6 +12703,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499672",
+   "mother_clause_id": "499670",
+   "origin_edge_id": "TEST-NATIVE-589801",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12695,8 +12712,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499670"
+   }
   },
   {
    "id": "NAT-589802",
@@ -12705,6 +12721,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499673",
+   "mother_clause_id": "499670",
+   "origin_edge_id": "TEST-NATIVE-589802",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12712,8 +12730,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499670"
+   }
   },
   {
    "id": "NAT-589803",
@@ -12722,6 +12739,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499674",
+   "mother_clause_id": "499673",
+   "origin_edge_id": "TEST-NATIVE-589803",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12729,8 +12748,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499673"
+   }
   },
   {
    "id": "NAT-589804",
@@ -12739,6 +12757,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499675",
+   "mother_clause_id": "499674",
+   "origin_edge_id": "TEST-NATIVE-589804",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12746,8 +12766,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499674"
+   }
   },
   {
    "id": "NAT-589805",
@@ -12756,6 +12775,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499676",
+   "mother_clause_id": "499675",
+   "origin_edge_id": "TEST-NATIVE-589805",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12763,8 +12784,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499675"
+   }
   },
   {
    "id": "NAT-589806",
@@ -12773,6 +12793,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499677",
+   "mother_clause_id": "499673",
+   "origin_edge_id": "TEST-NATIVE-589806",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12780,8 +12802,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499673"
+   }
   },
   {
    "id": "NAT-589807",
@@ -12790,6 +12811,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499678",
+   "mother_clause_id": "499677",
+   "origin_edge_id": "TEST-NATIVE-589807",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12797,8 +12820,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499677"
+   }
   },
   {
    "id": "NAT-589808",
@@ -12807,6 +12829,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499679",
+   "mother_clause_id": "499678",
+   "origin_edge_id": "TEST-NATIVE-589808",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12814,8 +12838,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499678"
+   }
   },
   {
    "id": "NAT-589809",
@@ -12824,6 +12847,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499680",
+   "mother_clause_id": "499679",
+   "origin_edge_id": "TEST-NATIVE-589809",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12831,8 +12856,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499679"
+   }
   },
   {
    "id": "NAT-589810",
@@ -12841,6 +12865,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499681",
+   "mother_clause_id": "499678",
+   "origin_edge_id": "TEST-NATIVE-589810",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12848,8 +12874,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499678"
+   }
   },
   {
    "id": "NAT-589811",
@@ -12858,6 +12883,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499682",
+   "mother_clause_id": "499681",
+   "origin_edge_id": "TEST-NATIVE-589811",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12865,8 +12892,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499681"
+   }
   },
   {
    "id": "NAT-589812",
@@ -12875,6 +12901,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499683",
+   "mother_clause_id": "499681",
+   "origin_edge_id": "TEST-NATIVE-589812",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12882,8 +12910,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499681"
+   }
   },
   {
    "id": "NAT-589813",
@@ -12892,6 +12919,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499684",
+   "mother_clause_id": "499678",
+   "origin_edge_id": "TEST-NATIVE-589813",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12899,8 +12928,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499678"
+   }
   },
   {
    "id": "NAT-589814",
@@ -12909,6 +12937,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499685",
+   "mother_clause_id": "499684",
+   "origin_edge_id": "TEST-NATIVE-589814",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12916,8 +12946,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499684"
+   }
   },
   {
    "id": "NAT-589815",
@@ -12926,6 +12955,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499686",
+   "mother_clause_id": "499678",
+   "origin_edge_id": "TEST-NATIVE-589815",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12933,8 +12964,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499678"
+   }
   },
   {
    "id": "NAT-589816",
@@ -12943,6 +12973,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499687",
+   "mother_clause_id": "499686",
+   "origin_edge_id": "TEST-NATIVE-589816",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12950,8 +12982,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499686"
+   }
   },
   {
    "id": "NAT-589817",
@@ -12960,6 +12991,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499688",
+   "mother_clause_id": "499686",
+   "origin_edge_id": "TEST-NATIVE-589817",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12967,8 +13000,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499686"
+   }
   },
   {
    "id": "NAT-589818",
@@ -12977,6 +13009,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499689",
+   "mother_clause_id": "499688",
+   "origin_edge_id": "TEST-NATIVE-589818",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -12984,8 +13018,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499688"
+   }
   },
   {
    "id": "NAT-589819",
@@ -12994,6 +13027,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499690",
+   "mother_clause_id": "499688",
+   "origin_edge_id": "TEST-NATIVE-589819",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13001,8 +13036,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499688"
+   }
   },
   {
    "id": "NAT-589820",
@@ -13011,6 +13045,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499691",
+   "mother_clause_id": "499690",
+   "origin_edge_id": "TEST-NATIVE-589820",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13018,8 +13054,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499690"
+   }
   },
   {
    "id": "NAT-589821",
@@ -13028,6 +13063,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499692",
+   "mother_clause_id": "499691",
+   "origin_edge_id": "TEST-NATIVE-589821",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13035,8 +13072,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499691"
+   }
   },
   {
    "id": "NAT-589823",
@@ -13045,6 +13081,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499694",
+   "mother_clause_id": "499693",
+   "origin_edge_id": "TEST-NATIVE-589823",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13052,8 +13090,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499693"
+   }
   },
   {
    "id": "NAT-589824",
@@ -13062,6 +13099,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499695",
+   "mother_clause_id": "499694",
+   "origin_edge_id": "TEST-NATIVE-589824",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13069,25 +13108,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499694"
-  },
-  {
-   "id": "NAT-589825",
-   "clause_atom": 589825,
-   "mother_clause_atom": 589823,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499694",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499694"
+   }
   },
   {
    "id": "NAT-589826",
@@ -13096,6 +13117,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499696",
+   "mother_clause_id": "499694",
+   "origin_edge_id": "TEST-NATIVE-589826",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13103,8 +13126,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499694"
+   }
   },
   {
    "id": "NAT-589827",
@@ -13113,6 +13135,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499697",
+   "mother_clause_id": "499694",
+   "origin_edge_id": "TEST-NATIVE-589827",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13120,8 +13144,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499694"
+   }
   },
   {
    "id": "NAT-589828",
@@ -13130,6 +13153,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499698",
+   "mother_clause_id": "499697",
+   "origin_edge_id": "TEST-NATIVE-589828",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13137,8 +13162,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499697"
+   }
   },
   {
    "id": "NAT-589829",
@@ -13147,6 +13171,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499699",
+   "mother_clause_id": "499697",
+   "origin_edge_id": "TEST-NATIVE-589829",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13154,8 +13180,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499697"
+   }
   },
   {
    "id": "NAT-589830",
@@ -13164,6 +13189,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499700",
+   "mother_clause_id": "499699",
+   "origin_edge_id": "TEST-NATIVE-589830",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13171,8 +13198,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499699"
+   }
   },
   {
    "id": "NAT-589831",
@@ -13181,6 +13207,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499701",
+   "mother_clause_id": "499697",
+   "origin_edge_id": "TEST-NATIVE-589831",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13188,8 +13216,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499697"
+   }
   },
   {
    "id": "NAT-589832",
@@ -13198,6 +13225,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499702",
+   "mother_clause_id": "499701",
+   "origin_edge_id": "TEST-NATIVE-589832",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13205,8 +13234,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499701"
+   }
   },
   {
    "id": "NAT-589833",
@@ -13215,6 +13243,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499703",
+   "mother_clause_id": "499694",
+   "origin_edge_id": "TEST-NATIVE-589833",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13222,8 +13252,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499694"
+   }
   },
   {
    "id": "NAT-589834",
@@ -13232,6 +13261,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499704",
+   "mother_clause_id": "499703",
+   "origin_edge_id": "TEST-NATIVE-589834",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13239,8 +13270,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499703"
+   }
   },
   {
    "id": "NAT-589835",
@@ -13249,6 +13279,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499705",
+   "mother_clause_id": "499704",
+   "origin_edge_id": "TEST-NATIVE-589835",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13256,8 +13288,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499704"
+   }
   },
   {
    "id": "NAT-589836",
@@ -13266,6 +13297,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499706",
+   "mother_clause_id": "499705",
+   "origin_edge_id": "TEST-NATIVE-589836",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13273,8 +13306,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499705"
+   }
   },
   {
    "id": "NAT-589837",
@@ -13283,6 +13315,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499707",
+   "mother_clause_id": "499703",
+   "origin_edge_id": "TEST-NATIVE-589837",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13290,8 +13324,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499703"
+   }
   },
   {
    "id": "NAT-589838",
@@ -13300,6 +13333,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499708",
+   "mother_clause_id": "499707",
+   "origin_edge_id": "TEST-NATIVE-589838",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13307,8 +13342,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499707"
+   }
   },
   {
    "id": "NAT-589839",
@@ -13317,6 +13351,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499709",
+   "mother_clause_id": "499707",
+   "origin_edge_id": "TEST-NATIVE-589839",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13324,8 +13360,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499707"
+   }
   },
   {
    "id": "NAT-589840",
@@ -13334,6 +13369,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499710",
+   "mother_clause_id": "499709",
+   "origin_edge_id": "TEST-NATIVE-589840",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13341,8 +13378,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499709"
+   }
   },
   {
    "id": "NAT-589841",
@@ -13351,6 +13387,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499711",
+   "mother_clause_id": "499703",
+   "origin_edge_id": "TEST-NATIVE-589841",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13358,8 +13396,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499703"
+   }
   },
   {
    "id": "NAT-589842",
@@ -13368,6 +13405,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499712",
+   "mother_clause_id": "499711",
+   "origin_edge_id": "TEST-NATIVE-589842",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13375,8 +13414,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499711"
+   }
   },
   {
    "id": "NAT-589843",
@@ -13385,6 +13423,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499713",
+   "mother_clause_id": "499711",
+   "origin_edge_id": "TEST-NATIVE-589843",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13392,8 +13432,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499711"
+   }
   },
   {
    "id": "NAT-589844",
@@ -13402,6 +13441,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499714",
+   "mother_clause_id": "499713",
+   "origin_edge_id": "TEST-NATIVE-589844",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13409,8 +13450,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499713"
+   }
   },
   {
    "id": "NAT-589845",
@@ -13419,6 +13459,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499715",
+   "mother_clause_id": "499713",
+   "origin_edge_id": "TEST-NATIVE-589845",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13426,8 +13468,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499713"
+   }
   },
   {
    "id": "NAT-589846",
@@ -13436,6 +13477,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499716",
+   "mother_clause_id": "499715",
+   "origin_edge_id": "TEST-NATIVE-589846",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13443,8 +13486,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499715"
+   }
   },
   {
    "id": "NAT-589847",
@@ -13453,6 +13495,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499717",
+   "mother_clause_id": "499715",
+   "origin_edge_id": "TEST-NATIVE-589847",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13460,8 +13504,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499715"
+   }
   },
   {
    "id": "NAT-589848",
@@ -13470,6 +13513,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499718",
+   "mother_clause_id": "499717",
+   "origin_edge_id": "TEST-NATIVE-589848",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13477,8 +13522,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499717"
+   }
   },
   {
    "id": "NAT-589849",
@@ -13487,6 +13531,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499719",
+   "mother_clause_id": "499718",
+   "origin_edge_id": "TEST-NATIVE-589849",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13494,8 +13540,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499718"
+   }
   },
   {
    "id": "NAT-589850",
@@ -13504,6 +13549,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499720",
+   "mother_clause_id": "499719",
+   "origin_edge_id": "TEST-NATIVE-589850",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13511,8 +13558,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499719"
+   }
   },
   {
    "id": "NAT-589851",
@@ -13521,6 +13567,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499721",
+   "mother_clause_id": "499711",
+   "origin_edge_id": "TEST-NATIVE-589851",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13528,8 +13576,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499711"
+   }
   },
   {
    "id": "NAT-589852",
@@ -13538,6 +13585,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499722",
+   "mother_clause_id": "499721",
+   "origin_edge_id": "TEST-NATIVE-589852",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13545,8 +13594,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499721"
+   }
   },
   {
    "id": "NAT-589853",
@@ -13555,6 +13603,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499723",
+   "mother_clause_id": "499721",
+   "origin_edge_id": "TEST-NATIVE-589853",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13562,8 +13612,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499721"
+   }
   },
   {
    "id": "NAT-589854",
@@ -13572,6 +13621,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499724",
+   "mother_clause_id": "499721",
+   "origin_edge_id": "TEST-NATIVE-589854",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13579,8 +13630,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499721"
+   }
   },
   {
    "id": "NAT-589855",
@@ -13589,6 +13639,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499725",
+   "mother_clause_id": "499724",
+   "origin_edge_id": "TEST-NATIVE-589855",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13596,8 +13648,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499724"
+   }
   },
   {
    "id": "NAT-589856",
@@ -13606,6 +13657,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499726",
+   "mother_clause_id": "499725",
+   "origin_edge_id": "TEST-NATIVE-589856",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13613,8 +13666,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499725"
+   }
   },
   {
    "id": "NAT-589857",
@@ -13623,6 +13675,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499727",
+   "mother_clause_id": "499726",
+   "origin_edge_id": "TEST-NATIVE-589857",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13630,8 +13684,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499726"
+   }
   },
   {
    "id": "NAT-589858",
@@ -13640,6 +13693,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499728",
+   "mother_clause_id": "499726",
+   "origin_edge_id": "TEST-NATIVE-589858",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13647,8 +13702,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499726"
+   }
   },
   {
    "id": "NAT-589859",
@@ -13657,6 +13711,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499729",
+   "mother_clause_id": "499724",
+   "origin_edge_id": "TEST-NATIVE-589859",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13664,8 +13720,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499724"
+   }
   },
   {
    "id": "NAT-589860",
@@ -13674,6 +13729,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499730",
+   "mother_clause_id": "499729",
+   "origin_edge_id": "TEST-NATIVE-589860",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13681,8 +13738,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499729"
+   }
   },
   {
    "id": "NAT-589861",
@@ -13691,6 +13747,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499731",
+   "mother_clause_id": "499729",
+   "origin_edge_id": "TEST-NATIVE-589861",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13698,8 +13756,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499729"
+   }
   },
   {
    "id": "NAT-589862",
@@ -13708,6 +13765,8 @@
    "rela": "Resu",
    "rela_level": "clause",
    "clause_id": "499732",
+   "mother_clause_id": "499729",
+   "origin_edge_id": "TEST-NATIVE-589862",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13715,8 +13774,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499729"
+   }
   },
   {
    "id": "NAT-589863",
@@ -13725,6 +13783,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499733",
+   "mother_clause_id": "499732",
+   "origin_edge_id": "TEST-NATIVE-589863",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13732,8 +13792,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499732"
+   }
   },
   {
    "id": "NAT-589864",
@@ -13742,6 +13801,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499734",
+   "mother_clause_id": "499733",
+   "origin_edge_id": "TEST-NATIVE-589864",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13749,8 +13810,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499733"
+   }
   },
   {
    "id": "NAT-589865",
@@ -13759,6 +13819,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499735",
+   "mother_clause_id": "499734",
+   "origin_edge_id": "TEST-NATIVE-589865",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13766,8 +13828,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499734"
+   }
   },
   {
    "id": "NAT-589866",
@@ -13776,6 +13837,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499736",
+   "mother_clause_id": "499732",
+   "origin_edge_id": "TEST-NATIVE-589866",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13783,8 +13846,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499732"
+   }
   },
   {
    "id": "NAT-589867",
@@ -13793,6 +13855,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499737",
+   "mother_clause_id": "499736",
+   "origin_edge_id": "TEST-NATIVE-589867",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13800,8 +13864,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499736"
+   }
   },
   {
    "id": "NAT-589868",
@@ -13810,6 +13873,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499738",
+   "mother_clause_id": "499736",
+   "origin_edge_id": "TEST-NATIVE-589868",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13817,8 +13882,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499736"
+   }
   },
   {
    "id": "NAT-589869",
@@ -13827,6 +13891,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499739",
+   "mother_clause_id": "499736",
+   "origin_edge_id": "TEST-NATIVE-589869",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13834,8 +13900,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499736"
+   }
   },
   {
    "id": "NAT-589870",
@@ -13844,6 +13909,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499740",
+   "mother_clause_id": "499739",
+   "origin_edge_id": "TEST-NATIVE-589870",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13851,8 +13918,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499739"
+   }
   },
   {
    "id": "NAT-589871",
@@ -13861,6 +13927,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499741",
+   "mother_clause_id": "499739",
+   "origin_edge_id": "TEST-NATIVE-589871",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13868,8 +13936,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499739"
+   }
   },
   {
    "id": "NAT-589872",
@@ -13878,6 +13945,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499742",
+   "mother_clause_id": "499741",
+   "origin_edge_id": "TEST-NATIVE-589872",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13885,8 +13954,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499741"
+   }
   },
   {
    "id": "NAT-589873",
@@ -13895,6 +13963,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499743",
+   "mother_clause_id": "499736",
+   "origin_edge_id": "TEST-NATIVE-589873",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13902,8 +13972,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499736"
+   }
   },
   {
    "id": "NAT-589874",
@@ -13912,6 +13981,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499744",
+   "mother_clause_id": "499743",
+   "origin_edge_id": "TEST-NATIVE-589874",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13919,8 +13990,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499743"
+   }
   },
   {
    "id": "NAT-589875",
@@ -13929,6 +13999,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499745",
+   "mother_clause_id": "499744",
+   "origin_edge_id": "TEST-NATIVE-589875",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13936,8 +14008,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499744"
+   }
   },
   {
    "id": "NAT-589876",
@@ -13946,6 +14017,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499746",
+   "mother_clause_id": "499743",
+   "origin_edge_id": "TEST-NATIVE-589876",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13953,8 +14026,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499743"
+   }
   },
   {
    "id": "NAT-589877",
@@ -13963,6 +14035,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499747",
+   "mother_clause_id": "499746",
+   "origin_edge_id": "TEST-NATIVE-589877",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13970,8 +14044,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499746"
+   }
   },
   {
    "id": "NAT-589878",
@@ -13980,6 +14053,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499748",
+   "mother_clause_id": "499736",
+   "origin_edge_id": "TEST-NATIVE-589878",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -13987,8 +14062,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499736"
+   }
   },
   {
    "id": "NAT-589879",
@@ -13997,6 +14071,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499749",
+   "mother_clause_id": "499748",
+   "origin_edge_id": "TEST-NATIVE-589879",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14004,8 +14080,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499748"
+   }
   },
   {
    "id": "NAT-589880",
@@ -14014,6 +14089,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499750",
+   "mother_clause_id": "499748",
+   "origin_edge_id": "TEST-NATIVE-589880",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14021,8 +14098,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499748"
+   }
   },
   {
    "id": "NAT-589881",
@@ -14031,6 +14107,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499751",
+   "mother_clause_id": "499750",
+   "origin_edge_id": "TEST-NATIVE-589881",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14038,8 +14116,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499750"
+   }
   },
   {
    "id": "NAT-589882",
@@ -14048,6 +14125,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499752",
+   "mother_clause_id": "499751",
+   "origin_edge_id": "TEST-NATIVE-589882",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14055,8 +14134,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499751"
+   }
   },
   {
    "id": "NAT-589883",
@@ -14065,6 +14143,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499753",
+   "mother_clause_id": "499752",
+   "origin_edge_id": "TEST-NATIVE-589883",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14072,8 +14152,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499752"
+   }
   },
   {
    "id": "NAT-589884",
@@ -14082,6 +14161,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499754",
+   "mother_clause_id": "499752",
+   "origin_edge_id": "TEST-NATIVE-589884",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14089,8 +14170,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499752"
+   }
   },
   {
    "id": "NAT-589885",
@@ -14099,6 +14179,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499755",
+   "mother_clause_id": "499748",
+   "origin_edge_id": "TEST-NATIVE-589885",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14106,8 +14188,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499748"
+   }
   },
   {
    "id": "NAT-589886",
@@ -14116,6 +14197,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499756",
+   "mother_clause_id": "499755",
+   "origin_edge_id": "TEST-NATIVE-589886",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14123,8 +14206,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499755"
+   }
   },
   {
    "id": "NAT-589887",
@@ -14133,6 +14215,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499757",
+   "mother_clause_id": "499756",
+   "origin_edge_id": "TEST-NATIVE-589887",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14140,8 +14224,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499756"
+   }
   },
   {
    "id": "NAT-589888",
@@ -14150,6 +14233,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499758",
+   "mother_clause_id": "499757",
+   "origin_edge_id": "TEST-NATIVE-589888",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14157,8 +14242,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499757"
+   }
   },
   {
    "id": "NAT-589889",
@@ -14167,6 +14251,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499759",
+   "mother_clause_id": "499758",
+   "origin_edge_id": "TEST-NATIVE-589889",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14174,8 +14260,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499758"
+   }
   },
   {
    "id": "NAT-589890",
@@ -14184,6 +14269,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499760",
+   "mother_clause_id": "499758",
+   "origin_edge_id": "TEST-NATIVE-589890",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14191,8 +14278,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499758"
+   }
   },
   {
    "id": "NAT-589891",
@@ -14201,6 +14287,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499761",
+   "mother_clause_id": "499757",
+   "origin_edge_id": "TEST-NATIVE-589891",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14208,8 +14296,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499757"
+   }
   },
   {
    "id": "NAT-589892",
@@ -14218,6 +14305,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499762",
+   "mother_clause_id": "499761",
+   "origin_edge_id": "TEST-NATIVE-589892",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14225,8 +14314,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499761"
+   }
   },
   {
    "id": "NAT-589893",
@@ -14235,6 +14323,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499763",
+   "mother_clause_id": "499762",
+   "origin_edge_id": "TEST-NATIVE-589893",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14242,8 +14332,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499762"
+   }
   },
   {
    "id": "NAT-589894",
@@ -14252,6 +14341,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499764",
+   "mother_clause_id": "499763",
+   "origin_edge_id": "TEST-NATIVE-589894",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14259,8 +14350,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499763"
+   }
   },
   {
    "id": "NAT-589895",
@@ -14269,6 +14359,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499765",
+   "mother_clause_id": "499763",
+   "origin_edge_id": "TEST-NATIVE-589895",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14276,8 +14368,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499763"
+   }
   },
   {
    "id": "NAT-589896",
@@ -14286,6 +14377,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499766",
+   "mother_clause_id": "499763",
+   "origin_edge_id": "TEST-NATIVE-589896",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14293,8 +14386,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499763"
+   }
   },
   {
    "id": "NAT-589897",
@@ -14303,6 +14395,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499767",
+   "mother_clause_id": "499766",
+   "origin_edge_id": "TEST-NATIVE-589897",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14310,8 +14404,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499766"
+   }
   },
   {
    "id": "NAT-589898",
@@ -14320,6 +14413,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499768",
+   "mother_clause_id": "499766",
+   "origin_edge_id": "TEST-NATIVE-589898",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14327,8 +14422,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499766"
+   }
   },
   {
    "id": "NAT-589899",
@@ -14337,6 +14431,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499769",
+   "mother_clause_id": "499729",
+   "origin_edge_id": "TEST-NATIVE-589899",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14344,8 +14440,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499729"
+   }
   },
   {
    "id": "NAT-589900",
@@ -14354,6 +14449,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499770",
+   "mother_clause_id": "499769",
+   "origin_edge_id": "TEST-NATIVE-589900",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14361,8 +14458,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499769"
+   }
   },
   {
    "id": "NAT-589901",
@@ -14371,6 +14467,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499771",
+   "mother_clause_id": "499770",
+   "origin_edge_id": "TEST-NATIVE-589901",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14378,8 +14476,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499770"
+   }
   },
   {
    "id": "NAT-589902",
@@ -14388,6 +14485,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499772",
+   "mother_clause_id": "499694",
+   "origin_edge_id": "TEST-NATIVE-589902",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14395,8 +14494,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499694"
+   }
   },
   {
    "id": "NAT-589903",
@@ -14405,6 +14503,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499773",
+   "mother_clause_id": "499772",
+   "origin_edge_id": "TEST-NATIVE-589903",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14412,8 +14512,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499772"
+   }
   },
   {
    "id": "NAT-589904",
@@ -14422,6 +14521,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499774",
+   "mother_clause_id": "499772",
+   "origin_edge_id": "TEST-NATIVE-589904",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14429,8 +14530,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499772"
+   }
   },
   {
    "id": "NAT-589905",
@@ -14439,6 +14539,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499775",
+   "mother_clause_id": "499774",
+   "origin_edge_id": "TEST-NATIVE-589905",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14446,8 +14548,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499774"
+   }
   },
   {
    "id": "NAT-589906",
@@ -14456,6 +14557,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499776",
+   "mother_clause_id": "499775",
+   "origin_edge_id": "TEST-NATIVE-589906",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14463,8 +14566,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499775"
+   }
   },
   {
    "id": "NAT-589907",
@@ -14473,6 +14575,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499777",
+   "mother_clause_id": "499775",
+   "origin_edge_id": "TEST-NATIVE-589907",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14480,8 +14584,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499775"
+   }
   },
   {
    "id": "NAT-589908",
@@ -14490,6 +14593,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499778",
+   "mother_clause_id": "499777",
+   "origin_edge_id": "TEST-NATIVE-589908",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14497,8 +14602,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499777"
+   }
   },
   {
    "id": "NAT-589909",
@@ -14507,6 +14611,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499779",
+   "mother_clause_id": "499778",
+   "origin_edge_id": "TEST-NATIVE-589909",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14514,8 +14620,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499778"
+   }
   },
   {
    "id": "NAT-589910",
@@ -14524,6 +14629,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499780",
+   "mother_clause_id": "499779",
+   "origin_edge_id": "TEST-NATIVE-589910",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14531,8 +14638,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499779"
+   }
   },
   {
    "id": "NAT-589911",
@@ -14541,6 +14647,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499781",
+   "mother_clause_id": "499780",
+   "origin_edge_id": "TEST-NATIVE-589911",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14548,8 +14656,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499780"
+   }
   },
   {
    "id": "NAT-589912",
@@ -14558,6 +14665,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499782",
+   "mother_clause_id": "499777",
+   "origin_edge_id": "TEST-NATIVE-589912",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14565,8 +14674,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499777"
+   }
   },
   {
    "id": "NAT-589913",
@@ -14575,6 +14683,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499783",
+   "mother_clause_id": "499782",
+   "origin_edge_id": "TEST-NATIVE-589913",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14582,8 +14692,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499782"
+   }
   },
   {
    "id": "NAT-589914",
@@ -14592,6 +14701,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499784",
+   "mother_clause_id": "499783",
+   "origin_edge_id": "TEST-NATIVE-589914",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14599,8 +14710,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499783"
+   }
   },
   {
    "id": "NAT-589915",
@@ -14609,6 +14719,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499785",
+   "mother_clause_id": "499784",
+   "origin_edge_id": "TEST-NATIVE-589915",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14616,8 +14728,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499784"
+   }
   },
   {
    "id": "NAT-589917",
@@ -14626,6 +14737,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499787",
+   "mother_clause_id": "499786",
+   "origin_edge_id": "TEST-NATIVE-589917",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14633,8 +14746,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499786"
+   }
   },
   {
    "id": "NAT-589918",
@@ -14643,6 +14755,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499788",
+   "mother_clause_id": "499787",
+   "origin_edge_id": "TEST-NATIVE-589918",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14650,8 +14764,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499787"
+   }
   },
   {
    "id": "NAT-589919",
@@ -14660,6 +14773,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499789",
+   "mother_clause_id": "499788",
+   "origin_edge_id": "TEST-NATIVE-589919",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14667,25 +14782,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499788"
-  },
-  {
-   "id": "NAT-589920",
-   "clause_atom": 589920,
-   "mother_clause_atom": 589918,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499788",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499788"
+   }
   },
   {
    "id": "NAT-589921",
@@ -14694,6 +14791,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499790",
+   "mother_clause_id": "499788",
+   "origin_edge_id": "TEST-NATIVE-589921",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14701,8 +14800,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499788"
+   }
   },
   {
    "id": "NAT-589922",
@@ -14711,6 +14809,8 @@
    "rela": "ReVo",
    "rela_level": "clause",
    "clause_id": "499791",
+   "mother_clause_id": "499790",
+   "origin_edge_id": "TEST-NATIVE-589922",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14718,8 +14818,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499790"
+   }
   },
   {
    "id": "NAT-589923",
@@ -14728,6 +14827,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499792",
+   "mother_clause_id": "499791",
+   "origin_edge_id": "TEST-NATIVE-589923",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14735,8 +14836,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499791"
+   }
   },
   {
    "id": "NAT-589924",
@@ -14745,6 +14845,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499793",
+   "mother_clause_id": "499792",
+   "origin_edge_id": "TEST-NATIVE-589924",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14752,8 +14854,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499792"
+   }
   },
   {
    "id": "NAT-589925",
@@ -14762,6 +14863,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499794",
+   "mother_clause_id": "499793",
+   "origin_edge_id": "TEST-NATIVE-589925",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14769,8 +14872,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499793"
+   }
   },
   {
    "id": "NAT-589926",
@@ -14779,6 +14881,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499795",
+   "mother_clause_id": "499788",
+   "origin_edge_id": "TEST-NATIVE-589926",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14786,8 +14890,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499788"
+   }
   },
   {
    "id": "NAT-589927",
@@ -14796,6 +14899,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499796",
+   "mother_clause_id": "499795",
+   "origin_edge_id": "TEST-NATIVE-589927",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14803,8 +14908,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499795"
+   }
   },
   {
    "id": "NAT-589928",
@@ -14813,6 +14917,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499797",
+   "mother_clause_id": "499796",
+   "origin_edge_id": "TEST-NATIVE-589928",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14820,8 +14926,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499796"
+   }
   },
   {
    "id": "NAT-589929",
@@ -14830,6 +14935,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499798",
+   "mother_clause_id": "499796",
+   "origin_edge_id": "TEST-NATIVE-589929",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14837,8 +14944,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499796"
+   }
   },
   {
    "id": "NAT-589930",
@@ -14847,6 +14953,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499799",
+   "mother_clause_id": "499798",
+   "origin_edge_id": "TEST-NATIVE-589930",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14854,8 +14962,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499798"
+   }
   },
   {
    "id": "NAT-589931",
@@ -14864,6 +14971,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499800",
+   "mother_clause_id": "499799",
+   "origin_edge_id": "TEST-NATIVE-589931",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14871,8 +14980,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499799"
+   }
   },
   {
    "id": "NAT-589932",
@@ -14881,6 +14989,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499801",
+   "mother_clause_id": "499799",
+   "origin_edge_id": "TEST-NATIVE-589932",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14888,8 +14998,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499799"
+   }
   },
   {
    "id": "NAT-589933",
@@ -14898,6 +15007,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499802",
+   "mother_clause_id": "499801",
+   "origin_edge_id": "TEST-NATIVE-589933",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14905,8 +15016,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499801"
+   }
   },
   {
    "id": "NAT-589934",
@@ -14915,6 +15025,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499803",
+   "mother_clause_id": "499795",
+   "origin_edge_id": "TEST-NATIVE-589934",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14922,8 +15034,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499795"
+   }
   },
   {
    "id": "NAT-589935",
@@ -14932,6 +15043,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499804",
+   "mother_clause_id": "499803",
+   "origin_edge_id": "TEST-NATIVE-589935",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14939,8 +15052,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499803"
+   }
   },
   {
    "id": "NAT-589936",
@@ -14949,6 +15061,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499805",
+   "mother_clause_id": "499804",
+   "origin_edge_id": "TEST-NATIVE-589936",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14956,8 +15070,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499804"
+   }
   },
   {
    "id": "NAT-589937",
@@ -14966,6 +15079,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499806",
+   "mother_clause_id": "499805",
+   "origin_edge_id": "TEST-NATIVE-589937",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14973,8 +15088,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499805"
+   }
   },
   {
    "id": "NAT-589938",
@@ -14983,6 +15097,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499807",
+   "mother_clause_id": "499803",
+   "origin_edge_id": "TEST-NATIVE-589938",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -14990,8 +15106,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499803"
+   }
   },
   {
    "id": "NAT-589939",
@@ -15000,6 +15115,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499808",
+   "mother_clause_id": "499807",
+   "origin_edge_id": "TEST-NATIVE-589939",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15007,8 +15124,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499807"
+   }
   },
   {
    "id": "NAT-589940",
@@ -15017,6 +15133,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499809",
+   "mother_clause_id": "499808",
+   "origin_edge_id": "TEST-NATIVE-589940",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15024,8 +15142,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499808"
+   }
   },
   {
    "id": "NAT-589941",
@@ -15034,6 +15151,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499810",
+   "mother_clause_id": "499788",
+   "origin_edge_id": "TEST-NATIVE-589941",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15041,8 +15160,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499788"
+   }
   },
   {
    "id": "NAT-589942",
@@ -15051,6 +15169,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499811",
+   "mother_clause_id": "499810",
+   "origin_edge_id": "TEST-NATIVE-589942",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15058,25 +15178,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499810"
-  },
-  {
-   "id": "NAT-589943",
-   "clause_atom": 589943,
-   "mother_clause_atom": 589941,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499810",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499810"
+   }
   },
   {
    "id": "NAT-589944",
@@ -15085,6 +15187,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499812",
+   "mother_clause_id": "499810",
+   "origin_edge_id": "TEST-NATIVE-589944",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15092,8 +15196,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499810"
+   }
   },
   {
    "id": "NAT-589945",
@@ -15102,6 +15205,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499813",
+   "mother_clause_id": "499812",
+   "origin_edge_id": "TEST-NATIVE-589945",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15109,8 +15214,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499812"
+   }
   },
   {
    "id": "NAT-589946",
@@ -15119,6 +15223,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499814",
+   "mother_clause_id": "499812",
+   "origin_edge_id": "TEST-NATIVE-589946",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15126,8 +15232,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499812"
+   }
   },
   {
    "id": "NAT-589947",
@@ -15136,6 +15241,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499815",
+   "mother_clause_id": "499814",
+   "origin_edge_id": "TEST-NATIVE-589947",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15143,8 +15250,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499814"
+   }
   },
   {
    "id": "NAT-589948",
@@ -15153,6 +15259,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499816",
+   "mother_clause_id": "499812",
+   "origin_edge_id": "TEST-NATIVE-589948",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15160,8 +15268,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499812"
+   }
   },
   {
    "id": "NAT-589949",
@@ -15170,6 +15277,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499817",
+   "mother_clause_id": "499816",
+   "origin_edge_id": "TEST-NATIVE-589949",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15177,8 +15286,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499816"
+   }
   },
   {
    "id": "NAT-589950",
@@ -15187,6 +15295,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499818",
+   "mother_clause_id": "499816",
+   "origin_edge_id": "TEST-NATIVE-589950",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15194,8 +15304,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499816"
+   }
   },
   {
    "id": "NAT-589951",
@@ -15204,6 +15313,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499819",
+   "mother_clause_id": "499818",
+   "origin_edge_id": "TEST-NATIVE-589951",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15211,8 +15322,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499818"
+   }
   },
   {
    "id": "NAT-589952",
@@ -15221,6 +15331,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499820",
+   "mother_clause_id": "499816",
+   "origin_edge_id": "TEST-NATIVE-589952",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15228,8 +15340,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499816"
+   }
   },
   {
    "id": "NAT-589953",
@@ -15238,6 +15349,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499821",
+   "mother_clause_id": "499820",
+   "origin_edge_id": "TEST-NATIVE-589953",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15245,8 +15358,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499820"
+   }
   },
   {
    "id": "NAT-589954",
@@ -15255,6 +15367,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499822",
+   "mother_clause_id": "499820",
+   "origin_edge_id": "TEST-NATIVE-589954",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15262,8 +15376,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499820"
+   }
   },
   {
    "id": "NAT-589955",
@@ -15272,6 +15385,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499823",
+   "mother_clause_id": "499822",
+   "origin_edge_id": "TEST-NATIVE-589955",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15279,8 +15394,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499822"
+   }
   },
   {
    "id": "NAT-589956",
@@ -15289,6 +15403,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499824",
+   "mother_clause_id": "499788",
+   "origin_edge_id": "TEST-NATIVE-589956",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15296,8 +15412,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499788"
+   }
   },
   {
    "id": "NAT-589957",
@@ -15306,6 +15421,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499825",
+   "mother_clause_id": "499824",
+   "origin_edge_id": "TEST-NATIVE-589957",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15313,8 +15430,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499824"
+   }
   },
   {
    "id": "NAT-589958",
@@ -15323,6 +15439,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499826",
+   "mother_clause_id": "499825",
+   "origin_edge_id": "TEST-NATIVE-589958",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15330,8 +15448,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499825"
+   }
   },
   {
    "id": "NAT-589959",
@@ -15340,6 +15457,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499827",
+   "mother_clause_id": "499826",
+   "origin_edge_id": "TEST-NATIVE-589959",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15347,8 +15466,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499826"
+   }
   },
   {
    "id": "NAT-589960",
@@ -15357,6 +15475,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499828",
+   "mother_clause_id": "499827",
+   "origin_edge_id": "TEST-NATIVE-589960",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15364,8 +15484,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499827"
+   }
   },
   {
    "id": "NAT-589961",
@@ -15374,6 +15493,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499829",
+   "mother_clause_id": "499828",
+   "origin_edge_id": "TEST-NATIVE-589961",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15381,8 +15502,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499828"
+   }
   },
   {
    "id": "NAT-589962",
@@ -15391,6 +15511,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499830",
+   "mother_clause_id": "499829",
+   "origin_edge_id": "TEST-NATIVE-589962",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15398,8 +15520,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499829"
+   }
   },
   {
    "id": "NAT-589963",
@@ -15408,6 +15529,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499831",
+   "mother_clause_id": "499830",
+   "origin_edge_id": "TEST-NATIVE-589963",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15415,8 +15538,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499830"
+   }
   },
   {
    "id": "NAT-589964",
@@ -15425,6 +15547,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499832",
+   "mother_clause_id": "499829",
+   "origin_edge_id": "TEST-NATIVE-589964",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15432,8 +15556,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499829"
+   }
   },
   {
    "id": "NAT-589965",
@@ -15442,6 +15565,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499833",
+   "mother_clause_id": "499828",
+   "origin_edge_id": "TEST-NATIVE-589965",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15449,8 +15574,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499828"
+   }
   },
   {
    "id": "NAT-589966",
@@ -15459,6 +15583,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499834",
+   "mother_clause_id": "499833",
+   "origin_edge_id": "TEST-NATIVE-589966",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15466,8 +15592,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499833"
+   }
   },
   {
    "id": "NAT-589967",
@@ -15476,6 +15601,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499835",
+   "mother_clause_id": "499834",
+   "origin_edge_id": "TEST-NATIVE-589967",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15483,8 +15610,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499834"
+   }
   },
   {
    "id": "NAT-589968",
@@ -15493,6 +15619,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499836",
+   "mother_clause_id": "499827",
+   "origin_edge_id": "TEST-NATIVE-589968",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15500,8 +15628,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499827"
+   }
   },
   {
    "id": "NAT-589969",
@@ -15510,6 +15637,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499837",
+   "mother_clause_id": "499836",
+   "origin_edge_id": "TEST-NATIVE-589969",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15517,8 +15646,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499836"
+   }
   },
   {
    "id": "NAT-589970",
@@ -15527,6 +15655,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499838",
+   "mother_clause_id": "499837",
+   "origin_edge_id": "TEST-NATIVE-589970",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15534,8 +15664,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499837"
+   }
   },
   {
    "id": "NAT-589971",
@@ -15544,6 +15673,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499839",
+   "mother_clause_id": "499838",
+   "origin_edge_id": "TEST-NATIVE-589971",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15551,8 +15682,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499838"
+   }
   },
   {
    "id": "NAT-589972",
@@ -15561,6 +15691,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499840",
+   "mother_clause_id": "499839",
+   "origin_edge_id": "TEST-NATIVE-589972",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15568,8 +15700,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499839"
+   }
   },
   {
    "id": "NAT-589973",
@@ -15578,6 +15709,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499841",
+   "mother_clause_id": "499836",
+   "origin_edge_id": "TEST-NATIVE-589973",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15585,8 +15718,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499836"
+   }
   },
   {
    "id": "NAT-589974",
@@ -15595,6 +15727,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499842",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589974",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15602,8 +15736,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589975",
@@ -15612,6 +15745,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499843",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589975",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15619,8 +15754,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589976",
@@ -15629,6 +15763,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499844",
+   "mother_clause_id": "499843",
+   "origin_edge_id": "TEST-NATIVE-589976",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15636,8 +15772,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499843"
+   }
   },
   {
    "id": "NAT-589977",
@@ -15646,6 +15781,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499845",
+   "mother_clause_id": "499844",
+   "origin_edge_id": "TEST-NATIVE-589977",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15653,8 +15790,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499844"
+   }
   },
   {
    "id": "NAT-589978",
@@ -15663,6 +15799,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499846",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589978",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15670,8 +15808,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589979",
@@ -15680,6 +15817,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499847",
+   "mother_clause_id": "499846",
+   "origin_edge_id": "TEST-NATIVE-589979",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15687,8 +15826,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499846"
+   }
   },
   {
    "id": "NAT-589980",
@@ -15697,6 +15835,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499848",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589980",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15704,8 +15844,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589981",
@@ -15714,6 +15853,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499849",
+   "mother_clause_id": "499848",
+   "origin_edge_id": "TEST-NATIVE-589981",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15721,8 +15862,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499848"
+   }
   },
   {
    "id": "NAT-589982",
@@ -15731,6 +15871,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499850",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589982",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15738,8 +15880,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589983",
@@ -15748,6 +15889,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499851",
+   "mother_clause_id": "499850",
+   "origin_edge_id": "TEST-NATIVE-589983",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15755,8 +15898,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499850"
+   }
   },
   {
    "id": "NAT-589984",
@@ -15765,6 +15907,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499852",
+   "mother_clause_id": "499851",
+   "origin_edge_id": "TEST-NATIVE-589984",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15772,8 +15916,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499851"
+   }
   },
   {
    "id": "NAT-589985",
@@ -15782,6 +15925,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499853",
+   "mother_clause_id": "499850",
+   "origin_edge_id": "TEST-NATIVE-589985",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15789,8 +15934,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499850"
+   }
   },
   {
    "id": "NAT-589986",
@@ -15799,6 +15943,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499854",
+   "mother_clause_id": "499853",
+   "origin_edge_id": "TEST-NATIVE-589986",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15806,8 +15952,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499853"
+   }
   },
   {
    "id": "NAT-589987",
@@ -15816,6 +15961,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499855",
+   "mother_clause_id": "499854",
+   "origin_edge_id": "TEST-NATIVE-589987",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15823,8 +15970,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499854"
+   }
   },
   {
    "id": "NAT-589988",
@@ -15833,6 +15979,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499856",
+   "mother_clause_id": "499853",
+   "origin_edge_id": "TEST-NATIVE-589988",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15840,8 +15988,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499853"
+   }
   },
   {
    "id": "NAT-589989",
@@ -15850,6 +15997,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499857",
+   "mother_clause_id": "499856",
+   "origin_edge_id": "TEST-NATIVE-589989",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15857,8 +16006,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499856"
+   }
   },
   {
    "id": "NAT-589990",
@@ -15867,6 +16015,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499858",
+   "mother_clause_id": "499841",
+   "origin_edge_id": "TEST-NATIVE-589990",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15874,8 +16024,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499841"
+   }
   },
   {
    "id": "NAT-589991",
@@ -15884,6 +16033,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499859",
+   "mother_clause_id": "499858",
+   "origin_edge_id": "TEST-NATIVE-589991",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15891,8 +16042,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499858"
+   }
   },
   {
    "id": "NAT-589992",
@@ -15901,6 +16051,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499860",
+   "mother_clause_id": "499858",
+   "origin_edge_id": "TEST-NATIVE-589992",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15908,8 +16060,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499858"
+   }
   },
   {
    "id": "NAT-589993",
@@ -15918,6 +16069,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499861",
+   "mother_clause_id": "499860",
+   "origin_edge_id": "TEST-NATIVE-589993",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15925,8 +16078,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499860"
+   }
   },
   {
    "id": "NAT-589994",
@@ -15935,6 +16087,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499862",
+   "mother_clause_id": "499861",
+   "origin_edge_id": "TEST-NATIVE-589994",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15942,8 +16096,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499861"
+   }
   },
   {
    "id": "NAT-589995",
@@ -15952,6 +16105,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499863",
+   "mother_clause_id": "499861",
+   "origin_edge_id": "TEST-NATIVE-589995",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15959,8 +16114,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499861"
+   }
   },
   {
    "id": "NAT-589996",
@@ -15969,6 +16123,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499864",
+   "mother_clause_id": "499858",
+   "origin_edge_id": "TEST-NATIVE-589996",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15976,8 +16132,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499858"
+   }
   },
   {
    "id": "NAT-589997",
@@ -15986,6 +16141,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499865",
+   "mother_clause_id": "499864",
+   "origin_edge_id": "TEST-NATIVE-589997",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -15993,8 +16150,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499864"
+   }
   },
   {
    "id": "NAT-589998",
@@ -16003,6 +16159,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499866",
+   "mother_clause_id": "499865",
+   "origin_edge_id": "TEST-NATIVE-589998",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16010,8 +16168,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499865"
+   }
   },
   {
    "id": "NAT-589999",
@@ -16020,6 +16177,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499867",
+   "mother_clause_id": "499868",
+   "origin_edge_id": "TEST-NATIVE-589999",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16027,8 +16186,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499868"
+   }
   },
   {
    "id": "NAT-590000",
@@ -16037,6 +16195,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499868",
+   "mother_clause_id": "499865",
+   "origin_edge_id": "TEST-NATIVE-590000",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16044,8 +16204,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499865"
+   }
   },
   {
    "id": "NAT-590001",
@@ -16054,6 +16213,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499869",
+   "mother_clause_id": "499865",
+   "origin_edge_id": "TEST-NATIVE-590001",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16061,8 +16222,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499865"
+   }
   },
   {
    "id": "NAT-590002",
@@ -16071,6 +16231,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499870",
+   "mother_clause_id": "499869",
+   "origin_edge_id": "TEST-NATIVE-590002",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16078,8 +16240,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499869"
+   }
   },
   {
    "id": "NAT-590003",
@@ -16088,6 +16249,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499871",
+   "mother_clause_id": "499824",
+   "origin_edge_id": "TEST-NATIVE-590003",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16095,8 +16258,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499824"
+   }
   },
   {
    "id": "NAT-590004",
@@ -16105,6 +16267,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499872",
+   "mother_clause_id": "499871",
+   "origin_edge_id": "TEST-NATIVE-590004",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16112,8 +16276,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499871"
+   }
   },
   {
    "id": "NAT-590005",
@@ -16122,6 +16285,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499873",
+   "mother_clause_id": "499871",
+   "origin_edge_id": "TEST-NATIVE-590005",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16129,8 +16294,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499871"
+   }
   },
   {
    "id": "NAT-590006",
@@ -16139,6 +16303,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499874",
+   "mother_clause_id": "499873",
+   "origin_edge_id": "TEST-NATIVE-590006",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16146,8 +16312,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499873"
+   }
   },
   {
    "id": "NAT-590007",
@@ -16156,6 +16321,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499875",
+   "mother_clause_id": "499871",
+   "origin_edge_id": "TEST-NATIVE-590007",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16163,8 +16330,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499871"
+   }
   },
   {
    "id": "NAT-590008",
@@ -16173,6 +16339,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499876",
+   "mother_clause_id": "499875",
+   "origin_edge_id": "TEST-NATIVE-590008",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16180,25 +16348,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499875"
-  },
-  {
-   "id": "NAT-590009",
-   "clause_atom": 590009,
-   "mother_clause_atom": 590007,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "499875",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "499875"
+   }
   },
   {
    "id": "NAT-590010",
@@ -16207,6 +16357,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499877",
+   "mother_clause_id": "499871",
+   "origin_edge_id": "TEST-NATIVE-590010",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16214,8 +16366,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499871"
+   }
   },
   {
    "id": "NAT-590011",
@@ -16224,6 +16375,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499878",
+   "mother_clause_id": "499877",
+   "origin_edge_id": "TEST-NATIVE-590011",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16231,8 +16384,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499877"
+   }
   },
   {
    "id": "NAT-590012",
@@ -16241,6 +16393,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499879",
+   "mother_clause_id": "499878",
+   "origin_edge_id": "TEST-NATIVE-590012",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16248,8 +16402,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499878"
+   }
   },
   {
    "id": "NAT-590013",
@@ -16258,6 +16411,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499880",
+   "mother_clause_id": "499877",
+   "origin_edge_id": "TEST-NATIVE-590013",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16265,8 +16420,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499877"
+   }
   },
   {
    "id": "NAT-590014",
@@ -16275,6 +16429,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499881",
+   "mother_clause_id": "499880",
+   "origin_edge_id": "TEST-NATIVE-590014",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16282,8 +16438,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499880"
+   }
   },
   {
    "id": "NAT-590015",
@@ -16292,6 +16447,8 @@
    "rela": "PreC",
    "rela_level": "clause",
    "clause_id": "499882",
+   "mother_clause_id": "499881",
+   "origin_edge_id": "TEST-NATIVE-590015",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16299,8 +16456,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499881"
+   }
   },
   {
    "id": "NAT-590016",
@@ -16309,6 +16465,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499883",
+   "mother_clause_id": "499871",
+   "origin_edge_id": "TEST-NATIVE-590016",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16316,8 +16474,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499871"
+   }
   },
   {
    "id": "NAT-590017",
@@ -16326,6 +16483,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499884",
+   "mother_clause_id": "499883",
+   "origin_edge_id": "TEST-NATIVE-590017",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16333,8 +16492,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499883"
+   }
   },
   {
    "id": "NAT-590018",
@@ -16343,6 +16501,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499885",
+   "mother_clause_id": "499884",
+   "origin_edge_id": "TEST-NATIVE-590018",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16350,8 +16510,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499884"
+   }
   },
   {
    "id": "NAT-590019",
@@ -16360,6 +16519,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499886",
+   "mother_clause_id": "499885",
+   "origin_edge_id": "TEST-NATIVE-590019",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16367,8 +16528,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499885"
+   }
   },
   {
    "id": "NAT-590020",
@@ -16377,6 +16537,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499887",
+   "mother_clause_id": "499886",
+   "origin_edge_id": "TEST-NATIVE-590020",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16384,8 +16546,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499886"
+   }
   },
   {
    "id": "NAT-590022",
@@ -16394,6 +16555,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499889",
+   "mother_clause_id": "499888",
+   "origin_edge_id": "TEST-NATIVE-590022",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16401,8 +16564,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499888"
+   }
   },
   {
    "id": "NAT-590023",
@@ -16411,6 +16573,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499890",
+   "mother_clause_id": "499889",
+   "origin_edge_id": "TEST-NATIVE-590023",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16418,8 +16582,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499889"
+   }
   },
   {
    "id": "NAT-590024",
@@ -16428,6 +16591,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499891",
+   "mother_clause_id": "499890",
+   "origin_edge_id": "TEST-NATIVE-590024",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16435,8 +16600,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499890"
+   }
   },
   {
    "id": "NAT-590025",
@@ -16445,6 +16609,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499892",
+   "mother_clause_id": "499891",
+   "origin_edge_id": "TEST-NATIVE-590025",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16452,8 +16618,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499891"
+   }
   },
   {
    "id": "NAT-590026",
@@ -16462,6 +16627,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499893",
+   "mother_clause_id": "499891",
+   "origin_edge_id": "TEST-NATIVE-590026",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16469,8 +16636,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499891"
+   }
   },
   {
    "id": "NAT-590027",
@@ -16479,6 +16645,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499894",
+   "mother_clause_id": "499893",
+   "origin_edge_id": "TEST-NATIVE-590027",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16486,8 +16654,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499893"
+   }
   },
   {
    "id": "NAT-590028",
@@ -16496,6 +16663,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499895",
+   "mother_clause_id": "499894",
+   "origin_edge_id": "TEST-NATIVE-590028",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16503,8 +16672,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499894"
+   }
   },
   {
    "id": "NAT-590029",
@@ -16513,6 +16681,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499896",
+   "mother_clause_id": "499893",
+   "origin_edge_id": "TEST-NATIVE-590029",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16520,8 +16690,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499893"
+   }
   },
   {
    "id": "NAT-590030",
@@ -16530,6 +16699,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499897",
+   "mother_clause_id": "499896",
+   "origin_edge_id": "TEST-NATIVE-590030",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16537,8 +16708,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499896"
+   }
   },
   {
    "id": "NAT-590031",
@@ -16547,6 +16717,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499898",
+   "mother_clause_id": "499896",
+   "origin_edge_id": "TEST-NATIVE-590031",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16554,8 +16726,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499896"
+   }
   },
   {
    "id": "NAT-590032",
@@ -16564,6 +16735,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499899",
+   "mother_clause_id": "499898",
+   "origin_edge_id": "TEST-NATIVE-590032",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16571,8 +16744,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499898"
+   }
   },
   {
    "id": "NAT-590033",
@@ -16581,6 +16753,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499900",
+   "mother_clause_id": "499899",
+   "origin_edge_id": "TEST-NATIVE-590033",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16588,8 +16762,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499899"
+   }
   },
   {
    "id": "NAT-590034",
@@ -16598,6 +16771,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499901",
+   "mother_clause_id": "499898",
+   "origin_edge_id": "TEST-NATIVE-590034",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16605,8 +16780,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499898"
+   }
   },
   {
    "id": "NAT-590035",
@@ -16615,6 +16789,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499902",
+   "mother_clause_id": "499898",
+   "origin_edge_id": "TEST-NATIVE-590035",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16622,8 +16798,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499898"
+   }
   },
   {
    "id": "NAT-590036",
@@ -16632,6 +16807,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499903",
+   "mother_clause_id": "499902",
+   "origin_edge_id": "TEST-NATIVE-590036",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16639,8 +16816,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499902"
+   }
   },
   {
    "id": "NAT-590037",
@@ -16649,6 +16825,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499904",
+   "mother_clause_id": "499902",
+   "origin_edge_id": "TEST-NATIVE-590037",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16656,8 +16834,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499902"
+   }
   },
   {
    "id": "NAT-590038",
@@ -16666,6 +16843,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499905",
+   "mother_clause_id": "499904",
+   "origin_edge_id": "TEST-NATIVE-590038",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16673,8 +16852,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499904"
+   }
   },
   {
    "id": "NAT-590039",
@@ -16683,6 +16861,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499906",
+   "mother_clause_id": "499902",
+   "origin_edge_id": "TEST-NATIVE-590039",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16690,8 +16870,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499902"
+   }
   },
   {
    "id": "NAT-590040",
@@ -16700,6 +16879,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499907",
+   "mother_clause_id": "499906",
+   "origin_edge_id": "TEST-NATIVE-590040",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16707,8 +16888,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499906"
+   }
   },
   {
    "id": "NAT-590041",
@@ -16717,6 +16897,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499908",
+   "mother_clause_id": "499907",
+   "origin_edge_id": "TEST-NATIVE-590041",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16724,8 +16906,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499907"
+   }
   },
   {
    "id": "NAT-590042",
@@ -16734,6 +16915,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499909",
+   "mother_clause_id": "499906",
+   "origin_edge_id": "TEST-NATIVE-590042",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16741,8 +16924,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499906"
+   }
   },
   {
    "id": "NAT-590043",
@@ -16751,6 +16933,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499910",
+   "mother_clause_id": "499909",
+   "origin_edge_id": "TEST-NATIVE-590043",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16758,8 +16942,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499909"
+   }
   },
   {
    "id": "NAT-590044",
@@ -16768,6 +16951,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499911",
+   "mother_clause_id": "499909",
+   "origin_edge_id": "TEST-NATIVE-590044",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16775,8 +16960,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499909"
+   }
   },
   {
    "id": "NAT-590045",
@@ -16785,6 +16969,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499912",
+   "mother_clause_id": "499911",
+   "origin_edge_id": "TEST-NATIVE-590045",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16792,8 +16978,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499911"
+   }
   },
   {
    "id": "NAT-590046",
@@ -16802,6 +16987,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499913",
+   "mother_clause_id": "499909",
+   "origin_edge_id": "TEST-NATIVE-590046",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16809,8 +16996,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499909"
+   }
   },
   {
    "id": "NAT-590047",
@@ -16819,6 +17005,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499914",
+   "mother_clause_id": "499913",
+   "origin_edge_id": "TEST-NATIVE-590047",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16826,8 +17014,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499913"
+   }
   },
   {
    "id": "NAT-590048",
@@ -16836,6 +17023,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499915",
+   "mother_clause_id": "499914",
+   "origin_edge_id": "TEST-NATIVE-590048",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16843,8 +17032,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499914"
+   }
   },
   {
    "id": "NAT-590049",
@@ -16853,6 +17041,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499916",
+   "mother_clause_id": "499914",
+   "origin_edge_id": "TEST-NATIVE-590049",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16860,8 +17050,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499914"
+   }
   },
   {
    "id": "NAT-590050",
@@ -16870,6 +17059,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499917",
+   "mother_clause_id": "499916",
+   "origin_edge_id": "TEST-NATIVE-590050",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16877,8 +17068,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499916"
+   }
   },
   {
    "id": "NAT-590051",
@@ -16887,6 +17077,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499918",
+   "mother_clause_id": "499909",
+   "origin_edge_id": "TEST-NATIVE-590051",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16894,8 +17086,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499909"
+   }
   },
   {
    "id": "NAT-590052",
@@ -16904,6 +17095,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499919",
+   "mother_clause_id": "499918",
+   "origin_edge_id": "TEST-NATIVE-590052",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16911,8 +17104,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499918"
+   }
   },
   {
    "id": "NAT-590053",
@@ -16921,6 +17113,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499920",
+   "mother_clause_id": "499918",
+   "origin_edge_id": "TEST-NATIVE-590053",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16928,8 +17122,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499918"
+   }
   },
   {
    "id": "NAT-590054",
@@ -16938,6 +17131,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499921",
+   "mother_clause_id": "499920",
+   "origin_edge_id": "TEST-NATIVE-590054",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16945,8 +17140,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499920"
+   }
   },
   {
    "id": "NAT-590055",
@@ -16955,6 +17149,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499922",
+   "mother_clause_id": "499893",
+   "origin_edge_id": "TEST-NATIVE-590055",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16962,8 +17158,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499893"
+   }
   },
   {
    "id": "NAT-590056",
@@ -16972,6 +17167,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499923",
+   "mother_clause_id": "499922",
+   "origin_edge_id": "TEST-NATIVE-590056",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16979,8 +17176,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499922"
+   }
   },
   {
    "id": "NAT-590057",
@@ -16989,6 +17185,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499924",
+   "mother_clause_id": "499922",
+   "origin_edge_id": "TEST-NATIVE-590057",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -16996,8 +17194,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499922"
+   }
   },
   {
    "id": "NAT-590058",
@@ -17006,6 +17203,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499925",
+   "mother_clause_id": "499924",
+   "origin_edge_id": "TEST-NATIVE-590058",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17013,8 +17212,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499924"
+   }
   },
   {
    "id": "NAT-590059",
@@ -17023,6 +17221,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499926",
+   "mother_clause_id": "499890",
+   "origin_edge_id": "TEST-NATIVE-590059",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17030,8 +17230,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499890"
+   }
   },
   {
    "id": "NAT-590060",
@@ -17040,6 +17239,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499927",
+   "mother_clause_id": "499926",
+   "origin_edge_id": "TEST-NATIVE-590060",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17047,8 +17248,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499926"
+   }
   },
   {
    "id": "NAT-590061",
@@ -17057,6 +17257,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499928",
+   "mother_clause_id": "499927",
+   "origin_edge_id": "TEST-NATIVE-590061",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17064,8 +17266,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499927"
+   }
   },
   {
    "id": "NAT-590062",
@@ -17074,6 +17275,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499929",
+   "mother_clause_id": "499927",
+   "origin_edge_id": "TEST-NATIVE-590062",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17081,8 +17284,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499927"
+   }
   },
   {
    "id": "NAT-590063",
@@ -17091,6 +17293,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499930",
+   "mother_clause_id": "499929",
+   "origin_edge_id": "TEST-NATIVE-590063",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17098,8 +17302,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499929"
+   }
   },
   {
    "id": "NAT-590065",
@@ -17108,6 +17311,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499932",
+   "mother_clause_id": "499931",
+   "origin_edge_id": "TEST-NATIVE-590065",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17115,8 +17320,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499931"
+   }
   },
   {
    "id": "NAT-590066",
@@ -17125,6 +17329,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499933",
+   "mother_clause_id": "499932",
+   "origin_edge_id": "TEST-NATIVE-590066",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17132,8 +17338,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499932"
+   }
   },
   {
    "id": "NAT-590067",
@@ -17142,6 +17347,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499934",
+   "mother_clause_id": "499933",
+   "origin_edge_id": "TEST-NATIVE-590067",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17149,8 +17356,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499933"
+   }
   },
   {
    "id": "NAT-590068",
@@ -17159,6 +17365,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499935",
+   "mother_clause_id": "499934",
+   "origin_edge_id": "TEST-NATIVE-590068",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17166,8 +17374,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499934"
+   }
   },
   {
    "id": "NAT-590069",
@@ -17176,6 +17383,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499936",
+   "mother_clause_id": "499934",
+   "origin_edge_id": "TEST-NATIVE-590069",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17183,8 +17392,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499934"
+   }
   },
   {
    "id": "NAT-590070",
@@ -17193,6 +17401,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499937",
+   "mother_clause_id": "499936",
+   "origin_edge_id": "TEST-NATIVE-590070",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17200,8 +17410,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499936"
+   }
   },
   {
    "id": "NAT-590071",
@@ -17210,6 +17419,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499938",
+   "mother_clause_id": "499936",
+   "origin_edge_id": "TEST-NATIVE-590071",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17217,8 +17428,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499936"
+   }
   },
   {
    "id": "NAT-590072",
@@ -17227,6 +17437,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499939",
+   "mother_clause_id": "499938",
+   "origin_edge_id": "TEST-NATIVE-590072",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17234,8 +17446,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499938"
+   }
   },
   {
    "id": "NAT-590073",
@@ -17244,6 +17455,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499940",
+   "mother_clause_id": "499933",
+   "origin_edge_id": "TEST-NATIVE-590073",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17251,8 +17464,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499933"
+   }
   },
   {
    "id": "NAT-590074",
@@ -17261,6 +17473,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499941",
+   "mother_clause_id": "499940",
+   "origin_edge_id": "TEST-NATIVE-590074",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17268,8 +17482,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499940"
+   }
   },
   {
    "id": "NAT-590075",
@@ -17278,6 +17491,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499942",
+   "mother_clause_id": "499940",
+   "origin_edge_id": "TEST-NATIVE-590075",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17285,8 +17500,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499940"
+   }
   },
   {
    "id": "NAT-590076",
@@ -17295,6 +17509,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499943",
+   "mother_clause_id": "499940",
+   "origin_edge_id": "TEST-NATIVE-590076",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17302,8 +17518,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499940"
+   }
   },
   {
    "id": "NAT-590077",
@@ -17312,6 +17527,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499944",
+   "mother_clause_id": "499943",
+   "origin_edge_id": "TEST-NATIVE-590077",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17319,8 +17536,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499943"
+   }
   },
   {
    "id": "NAT-590078",
@@ -17329,6 +17545,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499945",
+   "mother_clause_id": "499943",
+   "origin_edge_id": "TEST-NATIVE-590078",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17336,8 +17554,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499943"
+   }
   },
   {
    "id": "NAT-590079",
@@ -17346,6 +17563,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499946",
+   "mother_clause_id": "499945",
+   "origin_edge_id": "TEST-NATIVE-590079",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17353,8 +17572,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499945"
+   }
   },
   {
    "id": "NAT-590080",
@@ -17363,6 +17581,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499947",
+   "mother_clause_id": "499945",
+   "origin_edge_id": "TEST-NATIVE-590080",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17370,8 +17590,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499945"
+   }
   },
   {
    "id": "NAT-590081",
@@ -17380,6 +17599,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499948",
+   "mother_clause_id": "499947",
+   "origin_edge_id": "TEST-NATIVE-590081",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17387,8 +17608,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499947"
+   }
   },
   {
    "id": "NAT-590082",
@@ -17397,6 +17617,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499949",
+   "mother_clause_id": "499943",
+   "origin_edge_id": "TEST-NATIVE-590082",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17404,8 +17626,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499943"
+   }
   },
   {
    "id": "NAT-590083",
@@ -17414,6 +17635,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499950",
+   "mother_clause_id": "499949",
+   "origin_edge_id": "TEST-NATIVE-590083",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17421,8 +17644,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499949"
+   }
   },
   {
    "id": "NAT-590084",
@@ -17431,6 +17653,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499951",
+   "mother_clause_id": "499949",
+   "origin_edge_id": "TEST-NATIVE-590084",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17438,8 +17662,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499949"
+   }
   },
   {
    "id": "NAT-590085",
@@ -17448,6 +17671,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499952",
+   "mother_clause_id": "499951",
+   "origin_edge_id": "TEST-NATIVE-590085",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17455,8 +17680,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499951"
+   }
   },
   {
    "id": "NAT-590086",
@@ -17465,6 +17689,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499953",
+   "mother_clause_id": "499951",
+   "origin_edge_id": "TEST-NATIVE-590086",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17472,8 +17698,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499951"
+   }
   },
   {
    "id": "NAT-590087",
@@ -17482,6 +17707,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499954",
+   "mother_clause_id": "499953",
+   "origin_edge_id": "TEST-NATIVE-590087",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17489,8 +17716,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499953"
+   }
   },
   {
    "id": "NAT-590088",
@@ -17499,6 +17725,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499955",
+   "mother_clause_id": "499954",
+   "origin_edge_id": "TEST-NATIVE-590088",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17506,8 +17734,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499954"
+   }
   },
   {
    "id": "NAT-590089",
@@ -17516,6 +17743,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499956",
+   "mother_clause_id": "499949",
+   "origin_edge_id": "TEST-NATIVE-590089",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17523,8 +17752,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499949"
+   }
   },
   {
    "id": "NAT-590090",
@@ -17533,6 +17761,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499957",
+   "mother_clause_id": "499956",
+   "origin_edge_id": "TEST-NATIVE-590090",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17540,8 +17770,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499956"
+   }
   },
   {
    "id": "NAT-590091",
@@ -17550,6 +17779,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499958",
+   "mother_clause_id": "499956",
+   "origin_edge_id": "TEST-NATIVE-590091",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17557,8 +17788,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499956"
+   }
   },
   {
    "id": "NAT-590092",
@@ -17567,6 +17797,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499959",
+   "mother_clause_id": "499958",
+   "origin_edge_id": "TEST-NATIVE-590092",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17574,8 +17806,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499958"
+   }
   },
   {
    "id": "NAT-590093",
@@ -17584,6 +17815,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499960",
+   "mother_clause_id": "499956",
+   "origin_edge_id": "TEST-NATIVE-590093",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17591,8 +17824,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499956"
+   }
   },
   {
    "id": "NAT-590094",
@@ -17601,6 +17833,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499961",
+   "mother_clause_id": "499960",
+   "origin_edge_id": "TEST-NATIVE-590094",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17608,8 +17842,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499960"
+   }
   },
   {
    "id": "NAT-590095",
@@ -17618,6 +17851,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499962",
+   "mother_clause_id": "499961",
+   "origin_edge_id": "TEST-NATIVE-590095",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17625,8 +17860,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499961"
+   }
   },
   {
    "id": "NAT-590096",
@@ -17635,6 +17869,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499963",
+   "mother_clause_id": "499943",
+   "origin_edge_id": "TEST-NATIVE-590096",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17642,8 +17878,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499943"
+   }
   },
   {
    "id": "NAT-590097",
@@ -17652,6 +17887,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499964",
+   "mother_clause_id": "499963",
+   "origin_edge_id": "TEST-NATIVE-590097",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17659,8 +17896,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499963"
+   }
   },
   {
    "id": "NAT-590098",
@@ -17669,6 +17905,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499965",
+   "mother_clause_id": "499964",
+   "origin_edge_id": "TEST-NATIVE-590098",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17676,8 +17914,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499964"
+   }
   },
   {
    "id": "NAT-590099",
@@ -17686,6 +17923,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499966",
+   "mother_clause_id": "499963",
+   "origin_edge_id": "TEST-NATIVE-590099",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17693,8 +17932,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499963"
+   }
   },
   {
    "id": "NAT-590100",
@@ -17703,6 +17941,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499967",
+   "mother_clause_id": "499966",
+   "origin_edge_id": "TEST-NATIVE-590100",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17710,8 +17950,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499966"
+   }
   },
   {
    "id": "NAT-590101",
@@ -17720,6 +17959,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499968",
+   "mother_clause_id": "499940",
+   "origin_edge_id": "TEST-NATIVE-590101",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17727,8 +17968,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499940"
+   }
   },
   {
    "id": "NAT-590102",
@@ -17737,6 +17977,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499969",
+   "mother_clause_id": "499968",
+   "origin_edge_id": "TEST-NATIVE-590102",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17744,8 +17986,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499968"
+   }
   },
   {
    "id": "NAT-590103",
@@ -17754,6 +17995,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499970",
+   "mother_clause_id": "499968",
+   "origin_edge_id": "TEST-NATIVE-590103",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17761,8 +18004,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499968"
+   }
   },
   {
    "id": "NAT-590104",
@@ -17771,6 +18013,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499971",
+   "mother_clause_id": "499970",
+   "origin_edge_id": "TEST-NATIVE-590104",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17778,8 +18022,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499970"
+   }
   },
   {
    "id": "NAT-590105",
@@ -17788,6 +18031,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499972",
+   "mother_clause_id": "499970",
+   "origin_edge_id": "TEST-NATIVE-590105",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17795,8 +18040,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499970"
+   }
   },
   {
    "id": "NAT-590106",
@@ -17805,6 +18049,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499973",
+   "mother_clause_id": "499970",
+   "origin_edge_id": "TEST-NATIVE-590106",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17812,8 +18058,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499970"
+   }
   },
   {
    "id": "NAT-590107",
@@ -17822,6 +18067,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499974",
+   "mother_clause_id": "499973",
+   "origin_edge_id": "TEST-NATIVE-590107",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17829,8 +18076,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499973"
+   }
   },
   {
    "id": "NAT-590108",
@@ -17839,6 +18085,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499975",
+   "mother_clause_id": "499974",
+   "origin_edge_id": "TEST-NATIVE-590108",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17846,8 +18094,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499974"
+   }
   },
   {
    "id": "NAT-590109",
@@ -17856,6 +18103,8 @@
    "rela": "Resu",
    "rela_level": "clause",
    "clause_id": "499976",
+   "mother_clause_id": "499975",
+   "origin_edge_id": "TEST-NATIVE-590109",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17863,8 +18112,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499975"
+   }
   },
   {
    "id": "NAT-590110",
@@ -17873,6 +18121,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "499977",
+   "mother_clause_id": "499975",
+   "origin_edge_id": "TEST-NATIVE-590110",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17880,8 +18130,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499975"
+   }
   },
   {
    "id": "NAT-590111",
@@ -17890,6 +18139,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499978",
+   "mother_clause_id": "499970",
+   "origin_edge_id": "TEST-NATIVE-590111",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17897,8 +18148,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499970"
+   }
   },
   {
    "id": "NAT-590112",
@@ -17907,6 +18157,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499979",
+   "mother_clause_id": "499978",
+   "origin_edge_id": "TEST-NATIVE-590112",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17914,8 +18166,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499978"
+   }
   },
   {
    "id": "NAT-590113",
@@ -17924,6 +18175,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499980",
+   "mother_clause_id": "499978",
+   "origin_edge_id": "TEST-NATIVE-590113",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17931,8 +18184,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499978"
+   }
   },
   {
    "id": "NAT-590114",
@@ -17941,6 +18193,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499981",
+   "mother_clause_id": "499933",
+   "origin_edge_id": "TEST-NATIVE-590114",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17948,8 +18202,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499933"
+   }
   },
   {
    "id": "NAT-590115",
@@ -17958,6 +18211,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "499982",
+   "mother_clause_id": "499981",
+   "origin_edge_id": "TEST-NATIVE-590115",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17965,8 +18220,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499981"
+   }
   },
   {
    "id": "NAT-590116",
@@ -17975,6 +18229,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499983",
+   "mother_clause_id": "499981",
+   "origin_edge_id": "TEST-NATIVE-590116",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17982,8 +18238,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499981"
+   }
   },
   {
    "id": "NAT-590117",
@@ -17992,6 +18247,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499984",
+   "mother_clause_id": "499981",
+   "origin_edge_id": "TEST-NATIVE-590117",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -17999,8 +18256,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499981"
+   }
   },
   {
    "id": "NAT-590118",
@@ -18009,6 +18265,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499985",
+   "mother_clause_id": "499984",
+   "origin_edge_id": "TEST-NATIVE-590118",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18016,8 +18274,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499984"
+   }
   },
   {
    "id": "NAT-590119",
@@ -18026,6 +18283,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499986",
+   "mother_clause_id": "499984",
+   "origin_edge_id": "TEST-NATIVE-590119",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18033,8 +18292,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499984"
+   }
   },
   {
    "id": "NAT-590120",
@@ -18043,6 +18301,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499987",
+   "mother_clause_id": "499986",
+   "origin_edge_id": "TEST-NATIVE-590120",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18050,8 +18310,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499986"
+   }
   },
   {
    "id": "NAT-590121",
@@ -18060,6 +18319,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499988",
+   "mother_clause_id": "499987",
+   "origin_edge_id": "TEST-NATIVE-590121",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18067,8 +18328,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499987"
+   }
   },
   {
    "id": "NAT-590122",
@@ -18077,6 +18337,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499989",
+   "mother_clause_id": "499988",
+   "origin_edge_id": "TEST-NATIVE-590122",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18084,8 +18346,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499988"
+   }
   },
   {
    "id": "NAT-590123",
@@ -18094,6 +18355,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499990",
+   "mother_clause_id": "499989",
+   "origin_edge_id": "TEST-NATIVE-590123",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18101,8 +18364,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499989"
+   }
   },
   {
    "id": "NAT-590124",
@@ -18111,6 +18373,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499991",
+   "mother_clause_id": "499984",
+   "origin_edge_id": "TEST-NATIVE-590124",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18118,8 +18382,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499984"
+   }
   },
   {
    "id": "NAT-590125",
@@ -18128,6 +18391,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "499992",
+   "mother_clause_id": "499991",
+   "origin_edge_id": "TEST-NATIVE-590125",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18135,8 +18400,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499991"
+   }
   },
   {
    "id": "NAT-590126",
@@ -18145,6 +18409,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "499993",
+   "mother_clause_id": "499992",
+   "origin_edge_id": "TEST-NATIVE-590126",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18152,8 +18418,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499992"
+   }
   },
   {
    "id": "NAT-590127",
@@ -18162,6 +18427,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499994",
+   "mother_clause_id": "499991",
+   "origin_edge_id": "TEST-NATIVE-590127",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18169,8 +18436,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499991"
+   }
   },
   {
    "id": "NAT-590128",
@@ -18179,6 +18445,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499995",
+   "mother_clause_id": "499994",
+   "origin_edge_id": "TEST-NATIVE-590128",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18186,8 +18454,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499994"
+   }
   },
   {
    "id": "NAT-590129",
@@ -18196,6 +18463,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499996",
+   "mother_clause_id": "499991",
+   "origin_edge_id": "TEST-NATIVE-590129",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18203,8 +18472,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499991"
+   }
   },
   {
    "id": "NAT-590130",
@@ -18213,6 +18481,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499997",
+   "mother_clause_id": "499996",
+   "origin_edge_id": "TEST-NATIVE-590130",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18220,8 +18490,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499996"
+   }
   },
   {
    "id": "NAT-590131",
@@ -18230,6 +18499,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499998",
+   "mother_clause_id": "499997",
+   "origin_edge_id": "TEST-NATIVE-590131",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18237,8 +18508,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499997"
+   }
   },
   {
    "id": "NAT-590132",
@@ -18247,6 +18517,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "499999",
+   "mother_clause_id": "499996",
+   "origin_edge_id": "TEST-NATIVE-590132",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18254,8 +18526,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499996"
+   }
   },
   {
    "id": "NAT-590133",
@@ -18264,6 +18535,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500000",
+   "mother_clause_id": "499999",
+   "origin_edge_id": "TEST-NATIVE-590133",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18271,8 +18544,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499999"
+   }
   },
   {
    "id": "NAT-590134",
@@ -18281,6 +18553,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "500001",
+   "mother_clause_id": "500000",
+   "origin_edge_id": "TEST-NATIVE-590134",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18288,8 +18562,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500000"
+   }
   },
   {
    "id": "NAT-590135",
@@ -18298,6 +18571,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500002",
+   "mother_clause_id": "500001",
+   "origin_edge_id": "TEST-NATIVE-590135",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18305,8 +18580,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500001"
+   }
   },
   {
    "id": "NAT-590136",
@@ -18315,6 +18589,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500003",
+   "mother_clause_id": "499996",
+   "origin_edge_id": "TEST-NATIVE-590136",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18322,8 +18598,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "499996"
+   }
   },
   {
    "id": "NAT-590137",
@@ -18332,6 +18607,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500004",
+   "mother_clause_id": "500003",
+   "origin_edge_id": "TEST-NATIVE-590137",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18339,8 +18616,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500003"
+   }
   },
   {
    "id": "NAT-590138",
@@ -18349,6 +18625,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500005",
+   "mother_clause_id": "500003",
+   "origin_edge_id": "TEST-NATIVE-590138",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18356,8 +18634,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500003"
+   }
   },
   {
    "id": "NAT-590139",
@@ -18366,6 +18643,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500006",
+   "mother_clause_id": "500005",
+   "origin_edge_id": "TEST-NATIVE-590139",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18373,8 +18652,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500005"
+   }
   },
   {
    "id": "NAT-590140",
@@ -18383,6 +18661,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500007",
+   "mother_clause_id": "500006",
+   "origin_edge_id": "TEST-NATIVE-590140",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18390,8 +18670,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500006"
+   }
   },
   {
    "id": "NAT-590141",
@@ -18400,6 +18679,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500008",
+   "mother_clause_id": "500007",
+   "origin_edge_id": "TEST-NATIVE-590141",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18407,8 +18688,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500007"
+   }
   },
   {
    "id": "NAT-590142",
@@ -18417,6 +18697,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500009",
+   "mother_clause_id": "500005",
+   "origin_edge_id": "TEST-NATIVE-590142",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18424,8 +18706,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500005"
+   }
   },
   {
    "id": "NAT-590143",
@@ -18434,6 +18715,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500010",
+   "mother_clause_id": "500009",
+   "origin_edge_id": "TEST-NATIVE-590143",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18441,8 +18724,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500009"
+   }
   },
   {
    "id": "NAT-590144",
@@ -18451,6 +18733,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500011",
+   "mother_clause_id": "500009",
+   "origin_edge_id": "TEST-NATIVE-590144",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18458,8 +18742,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500009"
+   }
   },
   {
    "id": "NAT-590145",
@@ -18468,6 +18751,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500012",
+   "mother_clause_id": "500011",
+   "origin_edge_id": "TEST-NATIVE-590145",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18475,8 +18760,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500011"
+   }
   },
   {
    "id": "NAT-590147",
@@ -18485,6 +18769,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500014",
+   "mother_clause_id": "500013",
+   "origin_edge_id": "TEST-NATIVE-590147",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18492,8 +18778,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500013"
+   }
   },
   {
    "id": "NAT-590148",
@@ -18502,6 +18787,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500015",
+   "mother_clause_id": "500013",
+   "origin_edge_id": "TEST-NATIVE-590148",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18509,8 +18796,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500013"
+   }
   },
   {
    "id": "NAT-590149",
@@ -18519,6 +18805,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500016",
+   "mother_clause_id": "500015",
+   "origin_edge_id": "TEST-NATIVE-590149",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18526,8 +18814,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500015"
+   }
   },
   {
    "id": "NAT-590150",
@@ -18536,6 +18823,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500017",
+   "mother_clause_id": "500015",
+   "origin_edge_id": "TEST-NATIVE-590150",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18543,8 +18832,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500015"
+   }
   },
   {
    "id": "NAT-590151",
@@ -18553,6 +18841,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500018",
+   "mother_clause_id": "500017",
+   "origin_edge_id": "TEST-NATIVE-590151",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18560,8 +18850,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500017"
+   }
   },
   {
    "id": "NAT-590152",
@@ -18570,6 +18859,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500019",
+   "mother_clause_id": "500017",
+   "origin_edge_id": "TEST-NATIVE-590152",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18577,8 +18868,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500017"
+   }
   },
   {
    "id": "NAT-590153",
@@ -18587,6 +18877,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500020",
+   "mother_clause_id": "500019",
+   "origin_edge_id": "TEST-NATIVE-590153",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18594,8 +18886,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500019"
+   }
   },
   {
    "id": "NAT-590154",
@@ -18604,6 +18895,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500021",
+   "mother_clause_id": "500020",
+   "origin_edge_id": "TEST-NATIVE-590154",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18611,8 +18904,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500020"
+   }
   },
   {
    "id": "NAT-590155",
@@ -18621,6 +18913,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500022",
+   "mother_clause_id": "500021",
+   "origin_edge_id": "TEST-NATIVE-590155",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18628,8 +18922,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500021"
+   }
   },
   {
    "id": "NAT-590156",
@@ -18638,6 +18931,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500023",
+   "mother_clause_id": "500020",
+   "origin_edge_id": "TEST-NATIVE-590156",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18645,8 +18940,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500020"
+   }
   },
   {
    "id": "NAT-590157",
@@ -18655,6 +18949,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500024",
+   "mother_clause_id": "500023",
+   "origin_edge_id": "TEST-NATIVE-590157",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18662,8 +18958,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500023"
+   }
   },
   {
    "id": "NAT-590158",
@@ -18672,6 +18967,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500025",
+   "mother_clause_id": "500024",
+   "origin_edge_id": "TEST-NATIVE-590158",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18679,8 +18976,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500024"
+   }
   },
   {
    "id": "NAT-590159",
@@ -18689,6 +18985,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500026",
+   "mother_clause_id": "500024",
+   "origin_edge_id": "TEST-NATIVE-590159",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18696,8 +18994,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500024"
+   }
   },
   {
    "id": "NAT-590160",
@@ -18706,6 +19003,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500027",
+   "mother_clause_id": "500026",
+   "origin_edge_id": "TEST-NATIVE-590160",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18713,8 +19012,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500026"
+   }
   },
   {
    "id": "NAT-590161",
@@ -18723,6 +19021,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500028",
+   "mother_clause_id": "500026",
+   "origin_edge_id": "TEST-NATIVE-590161",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18730,8 +19030,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500026"
+   }
   },
   {
    "id": "NAT-590162",
@@ -18740,6 +19039,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500029",
+   "mother_clause_id": "500024",
+   "origin_edge_id": "TEST-NATIVE-590162",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18747,8 +19048,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500024"
+   }
   },
   {
    "id": "NAT-590163",
@@ -18757,6 +19057,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "500030",
+   "mother_clause_id": "500029",
+   "origin_edge_id": "TEST-NATIVE-590163",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18764,8 +19066,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500029"
+   }
   },
   {
    "id": "NAT-590164",
@@ -18774,6 +19075,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500031",
+   "mother_clause_id": "500023",
+   "origin_edge_id": "TEST-NATIVE-590164",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18781,8 +19084,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500023"
+   }
   },
   {
    "id": "NAT-590165",
@@ -18791,6 +19093,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500032",
+   "mother_clause_id": "500031",
+   "origin_edge_id": "TEST-NATIVE-590165",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18798,8 +19102,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500031"
+   }
   },
   {
    "id": "NAT-590166",
@@ -18808,6 +19111,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500033",
+   "mother_clause_id": "500031",
+   "origin_edge_id": "TEST-NATIVE-590166",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18815,8 +19120,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500031"
+   }
   },
   {
    "id": "NAT-590167",
@@ -18825,6 +19129,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500034",
+   "mother_clause_id": "500033",
+   "origin_edge_id": "TEST-NATIVE-590167",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18832,8 +19138,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500033"
+   }
   },
   {
    "id": "NAT-590168",
@@ -18842,6 +19147,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500035",
+   "mother_clause_id": "500023",
+   "origin_edge_id": "TEST-NATIVE-590168",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18849,8 +19156,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500023"
+   }
   },
   {
    "id": "NAT-590169",
@@ -18859,6 +19165,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500036",
+   "mother_clause_id": "500035",
+   "origin_edge_id": "TEST-NATIVE-590169",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18866,8 +19174,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500035"
+   }
   },
   {
    "id": "NAT-590170",
@@ -18876,6 +19183,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500037",
+   "mother_clause_id": "500035",
+   "origin_edge_id": "TEST-NATIVE-590170",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18883,8 +19192,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500035"
+   }
   },
   {
    "id": "NAT-590171",
@@ -18893,6 +19201,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500038",
+   "mother_clause_id": "500037",
+   "origin_edge_id": "TEST-NATIVE-590171",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18900,8 +19210,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500037"
+   }
   },
   {
    "id": "NAT-590172",
@@ -18910,6 +19219,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500039",
+   "mother_clause_id": "500038",
+   "origin_edge_id": "TEST-NATIVE-590172",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18917,8 +19228,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500038"
+   }
   },
   {
    "id": "NAT-590173",
@@ -18927,6 +19237,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "500040",
+   "mother_clause_id": "500039",
+   "origin_edge_id": "TEST-NATIVE-590173",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18934,8 +19246,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500039"
+   }
   },
   {
    "id": "NAT-590174",
@@ -18944,6 +19255,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500041",
+   "mother_clause_id": "500040",
+   "origin_edge_id": "TEST-NATIVE-590174",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18951,8 +19264,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500040"
+   }
   },
   {
    "id": "NAT-590175",
@@ -18961,6 +19273,8 @@
    "rela": "RgRc",
    "rela_level": "clause",
    "clause_id": "500042",
+   "mother_clause_id": "500041",
+   "origin_edge_id": "TEST-NATIVE-590175",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -18968,25 +19282,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500041"
-  },
-  {
-   "id": "NAT-590176",
-   "clause_atom": 590176,
-   "mother_clause_atom": 590173,
-   "rela": "Adju",
-   "rela_level": "clause",
-   "clause_id": "500040",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "500040"
+   }
   },
   {
    "id": "NAT-590177",
@@ -18995,6 +19291,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500043",
+   "mother_clause_id": "500035",
+   "origin_edge_id": "TEST-NATIVE-590177",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19002,8 +19300,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500035"
+   }
   },
   {
    "id": "NAT-590178",
@@ -19012,6 +19309,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500044",
+   "mother_clause_id": "500043",
+   "origin_edge_id": "TEST-NATIVE-590178",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19019,8 +19318,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500043"
+   }
   },
   {
    "id": "NAT-590179",
@@ -19029,6 +19327,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500045",
+   "mother_clause_id": "500043",
+   "origin_edge_id": "TEST-NATIVE-590179",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19036,8 +19336,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500043"
+   }
   },
   {
    "id": "NAT-590180",
@@ -19046,6 +19345,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500046",
+   "mother_clause_id": "500013",
+   "origin_edge_id": "TEST-NATIVE-590180",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19053,8 +19354,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500013"
+   }
   },
   {
    "id": "NAT-590181",
@@ -19063,6 +19363,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500047",
+   "mother_clause_id": "500046",
+   "origin_edge_id": "TEST-NATIVE-590181",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19070,8 +19372,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500046"
+   }
   },
   {
    "id": "NAT-590182",
@@ -19080,6 +19381,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500048",
+   "mother_clause_id": "500046",
+   "origin_edge_id": "TEST-NATIVE-590182",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19087,8 +19390,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500046"
+   }
   },
   {
    "id": "NAT-590183",
@@ -19097,6 +19399,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500049",
+   "mother_clause_id": "500048",
+   "origin_edge_id": "TEST-NATIVE-590183",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19104,8 +19408,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500048"
+   }
   },
   {
    "id": "NAT-590184",
@@ -19114,6 +19417,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500050",
+   "mother_clause_id": "500048",
+   "origin_edge_id": "TEST-NATIVE-590184",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19121,8 +19426,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500048"
+   }
   },
   {
    "id": "NAT-590185",
@@ -19131,6 +19435,8 @@
    "rela": "Cmpl",
    "rela_level": "clause",
    "clause_id": "500051",
+   "mother_clause_id": "500050",
+   "origin_edge_id": "TEST-NATIVE-590185",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19138,8 +19444,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500050"
+   }
   },
   {
    "id": "NAT-590186",
@@ -19148,6 +19453,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500052",
+   "mother_clause_id": "500051",
+   "origin_edge_id": "TEST-NATIVE-590186",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19155,8 +19462,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500051"
+   }
   },
   {
    "id": "NAT-590187",
@@ -19165,6 +19471,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500053",
+   "mother_clause_id": "500050",
+   "origin_edge_id": "TEST-NATIVE-590187",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19172,8 +19480,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500050"
+   }
   },
   {
    "id": "NAT-590188",
@@ -19182,6 +19489,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500054",
+   "mother_clause_id": "500053",
+   "origin_edge_id": "TEST-NATIVE-590188",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19189,8 +19498,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500053"
+   }
   },
   {
    "id": "NAT-590189",
@@ -19199,6 +19507,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500055",
+   "mother_clause_id": "500053",
+   "origin_edge_id": "TEST-NATIVE-590189",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19206,8 +19516,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500053"
+   }
   },
   {
    "id": "NAT-590190",
@@ -19216,6 +19525,8 @@
    "rela": "Adju",
    "rela_level": "clause",
    "clause_id": "500056",
+   "mother_clause_id": "500055",
+   "origin_edge_id": "TEST-NATIVE-590190",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19223,8 +19534,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500055"
+   }
   },
   {
    "id": "NAT-590191",
@@ -19233,6 +19543,8 @@
    "rela": "Coor",
    "rela_level": "clause",
    "clause_id": "500057",
+   "mother_clause_id": "500053",
+   "origin_edge_id": "TEST-NATIVE-590191",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19240,8 +19552,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500053"
+   }
   },
   {
    "id": "NAT-590192",
@@ -19250,6 +19561,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "500058",
+   "mother_clause_id": "500057",
+   "origin_edge_id": "TEST-NATIVE-590192",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19257,8 +19570,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500057"
+   }
   },
   {
    "id": "NAT-590193",
@@ -19267,6 +19579,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500059",
+   "mother_clause_id": "500048",
+   "origin_edge_id": "TEST-NATIVE-590193",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19274,8 +19588,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500048"
+   }
   },
   {
    "id": "NAT-590194",
@@ -19284,6 +19597,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "500060",
+   "mother_clause_id": "500059",
+   "origin_edge_id": "TEST-NATIVE-590194",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19291,8 +19606,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500059"
+   }
   },
   {
    "id": "NAT-590195",
@@ -19301,6 +19615,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500061",
+   "mother_clause_id": "500059",
+   "origin_edge_id": "TEST-NATIVE-590195",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19308,8 +19624,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500059"
+   }
   },
   {
    "id": "NAT-590196",
@@ -19318,6 +19633,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500062",
+   "mother_clause_id": "500059",
+   "origin_edge_id": "TEST-NATIVE-590196",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19325,8 +19642,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500059"
+   }
   },
   {
    "id": "NAT-590197",
@@ -19335,6 +19651,8 @@
    "rela": "Subj",
    "rela_level": "clause",
    "clause_id": "500063",
+   "mother_clause_id": "500062",
+   "origin_edge_id": "TEST-NATIVE-590197",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19342,8 +19660,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500062"
+   }
   },
   {
    "id": "NAT-590198",
@@ -19352,6 +19669,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500064",
+   "mother_clause_id": "500062",
+   "origin_edge_id": "TEST-NATIVE-590198",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19359,8 +19678,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500062"
+   }
   },
   {
    "id": "NAT-590199",
@@ -19369,6 +19687,8 @@
    "rela": "Objc",
    "rela_level": "clause",
    "clause_id": "500065",
+   "mother_clause_id": "500064",
+   "origin_edge_id": "TEST-NATIVE-590199",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19376,8 +19696,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500064"
+   }
   },
   {
    "id": "NAT-590200",
@@ -19386,6 +19705,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500066",
+   "mother_clause_id": "500048",
+   "origin_edge_id": "TEST-NATIVE-590200",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19393,8 +19714,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500048"
+   }
   },
   {
    "id": "NAT-590201",
@@ -19403,6 +19723,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500067",
+   "mother_clause_id": "500066",
+   "origin_edge_id": "TEST-NATIVE-590201",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19410,8 +19732,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500066"
+   }
   },
   {
    "id": "NAT-590202",
@@ -19420,6 +19741,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500068",
+   "mother_clause_id": "500067",
+   "origin_edge_id": "TEST-NATIVE-590202",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19427,8 +19750,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500067"
+   }
   },
   {
    "id": "NAT-590203",
@@ -19437,6 +19759,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500069",
+   "mother_clause_id": "500068",
+   "origin_edge_id": "TEST-NATIVE-590203",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19444,8 +19768,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500068"
+   }
   },
   {
    "id": "NAT-590204",
@@ -19454,6 +19777,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500070",
+   "mother_clause_id": "500069",
+   "origin_edge_id": "TEST-NATIVE-590204",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19461,8 +19786,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500069"
+   }
   },
   {
    "id": "NAT-590205",
@@ -19471,6 +19795,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500071",
+   "mother_clause_id": "500067",
+   "origin_edge_id": "TEST-NATIVE-590205",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19478,8 +19804,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500067"
+   }
   },
   {
    "id": "NAT-590206",
@@ -19488,6 +19813,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500072",
+   "mother_clause_id": "500071",
+   "origin_edge_id": "TEST-NATIVE-590206",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19495,8 +19822,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500071"
+   }
   },
   {
    "id": "NAT-590207",
@@ -19505,6 +19831,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500073",
+   "mother_clause_id": "500072",
+   "origin_edge_id": "TEST-NATIVE-590207",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19512,8 +19840,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500072"
+   }
   },
   {
    "id": "NAT-590208",
@@ -19522,6 +19849,8 @@
    "rela": "Attr",
    "rela_level": "clause",
    "clause_id": "500074",
+   "mother_clause_id": "500073",
+   "origin_edge_id": "TEST-NATIVE-590208",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19529,25 +19858,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500073"
-  },
-  {
-   "id": "NAT-590209",
-   "clause_atom": 590209,
-   "mother_clause_atom": 590207,
-   "rela": "NA",
-   "rela_level": "clause",
-   "clause_id": "500073",
-   "source": {
-    "dataset": "BHSA",
-    "version": "2021",
-    "features": [
-     "mother",
-     "rela"
-    ]
-   },
-   "mother_clause_id": "500073"
+   }
   },
   {
    "id": "NAT-590210",
@@ -19556,6 +19867,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500075",
+   "mother_clause_id": "500073",
+   "origin_edge_id": "TEST-NATIVE-590210",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19563,8 +19876,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500073"
+   }
   },
   {
    "id": "NAT-590211",
@@ -19573,6 +19885,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500076",
+   "mother_clause_id": "500072",
+   "origin_edge_id": "TEST-NATIVE-590211",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19580,8 +19894,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500072"
+   }
   },
   {
    "id": "NAT-590212",
@@ -19590,6 +19903,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500077",
+   "mother_clause_id": "500076",
+   "origin_edge_id": "TEST-NATIVE-590212",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19597,8 +19912,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500076"
+   }
   },
   {
    "id": "NAT-590214",
@@ -19607,6 +19921,8 @@
    "rela": "NA",
    "rela_level": "clause",
    "clause_id": "500079",
+   "mother_clause_id": "500078",
+   "origin_edge_id": "TEST-NATIVE-590214",
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -19614,8 +19930,7 @@
      "mother",
      "rela"
     ]
-   },
-   "mother_clause_id": "500078"
+   }
   }
  ]
 }

@@ -71,7 +71,7 @@ def main():
     bad = []
     for g in groups.values():
         bad += [f"group {g['id']} member {m}" for m in g["members"] if m not in nodes]
-        for k, v in g.get("roles", {}).items(): bad += [f"group {g['id']} role {k} {m}" for m in v if m not in nodes]
+        for k, v in g.get("roles", {}).items(): bad += [f"group {g['id']} role {k} {m}" for m in v if str(m).isdigit() and m not in nodes]   # 숫자 = 절 id, 그 밖은 관찰 특징 이름
     for r in D.get("relations", []):
         for side in ("source", "target"):
             bad += [f"rel {r['id']} {side} {t} {i}" for t, i in ends(r[side]) if not exists(t, i)]
@@ -136,8 +136,15 @@ def main():
     # V13 native_relations atoms exist
     atoms = {a for n in nodes.values() for a in n.get("clause_atom_ids", [])}
     nat = D.get("native_relations", [])
-    b13 = [x["id"] for x in nat if atoms and (x["clause_atom"] not in atoms)]
-    res("V13 원 관계 절 원자 존재", not b13, f"{len(b13)}개 (nodes.clause_atom_ids 밖)" if b13 else (f"{len(nat)}개" + ("" if atoms else " — nodes에 clause_atom_ids 없어 대조 못 함")))
+    b13 = [x["id"] for x in nat if (x.get("clause_atom") is not None and atoms and x["clause_atom"] not in atoms) or x.get("clause_id") not in nodes or x.get("mother_clause_id") not in nodes]
+    withatom = sum(1 for x in nat if x.get("clause_atom") is not None)
+    res("V13 원 관계 끝점 존재", not b13, f"{len(b13)}개 (절·절 원자 밖)" if b13 else f"{len(nat)}개 (절 원자 번호 있는 것 {withatom})")
+    # V15 원 관계 origin_edge_id 중복 없음
+    oe = Counter(x.get("origin_edge_id") for x in nat if x.get("origin_edge_id"))
+    res("V15 원 관계 원본 edge id 중복 없음", not [k for k, v in oe.items() if v > 1])
+    # V16 review 상태
+    rv = D.get("review", {}).get("status", "UNREVIEWED")
+    res("V16 연구자 검토 상태", True, rv + ("" if rv == "APPROVED" else " — 화면에 '승인 전' 표시"))
     # V14 MILAL_OUTPUT provenance
     if D.get("file_status") == "MILAL_OUTPUT":
         m = D.get("source", {}).get("milal", {})
