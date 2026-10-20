@@ -162,6 +162,7 @@ function bindRecordsPage(root){ const S=view.st, F=S.rf; bindAnnots(root);
     if(r.kind==="word"){ view.st.rd="read"; studyOpenVerse(r.book,r.ch,r.vs); return; }
     if(r.kind==="atom"){ const aid=anAtomOf(r.a); if(aid!=null) gotoAtom(r.book,aid); return; }
     if(r.kind==="range"&&r.a&&r.a.anchor&&r.a.anchor.compare&&window.cmpOpenFromAnnot&&cmpOpenFromAnnot(r.a)) return;   /* 비교 메모 → A/B 비교 화면 복원 */
+    if((r.kind==="range"||r.kind==="verse")&&r.a&&r.a.anchor&&r.a.anchor.query&&window.qOpenFromAnnot&&qOpenFromAnnot(r.a)) return;   /* 검색 메모 → 검색 화면에서 같은 식·범위로 다시 실행 */
     view.st.rd="read"; view.st.rangeStart=null; studyOpenVerse(r.book,r.ch,r.vs); });
   root.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportRecords(b.dataset.export));
   const pr=root.querySelector("#rfPrint"); if(pr) pr.onclick=()=>{ if(!window.printRecords) return; let L=allRecords(); if(F.kind!=="all") L=L.filter(r=>r.kind===F.kind); if(F.tag) L=L.filter(r=>r.tags.includes(F.tag)); if(F.q){ const q=F.q.toLowerCase(); L=L.filter(r=>[r.observation,r.interpretation,r.heb,r.title,r.tags.join(" ")].join(" ").toLowerCase().includes(q)); } printRecords(L,"연구 기록"+(F.tag?" · #"+F.tag:"")); };

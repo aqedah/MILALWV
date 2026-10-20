@@ -66,6 +66,7 @@ def compute(A, B, fn=False):
     contig = lambda W: all(W[k] == W[k - 1] + 1 for k in range(1, len(W)))
     # ① 원문 연속 표현: 기능어를 빼지 않은 원래 순서에서 이어짐(기능어 제외 설정이므로 내용어 2개 이상인 것만)
     runs_text = [r for r in runs_of([wl[i] for i in A], [wl[i] for i in B], A, B) if sum(1 for w in r["a"] if not is_fn(w)) >= 2]
+    for r in runs_text: r["cross"] = vOf[r["a"][0]] != vOf[r["a"][-1]] or vOf[r["b"][0]] != vOf[r["b"][-1]]
     # ② 기능어 제외 어순 대응: 기능어를 뺀 배열에서만 이어짐(원문에서 A 쪽이나 B 쪽에 끼어든 낱말이 있음)
     #   원문 구간(기능어 포함)의 어휘열이 양쪽에서 같으면 이미 ①에 든 것이므로 ②에서 뺀다
     span_lex = lambda W: [wl[i] for i in range(W[0], W[-1] + 1)]

@@ -370,3 +370,11 @@ h3{font-size:14px;margin:14px 0 4px}
 .qhit{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px}.qhitb{display:flex;gap:6px;margin:2px 0 0 4px}.qwhy{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0 0;font-size:12.5px}.qwhyt{margin:6px 0 0;padding-top:4px;border-top:1px dashed var(--line)}.qwhyr{line-height:1.7}.qwhyc{color:var(--muted);font-family:var(--f-mono,monospace);font-size:11.5px}.qwhyr .heb{font-size:16px}.qwhyr em{font-style:normal;color:var(--accent)}
 .qhow{background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:10px 12px;margin:10px 0}.qhow ul{margin:4px 0 8px;padding-left:18px;font-size:14px;line-height:1.6}
 .qname{font-family:var(--f-mono,monospace);font-size:12px}
+
+/* 비교기: 기능어 제외로 건너뛴 낱말 · 검색식 범위·근거 */
+.cw-skip{opacity:.35}
+.cmprun .heb small{font-size:11px;opacity:.6;margin-left:4px}
+.qrange{margin-top:8px}
+.qfrom{border-left:3px solid var(--line);padding-left:8px}
+.qlook{margin-top:6px}
+.qcode{margin-top:6px;font-size:12px} .qcode summary{cursor:pointer;opacity:.7} .qcode code{font-size:11px}
