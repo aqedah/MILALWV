@@ -47,9 +47,9 @@ const boot = async (pg) => { await pg.goto(URL0, { waitUntil: 'domcontentloaded'
   ok('8a 기록 없을 때 안내', /기록이 없습니다/.test(emptyRec), emptyRec.slice(0, 60));
   await p1.route('**/study/books/2.json*', r => r.abort()); await p1.evaluate(() => { setRange({ b: 2, c1: 1, c2: 1 }); render(); }); await p1.waitForTimeout(800);
   const bookErr = await p1.evaluate(() => document.querySelector('#main').innerText); ok('8b 책 자료 못 받을 때 안내', /내려받지 못했습니다/.test(bookErr), bookErr.slice(0, 80)); await p1.unroute('**/study/books/2.json*');
-  await p1.route('**/test/milal_test_only_job31-38.json*', r => r.fulfill({ status: 404, body: 'no' }));
+  await p1.route('**/study/milal/job.json*', r => r.fulfill({ status: 404, body: 'no' }));
   await p1.evaluate(() => { delete ML[18]; setRange({ b: 18, c1: 32, c2: 32 }); view.st.mode = 'verse'; view.st.rd = 'struct'; render(); }); await p1.waitForTimeout(600); await p1.evaluate(() => { document.getElementById('sheetRoot').innerHTML = ''; view.st.milalOn = true; render(); }); await p1.waitForTimeout(1500);
-  const milalErr = await p1.evaluate(() => document.querySelector('#main').innerText); ok('8c MILAL 파일이 없을 때 안내(자료 미존재)', /MILAL/.test(milalErr) && /(없습니다|못했습니다)/.test(milalErr), milalErr.replace(/\s+/g, ' ').slice(0, 160)); await p1.unroute('**/test/milal_test_only_job31-38.json*');
+  const milalErr = await p1.evaluate(() => document.querySelector('#main').innerText); ok('8c MILAL 파일이 없을 때 안내(자료 미존재)', /MILAL/.test(milalErr) && /(없습니다|못했습니다)/.test(milalErr), milalErr.replace(/\s+/g, ' ').slice(0, 160)); await p1.unroute('**/study/milal/job.json*');
   await p1.evaluate(() => { setRange({ b: 1, c1: 1, c2: 1 }); view.st.rd = 'struct'; render(); }); await p1.waitForTimeout(400);
   const noMilal = await p1.evaluate(() => document.querySelector('#main').innerText); ok('8d MILAL 자료가 없는 책(창세기)의 구조 화면 안내', /MILAL/.test(noMilal), noMilal.replace(/\s+/g, ' ').slice(0, 120));
   await c1.close(); await br.close(); console.log(R.join('\n')); console.log('errors:', errs); const bad = R.filter(x => x.startsWith('FAIL')).length; console.log(bad ? `실패 ${bad}` : '모두 통과'); process.exit(bad ? 1 : 0);

@@ -53,10 +53,10 @@ const log = (s) => { LOG.push(s); console.log(s); };
   await tap('[data-ssv="speech"]', '발화'); await snap('grad_speech'); const units = await pg.evaluate(() => document.querySelectorAll('.mgh').length); log(`  발언 단위 머리띠 ${units}개`);
   const comp = await pg.$('.mb-q'); log(`  경쟁 가설 배지 보임: ${!!comp}`);
   const hdrs = await pg.$$('[data-mgh]'); await tap(hdrs[1] || hdrs[0], '발언 단위 머리띠 누름 → 묶음 상세'); await snap('grad_unit'); const us = await pg.evaluate(() => document.querySelector('#sheetRoot .sheet')?.innerText.replace(/\s+/g, ' '));
-  log(`  묶음 상세: 경쟁 안내 ${/경쟁/.test(us)} · 근거 줄(통과/미결) ${/(통과|미결)/.test(us)} · 규칙 번호 ${/규칙 G/.test(us)} · 시험자료 표기 ${/시험 자료/.test(us)}`);
+  log(`  묶음 상세: 경쟁 안내 ${/경쟁/.test(us)} · 근거 줄(통과/미결) ${/(통과|미결)/.test(us)} · 규칙 번호 ${/규칙 G/.test(us)} · 자료 상태 ${/(시험 자료|승인 전)/.test(us)}`);
   const firstBtn = await pg.$('#sheetRoot [data-mgo]'); await tap(firstBtn, '"첫 절 32:6 ›"(또는 모절 가기) → 그 줄로 이동'); await snap('grad_goto');
   const curSat = await pg.evaluate(() => view.st.curAid); await tap(`[data-sat="${curSat}"]`, '비춰진 줄 이름표 → 절 원자 상세'); await snap('grad_atom'); const gs = await pg.evaluate(() => document.querySelector('#sheetRoot .sheet')?.innerText.replace(/\s+/g, ' '));
-  log(`  상세에 관계/근거/상태 보임: 관계 ${/관계/.test(gs)} 근거 ${/(통과|미결|실패)/.test(gs)} 상태 ${/(확정|잠정|경쟁|미배정)/.test(gs)} 시험자료 ${/시험 자료/.test(gs)}`);
+  log(`  상세에 관계/근거/상태 보임: 관계 ${/관계/.test(gs)} 근거 ${/(통과|미결|실패)/.test(gs)} 상태 ${/(확정|잠정|경쟁|미배정)/.test(gs)} 자료 상태 ${/(시험 자료|승인 전)/.test(gs)}`);
   await pg.evaluate(() => { const s = document.querySelector('#sheetRoot .sheet'); if (s) s.scrollTop = 500; }); await snap('grad_atom2');
   const refNote = await pg.$('#sheetRoot [data-annew^="atom"]'); if (refNote) { await tap(refNote, '절 원자에 메모'); const ref = await pg.$('#anRef'); log(`  "MILAL 관계를 참조로 함께 저장" 선택 보임: ${!!ref}`); await pg.fill('#anObs', '엘리후 도입부 wayyiqtol 사슬'); await pg.fill('#anInt', '32:6 이 발언의 틀을 연다'); await tap('#anSave', '저장'); }
   await closeSheet();
@@ -64,7 +64,7 @@ const log = (s) => { LOG.push(s); console.log(s); };
   const cand = await pg.$('[data-mapcand], #mapCand, input[type=checkbox]'); if (cand) { await tap(cand, '"후보 관계 보기"'); await snap('grad_map_cand'); }
   end('① 발언 단위·모절 관계·경쟁 가설 확인 + 메모');
   taps = 0; await tap('.bnav [data-nav="notes"]', '기록'); const md = await pg.evaluate(() => { exportRecords('md'); return window.__lastExport && window.__lastExport.txt; }); taps++;
-  log(`  Markdown 내보내기: ${md ? md.length + '자' : '실패'} · MILAL 참조 포함 ${/MILAL 참조/.test(md || '')} · 관찰/해석 분리 ${/\*\*관찰\*\*/.test(md || '') && /\*\*해석\*\*/.test(md || '')} · 시험 자료 표기 ${/시험 자료/.test(md || '')}`);
+  log(`  Markdown 내보내기: ${md ? md.length + '자' : '실패'} · MILAL 참조 포함 ${/MILAL 참조/.test(md || '')} · 관찰/해석 분리 ${/\*\*관찰\*\*/.test(md || '') && /\*\*해석\*\*/.test(md || '')} · 자료 상태 표기 ${/(시험 자료|MILAL 출력)/.test(md || '')}`);
   end('② 내 주석과 함께 출력');
   console.log('\n--- 요약 ---'); console.log(LOG.filter(l => l.startsWith('→')).join('\n')); console.log('errors:', errs);
   require('fs').writeFileSync(OUT + 'personas_log.txt', LOG.join('\n')); await br.close();

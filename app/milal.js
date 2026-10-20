@@ -1,10 +1,10 @@
 /* ===== MILAL 판정 읽기·겹쳐 보기 (MILALWV-IF-1, docs/MILAL_INTERFACE_DRAFT.md) =====
    MILAL은 판정하고 여기서는 보여 주기만 한다. 받은 파일을 되쓰지 않는다.
    세 출처를 구별한다: BHSA 원자료(선·tab·typ·domain) / 앱 관찰 후보(색·표지) / MILAL 판정(이 파일) */
-const MILAL_FILES=[{book:18,url:"test/milal_test_only_job31-38.json",approvals:"study/milal/approvals.json"}];   /* 책 번호(개역 순) → 분석 파일 + 승인 기록 파일(분리). 실제 결과가 오면 url 만 바꾼다 */
+const MILAL_FILES=[{book:18,url:"study/milal/job.json",approvals:"study/milal/approvals.json"}];   /* 책 번호(개역 순) → 분석 파일(실제 MILAL V1 출력, 2026-10-20 검증 통과, 승인 전) + 승인 기록 파일(분리). 시험 자료는 test/milal_test_only_job31-38.json (시험 스크립트 전용) */
 const MK_KO={SUBORDINATE:"종속",PARALLEL:"병행",FRAME_CONTENT:"틀–내용",CONTINUATION:"이어짐",CLOSURE:"종결",MEMBERSHIP:"포함"};
 const MS_KO={CONFIRMED:"확정",PROVISIONAL:"잠정",COMPETING:"경쟁",UNASSIGNED:"미배정"};
-const MG_KO={LOCAL_SPEECH_UNIT:"발언 단위",CONDITIONAL_RESPONSE_UNIT:"조건부 응답 단위",UNRESOLVED_SCOPE_FRAGMENT:"범위 미결 조각",NARRATIVE_REPORT_SEGMENT_HYPOTHESIS:"서술 보고 구간(가설)",ENCLOSING_SPEECH_HYPOTHESIS:"큰 발언 가설",SURFACE_EVENT_ANCHOR:"표면 사건 표지",UNCOVERED_SOURCE_CONTEXT:"덮이지 않은 출처 문맥"};
+const MG_KO={LOCAL_SPEECH_UNIT:"발언 단위",CONDITIONAL_RESPONSE_UNIT:"조건부 응답 단위",UNRESOLVED_SCOPE_FRAGMENT:"범위 미결 조각",NARRATIVE_REPORT_SEGMENT_HYPOTHESIS:"서술 보고 구간(가설)",ENCLOSING_SPEECH_HYPOTHESIS:"큰 발언 가설",SURFACE_EVENT_ANCHOR:"표면 사건 표지",UNCOVERED_SOURCE_CONTEXT:"덮이지 않은 출처 문맥",REPORT_INTRODUCTION:"보고 도입(말하기 절)",REPORT_CONTENT:"보고 내용(말한 것)"};
 const MI_KO={ALTERNATIVE_SET:"대안 묶음",UNRESOLVED:"미결",SCOPE_CONFLICT:"범위 충돌",UNASSIGNED_CLAUSE:"미배정 절",NO_DIRECT_RELATION:"직접 연결 없음(판정)"};
 const ML={}; /* book → {state:"loading"|"ok"|"err", data, byCid, msg} */
 /* 자료 상태 배지: 시험 자료 / 승인 전 / 승인됨 — '검증된 MILAL 자료'는 연구자 승인(APPROVED) 뒤에만 */

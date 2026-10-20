@@ -26,7 +26,8 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 - 자료 읽기(2026-10-19 밤 바꿈): `study/meta.json` + `study/index.json`(절 목록·책별 시작 번호) → **보는 책만** `study/books/<b>.json` + `study/bible/krh/<b>.json`. 구약 전체가 필요한 일(낱말 전체 검색·검색식)은 그때 나머지 책을 받는다(`ensureAll()`; 중복 다운로드 없음). 한글 사전 풀이는 `study/lexko.json`으로 따로(낱말 상세 때), Firebase SDK는 첫 화면 뒤 또는 로그인·나눔 누를 때. `words.json`은 파이프라인·검증기 원본으로만 남김. 만들기: `pipeline/split_study.py study`(이어 붙여 words.json과 같은지 검산함).
 - 성능(에뮬레이션, gzip): 첫 화면 전송 ≈ 0.9MB → **4Mbps·CPU 6배 느림에서 2.8초**, 12Mbps·4배에서 1.3초 (전에는 5.3MB → 14초/7초). 전체 책 받기 5~11초(배경), 메모리 30→75→113MB. TF 대조 건수 227/369/2260/1015/3697 그대로.
 - 4단계 안정화(2026-10-20 낮, `docs/REPORT_2026-10-20_stage4.md`): 규칙에 표시(mark)·나눔 숨김 읽기 제한(공개 조회는 `where hidden==false`) · 승인 우선순위 해석기 `app/approval.js`(TEST_ONLY 기록 금지, CHAPTERS 배지 반영) · **JSON 백업·복원**(기록 탭, `MILALWV-BACKUP-1`) · IndexedDB 불가 시 임시 저장소+경고 · **동기화 구현**(`app/sync_core.js` + `firebase.js`, 스위치 `ANNOT_SYNC_ENABLED` 기본 꺼짐, 에뮬레이터 19건) · 운영 전환 점검표 `docs/SYNC_ROLLOUT_CHECKLIST.md` · 모바일(키보드·RTL 괄호·겹친 표시·긴 구간) · 묶음 상세(머리띠 누름)·용어 풀이 · 실제 V1 검증 스크립트 `pipeline/milal_real_v1_check.py`. 시험: `pipeline/firestore_rules_test/run.sh`(규칙 74+동기화 19), `pipeline/ui_tests/`(저장 18·모바일 12·사용성 걸음).
-- 남은 일: **실제 V1 실행·검증**(목사님 PC `C:\MILAL`, `docs/MILAL_V1_RUN_PROCEDURE.md`) · Firestore 규칙 승인·게시 뒤 동기화 켜기 · 실기기 측정 · PDF 내보내기 · '정할 것' 2·4·5번 · 개역개정 본문.
+- **실제 V1 연결(2026-10-20 오후)**: 실제 MILAL V1 을 작업 환경에서 실행(커밋 d7c2eb3, P2_REVIEW.zip 0a96d235…, V1 네트워크 sha c6df1724…) → `pipeline/milal_real_v1_check.py` 10단계 모두 통과(ROUNDTRIP_EXACT, V1~V16, 긍정 기준점 500064→500065 CONFIRMED·HUMAN 근거, 부정 기준점 500062↛500065 NO_DIRECT_RELATION, 37:24→38:1 NOT_RECORDED) → `study/milal/job.json`(sha c3541750…, 욥기 1–42장, 절 2,938·관계 446·원 관계 3,350, **UNREVIEWED**)으로 배포, 앱이 이 파일을 읽음. 시험 자료는 `test/`에만. 보고서 `docs/REPORT_real_v1_2026-10-20.md`. 명세 확정·첫 승인 기록은 연구자 확인 뒤.
+- 남은 일: 목사님 PC 재실행 해시 대조 · Firestore 규칙 승인·게시 뒤 동기화 켜기 · 실기기 측정 · PDF 내보내기 · '정할 것' 2·4·5번 · 개역개정 본문.
 
 ---
 

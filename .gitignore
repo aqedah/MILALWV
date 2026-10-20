@@ -3,3 +3,4 @@ pipeline/firestore_rules_test/firebase.json
 pipeline/firestore_rules_test/firestore-debug.log
 pipeline/firestore_rules_test/package-lock.json
 __pycache__/
+build/

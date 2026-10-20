@@ -1,3 +1,5 @@
+> **2026-10-20 14:30 실행 기록**: 같은 저장소(MILAL 커밋 `d7c2eb3`)·같은 입력(P2_REVIEW.zip sha256 `0a96d235c6bc0bc3…`)으로 작업 환경에서 V1 을 돌렸다(자체 시험 16건 → 실제 실행 → BHSA 대조 2,938절 불일치 0). `V1_RELATION_NETWORK.json` sha256 **`c6df1724291cfb7c81d937af142961f3876d1e8019e746378706cd3539b37a20`**. 목사님 PC 에서 다시 돌리면 이 해시가 같은지만 보면 된다(`Get-FileHash results\mfr03_v1_<…>\real\V1_RELATION_NETWORK.json`). 변환·검증 결과: `docs/REPORT_real_v1_2026-10-20.md`.
+
 # 실제 MILAL V1 관계망 만들기 → MILALWV로 가져오기 (재현 절차)
 
 목적: 호환성 검증에 필요한 실제 파일을 얻는다. MILAL 저장소의 **기존 스크립트를 그대로** 쓴다. 규칙·판정은 건드리지 않는다.
