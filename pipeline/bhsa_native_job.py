@@ -21,7 +21,10 @@ def main():
                       "mother_clause": m_cl[0] if m_cl else None, "mother_clause_type": F.otype.v(m_cl[0]) if m_cl else None, "rela_clause": F.rela.v(cl) or "NA",
                       "n_mothers_atom": len(m_ca), "n_mothers_clause": len(m_cl)})
         clauses.setdefault(cl, []).append(ca)
+    def fsha(name):
+        fp = os.path.join(a.tf, name + ".tf"); return hashlib.sha256(open(fp, "rb").read()).hexdigest() if os.path.exists(fp) else None
     out = {"schema": "MILALWV-BHSA-NATIVE-1", "status": "RAW_SOURCE_DATA — 판정 아님(BHSA 2021 원자료 그대로)", "bhsa": "2021", "features": ["mother", "rela"], "book": a.book, "book_bhsa": bname,
+           "provenance": {"tf_dir": os.path.basename(os.path.normpath(a.tf)), "generator": "pipeline/bhsa_native_job.py", "feature_sha256": {k: fsha(k) for k in ("otype", "oslots", "mother", "rela", "book", "chapter", "verse")}},
            "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), "counts": {"clause_atoms": len(atoms), "clauses": len(clauses), "clauses_multi_atom": sum(1 for v in clauses.values() if len(v) > 1)},
            "atoms": atoms}
     if a.words:  # 앱의 can(절 원자 번호)과 대조

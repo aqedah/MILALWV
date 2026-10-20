@@ -2,7 +2,7 @@
 
 - V1 폴더: `/tmp/claude-0/-home-claude/1d3f2531-8771-575f-ba04-5988af430670/scratchpad/v1run/real`
 - MILAL 커밋: `d7c2eb3`
-- 작업 폴더: `build/real_v1_2026-10-20c` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
+- 작업 폴더: `build/real_v1_2026-10-20d` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
 
 ## 1. V1 자체 검증 결과
 - `V1_VALIDATION.md` 있음, PASS 46회, FAIL/ERROR 0회
@@ -39,6 +39,7 @@
 - P2 근거 상태: 미결(UNRESOLVED) 34개 · 실패(FAILED, 반례·통과 못 한 검사) 0개 — 연구자 검토 목록에 포함
 
 ## 6. BHSA 낱말·절·절 원자 대조 (V1~V16)
+- 원자료 사본: `study/milal/bhsa_native_job.json` sha256 `0f0df66b37f7b0460a2a0a88a83953771b70a9415d7c6e55f2a8e4ef6d75e023` · BHSA 2021 · 책 Iob · 절 원자 2977 · 생성 2026-10-20T06:29:12+00:00 · 특징 파일 해시 {"otype": "bb5da974a3b1dd7ff9ddab54dfb533059442642ab830b832a49eea8670aaa920", "oslots": "c4efaeed8047d4e75834cc94856d79eacc7a146aea01c34d8be88497d8fa303b", "mot
 - PASS V1 스키마
 - PASS V2 BHSA 2021
 - PASS V3 끝점 존재
@@ -100,4 +101,4 @@
 ## 결론
 - 종료 코드 0: 모두 통과 — 명세 확정·첫 승인 기록으로 갈 수 있음
 - 다음: 연구자가 ⚠·❌ 항목을 보고, 괜찮으면 `pipeline/milal_approve.py` 로 승인 범위를 기록한다(자동 승인 없음).
-- 배포: `build/real_v1_2026-10-20c/job.json` → `study/milal/job.json` (sha256 5aaee3616e8a0807e629a1e6d798f5af0f38ebfd2dec6371cc1c5131c88740b4)
+- 배포: `build/real_v1_2026-10-20d/job.json` → `study/milal/job.json` (sha256 5aaee3616e8a0807e629a1e6d798f5af0f38ebfd2dec6371cc1c5131c88740b4)

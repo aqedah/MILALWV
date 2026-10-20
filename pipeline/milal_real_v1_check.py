@@ -101,6 +101,23 @@ def main():
     say(f"- P2 근거 상태: 미결(UNRESOLVED) {len(unres_ev)}개 · 실패(FAILED, 반례·통과 못 한 검사) {len(failed_ev)}개 — 연구자 검토 목록에 포함")
     say("\n## 6. BHSA 낱말·절·절 원자 대조 (V1~V16)")
     native_p = getattr(a, "bhsa_native", None) or ""
+    # A-2/A-3: 배포용 통합검증은 BHSA 원자료 사본이 필수 — 없거나 규격·판·책이 맞지 않으면 배포 중단(사유 보고)
+    if native_p and os.path.exists(native_p):
+        try:
+            Bn = json.load(open(native_p, encoding="utf-8")); Dn = json.load(open(a.out, encoding="utf-8"))
+            prob = []
+            if Bn.get("schema") != "MILALWV-BHSA-NATIVE-1": prob.append("사본 규격이 MILALWV-BHSA-NATIVE-1 이 아님")
+            if str(Bn.get("bhsa")) != str(Dn["source"].get("bhsa_version")): prob.append(f"BHSA 판 불일치: 사본 {Bn.get('bhsa')} vs IF-1 {Dn['source'].get('bhsa_version')}")
+            if Bn.get("book") != 18 and Bn.get("book_bhsa") != "Iob": prob.append(f"사본의 책이 욥기가 아님: {Bn.get('book')}/{Bn.get('book_bhsa')}")
+            n_if1 = sum(len(n.get("clause_atom_ids", [])) for n in Dn["nodes"]); n_side = Bn.get("counts", {}).get("clause_atoms")
+            if n_if1 and n_side and n_if1 != n_side: prob.append(f"절 원자 수 불일치: IF-1 {n_if1} vs 사본 {n_side}")
+            side_ids = {x["clause_atom"] for x in Bn.get("atoms", [])}; if1_ids = {c for n in Dn["nodes"] for c in n.get("clause_atom_ids", [])}
+            if if1_ids and side_ids and if1_ids != side_ids: prob.append(f"절 원자 번호 집합 불일치: IF-1 에만 {len(if1_ids - side_ids)}, 사본에만 {len(side_ids - if1_ids)}")
+            say(f"- 원자료 사본: `{native_p}` sha256 `{sha(native_p)}` · BHSA {Bn.get('bhsa')} · 책 {Bn.get('book_bhsa')} · 절 원자 {n_side} · 생성 {Bn.get('generated_at', '?')} · 특징 파일 해시 {json.dumps((Bn.get('provenance') or {}).get('feature_sha256') or {}, ensure_ascii=False)[:160]}")
+            for pmsg in prob: flag(2, "원자료 사본 대조 실패 — " + pmsg + " (배포 중단)")
+            if prob: native_p = ""
+        except Exception as ex: flag(2, "원자료 사본을 읽지 못함: " + str(ex) + " (배포 중단)"); native_p = ""
+    else: flag(2, f"BHSA 원자료 사본({native_p or '--bhsa-native 없음'})이 없음 — 실제 관계망 배포에는 필수(V13b·6b). pipeline/bhsa_native_job.py 로 만든다 (배포 중단)")
     rc, outp = run([sys.executable, os.path.join(HERE, "milal_check.py"), a.out] + ([] if a.words in ("", "none") else ["--words", a.words]) + (["--bhsa-native", native_p] if native_p and os.path.exists(native_p) else []))
     if a.words in ("", "none"): flag(1, "--words none: BHSA 낱말 대조(V5)를 건너뜀 — 합성 자료 시험에서만 허용")
     for line in outp.splitlines():

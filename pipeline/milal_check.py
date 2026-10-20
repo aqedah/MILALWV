@@ -155,7 +155,7 @@ def main():
             if x.get("clause_id") != str((byca.get(dep) or bycl.get(dep))["clause"]): bad13b.append(x["id"] + "(절 불일치)")
         res("V13b 원 관계 실제 원본 대조(BHSA mother/rela)", not bad13b, f"{dict(c13)}" + (f" — 불일치 {len(bad13b)}: " + ", ".join(bad13b[:4]) if bad13b else ""))
     else:
-        res("V13b 원 관계 실제 원본 대조", True, "NOT_RUN — --bhsa-native 를 주면 BHSA 2021 원본과 노드 수준으로 대조")
+        res("V13b 원 관계 실제 원본 대조", None, "--bhsa-native 를 주면 BHSA 2021 원본과 노드 수준으로 대조")   # None = NOT_RUN (통과가 아님)
     # V15 원 관계 origin_edge_id 중복 없음
     oe = Counter(x.get("origin_edge_id") for x in nat if x.get("origin_edge_id"))
     res("V15 원 관계 원본 edge id 중복 없음", not [k for k, v in oe.items() if v > 1])
@@ -172,9 +172,11 @@ def main():
     st = Counter(r["status"] for r in rels); kd = Counter(r["kind"] for r in rels)
     print(f"파일: {a.file}\n절 {len(nodes)} · 묶음 {len(groups)} · 관계 {len(rels)} · 근거 {len(ev)} · 이슈 {len(D.get('issues', []))} · 메모 {len(D.get('notes', []))} · BHSA 원 관계 {len(D.get('native_relations', []))}")
     print("관계 상태:", dict(st), "\n관계 종류:", dict(kd))
-    okall = True
+    okall = True; notrun = 0
     for i, ok, msg in R:
+        if ok is None: notrun += 1; print("NOT_RUN " + i + (" — " + msg if msg else "")); continue   # 안 돌린 검사는 통과가 아니다
         okall &= ok; print(("PASS " if ok else "FAIL ") + i + (" — " + msg if msg else ""))
+    print(f"요약: PASS {sum(1 for _, o, _ in R if o is True)} · FAIL {sum(1 for _, o, _ in R if o is False)} · NOT_RUN {notrun}")
     sys.exit(2 if unable else (0 if okall else 1))
 
 if __name__ == "__main__":

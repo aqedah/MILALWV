@@ -51,7 +51,7 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
       (s.options||[]).forEach(o=>{ if(nodeCid.has(o)) cs.add(nodeCid.get(o)); else if(gid.has(o)) gs.add(o); });
       cs.forEach(c=>byCid.has(c)&&byCid.get(c).issues.push(s)); gs.forEach(g=>byGid.has(g)&&byGid.get(g).issues.push(s)); }
     /* BHSA 원 자료(native_relations): 절 원자 번호로 색인 — MILAL 판정과 다른 층 */
-    const natByAtom=new Map(), natByClause=new Map(); for(const x of D.native_relations||[]){ if(x.clause_atom!=null) natByAtom.set(x.clause_atom,x); natByClause.set(x.clause_id,x); }
+    const natByAtom=new Map(), natByClause=new Map(); for(const x of D.native_relations||[]){ if(x.clause_atom!=null) natByAtom.set(x.clause_atom,x); (natByClause.get(x.clause_id)||natByClause.set(x.clause_id,[]).get(x.clause_id)).push(x); }
     /* 확정(CONFIRMED) 계층 관계만으로 깊이 계산. BHSA tab 과 별개. 잠정·경쟁은 깊이에 넣지 않는다 */
     const parent=new Map(); const key=e=>e.type==="group"?"g:"+e.id:"c:"+e.id;
     for(const r of D.relations) if(r.family==="HIERARCHY"&&r.status==="CONFIRMED"&&r.target.type!=="clause_set"&&r.source.type!=="clause_set") parent.set(key(r.target),key(r.source));
@@ -177,7 +177,22 @@ function openUnitSheet(b,gid){ const st=ML[b]; if(!st||st.state!=="ok") return; 
   document.querySelectorAll("#sheetRoot [data-mgo]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); document.getElementById("sheetRoot").innerHTML=""; gotoAtom(b,+x.dataset.mgo); }); }
 /* BHSA 원 자료(mother/rela) 칸: 원자료 사본(bhsa_native_job.json)을 우선, 없으면 V1 이 보존한 것. 쉬운 말로 먼저, 노드 번호는 뒤에. 판정 아님 */
 const RELA_KO={NA:"종류 미지정(NA)",Coor:"나란히 이어짐(Coor)",Adju:"부사절(Adju)",Attr:"꾸밈절·관계절(Attr)",Objc:"목적절(Objc)",Resu:"결과(Resu)",Subj:"주어절(Subj)",RgRc:"다시 받는 관계절(RgRc)",Cmpl:"보충(Cmpl)",ReVo:"호격 되받음(ReVo)",Spec:"상술(Spec)",PreC:"술어 보충(PreC)"};
-function bhsaNativeBlock(b,aid,st){ const ca=SD.can[aid], cid=SD.wc[atomFirstWord(aid)]; const y=st.bhsaNative&&st.bhsaNative.get(ca); const v1=st.natByAtom.get(ca)||st.natByClause.get(String(SD.ccn[cid]));
+/* V1 보존 상태(순수 함수, 전수검사용): 절 원자 ca 의 BHSA mother 관계가 V1 에 어떻게 들어 있는가
+   DIRECT_ATOM   절 원자 관계가 V1 에 직접 수록됨(bhsa_nodes.dependent == ca)
+   CLAUSE_LEVEL  그 절의 관계가 절 수준으로 수록됨(dependent == clause; 절 원자 번호 없음)
+   BHSA_ONLY     이 절 원자의 mother 는 BHSA 원자료에만 있음(같은 절의 다른 원자가 V1 에 있어도 이 원자 것은 아님)
+   NO_MOTHER     원자료에 이 절 원자의 mother 가 없음(V1 에도 없음)
+   UNKNOWN       원자료 사본이 없어 확인할 수 없음 */
+function bhsaNativeStatus(st,ca,clauseId){ const y=st.bhsaNative&&st.bhsaNative.get(ca); const direct=st.natByAtom.get(ca); const cl=(st.natByClause.get(String(clauseId))||[]).find(x=>x.bhsa_nodes&&x.bhsa_nodes.dependent===Number(clauseId))||null;
+  const clLevel=!!cl;
+  if(direct&&direct.bhsa_nodes&&direct.bhsa_nodes.dependent===ca) return {code:"DIRECT_ATOM",v1:direct,y,clauseLevelAlso:cl};
+  if(!st.bhsaNative) return {code:clLevel?"CLAUSE_LEVEL_UNVERIFIED":"UNKNOWN",v1:clLevel?cl:null,y:null};   /* 사본 없음: 절 수준 수록만 알 수 있고 원자 대응은 확인 못 함 */
+  if(y&&y.mother_clause_atom!=null) return {code:"BHSA_ONLY",v1:null,y,clauseLevelAlso:clLevel?cl:null};   /* 이 원자 자신의 mother 는 V1 에 없음(절 수준 관계가 따로 있어도 이 원자 것은 아님) */
+  if(clLevel) return {code:"CLAUSE_LEVEL",v1:cl,y};
+  if(y) return {code:"NO_MOTHER",v1:null,y};
+  return {code:"UNKNOWN",v1:null,y:null}; }
+const NAT_STATUS_KO={DIRECT_ATOM:"절 원자 관계가 V1 에 직접 수록됨",CLAUSE_LEVEL:"이 절의 관계가 절 수준으로 수록됨(절 원자 번호 없음)",CLAUSE_LEVEL_UNVERIFIED:"절 수준 수록만 확인(원자료 사본 없음)",BHSA_ONLY:"이 절 원자의 관계는 BHSA 원자료에만 있음(V1 에 없음)",NO_MOTHER:"원자료에 이 절 원자의 mother 없음",UNKNOWN:"대응 관계를 확인할 수 없음"};
+function bhsaNativeBlock(b,aid,st){ const ca=SD.can[aid], cid=SD.wc[atomFirstWord(aid)]; const S=bhsaNativeStatus(st,ca,SD.ccn[cid]); const y=S.y, v1=S.v1;
   if(!y&&!v1) return "";
   const refOf=a2=>a2!=null?`${esc(sRef(SD.vOf[atomFirstWord(a2)]))} <button class="mgo" data-mgo="${a2}">가기 ›</button>`:"";
   const atomApp=caNode=>{ if(caNode==null) return null; const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let i=a0;i<a1;i++) if(SD.can[i]===caNode) return i; return null; };
@@ -185,8 +200,8 @@ function bhsaNativeBlock(b,aid,st){ const ca=SD.can[aid], cid=SD.wc[atomFirstWor
   if(y){ const mA=atomApp(y.mother_clause_atom); rows+=`<dt>절 원자의 모절</dt><dd>${y.mother_clause_atom!=null?`${refOf(mA)} · ${esc(RELA_KO[y.rela_atom]||y.rela_atom)}`:"없음(원자료에 mother 없음)"}</dd>`;
     const mt=y.mother_clause_type; if(!st.bhsaClauseAtom){ st.bhsaClauseAtom=new Map(); for(const z of st.bhsaNative.values()) if(!st.bhsaClauseAtom.has(z.clause)) st.bhsaClauseAtom.set(z.clause,z.clause_atom); } const mC=mt==="clause"?atomApp(st.bhsaClauseAtom.get(y.mother_clause)):null;
     rows+=`<dt>절의 모절</dt><dd>${y.mother_clause!=null?`${mt==="clause"?refOf(mC):mt==="phrase"?"구(phrase)에 걸림":mt==="word"?"낱말(word)에 걸림":esc(String(mt))} · ${esc(RELA_KO[y.rela_clause]||y.rela_clause)}`:"없음"}</dd>`;
-    rows+=`<dt>V1 보존 여부</dt><dd>${v1?`있음 (${esc(v1.origin_edge_id)})`:"없음 — 절 하나에 절 원자가 여럿일 때 둘째 원자의 mother 는 V1 에 없음(원자료에만)"}</dd>`; }
-  else { const mc=v1.mother_clause_id&&st.nodeCid.get(v1.mother_clause_id); rows+=`<dt>모절(V1 보존, 절 수준)</dt><dd>${mc!=null?refOf(SD.cFirstA[mc]):esc(String(v1.mother_clause_id))} · ${esc(RELA_KO[v1.rela]||v1.rela)}</dd>`; }
+    rows+=`<dt>V1 보존 여부</dt><dd>${esc(NAT_STATUS_KO[S.code]||S.code)}${v1?` (${esc(v1.origin_edge_id)})`:""}${S.clauseLevelAlso?` · 절 수준 관계는 따로 수록됨 (${esc(S.clauseLevelAlso.origin_edge_id)})`:""}</dd>`; }
+  else { const mc=v1.mother_clause_id&&st.nodeCid.get(v1.mother_clause_id); rows+=`<dt>모절(V1 보존)</dt><dd>${mc!=null?refOf(SD.cFirstA[mc]):esc(String(v1.mother_clause_id))} · ${esc(RELA_KO[v1.rela]||v1.rela)}</dd><dt>V1 보존 여부</dt><dd>${esc(NAT_STATUS_KO[S.code]||S.code)}</dd>`; }
   const ids=`<details class="mdet"><summary>노드 번호</summary><small>clause_atom ${ca} · clause ${SD.ccn[cid]}${y?` · mother_clause_atom ${y.mother_clause_atom??"—"} · mother_clause ${y.mother_clause??"—"}(${y.mother_clause_type??"—"})`:""}${v1?` · V1 ${esc(v1.origin_edge_id)} · 복원 ${esc(v1.atom_resolution||"")}`:""}</small></details>`;
   return `<div class="src3"><span class="label">BHSA 원 자료의 모절 관계 <small>(원 데이터 ${st.bhsaNativeMeta?"· 사본 "+esc(st.bhsaNativeMeta.bhsa):""} — MILAL 판정 아님)</small></span><dl class="rdl">${rows}</dl>${ids}</div>`; }
 /* 절 원자로 이동: 다른 장이면 범위를 바꾸고 구조 화면에서 그 줄을 비춘다 */

@@ -7,3 +7,4 @@
 - `node pipeline/ui_tests/mobile_f.js` — 작업 F 모바일 점검 12건 (키보드·RTL 괄호·선택 순서·글씨 크기·긴 구간·겹친 표시·표지 구별·빈/오류 상태)
 - `node pipeline/ui_tests/personas_e.js <스크린샷 폴더>` — 작업 E 초급·중급·대학원 시나리오(터치 수·화면 기록, 스크린샷)
 - `node pipeline/ui_tests/research_e.js <폴더>` — 반복 정렬 전환·검색식 보관함 9건
+- `node pipeline/ui_tests/native_audit.js` — 작업 A-1 전수검사: 욥기 절 원자 2,977개의 V1 보존 상태(직접 2,895 · 원자료에만 39 · mother 없음 43), 잘못된 보존 표시 0
