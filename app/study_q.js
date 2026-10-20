@@ -137,7 +137,7 @@ function renderQuery(){ const S=view.st; S.qb ||= (()=>{ const r=qNew("clause");
      <details class="qtxt"><summary>만든 검색식 보기 (Text-Fabric)</summary><pre>${esc(text)}</pre><div class="row"><button class="btn ghost small" id="qCopy">알파알렙·SHEBANQ용으로 복사</button><button class="btn ghost small" id="qToText">직접 고치기</button></div></details>`; }
   else h+=`<p class="lead">Text-Fabric 검색식을 씁니다. 두 칸씩 들여 써서 큰 단위 안에 작은 단위를 둡니다. 조건은 띄어쓰기 없이 <code>sp=verb</code>처럼 씁니다. 범위는 위에서 고른 것을 따릅니다.</p><textarea id="qText" class="qsrc" rows="7" spellcheck="false" dir="ltr">${esc(S.qt||text)}</textarea><div class="row"><button class="btn ghost small" id="qToBlocks">상자로 옮기기</button><button class="btn ghost small" id="qHelp">쓸 수 있는 것</button></div>${S.qHelp?qHelpHTML():""}`;
   if(S.qMode==="blocks") h+=`<div class="qsay"><b>읽어 보면</b> ${qSayAll(S.qb)}</div>`;
-  h+=`<div class="row"><button class="btn" id="qRun" style="width:100%">찾기</button></div></section>`;
+  h+=`<div class="row"><button class="btn" id="qRun" style="flex:1">찾기</button><button class="btn ghost small" id="qSave" title="이 검색식을 이름 붙여 보관">보관</button><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div></section>`;
   const R=S.qres; if(R){ h+=`<section class="sec">`; if(R.err) h+=`<p class="qerr">${esc(R.err)}</p>`; else { let wc=0; R.hits.forEach(s=>wc+=s.size);
       h+=`<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${R.n.toLocaleString()}건${R.capped?"(처음 20,000건까지만)":""}, ${R.hits.size.toLocaleString()}절 · ${R.ms}ms</p>${distBars(R.hits,stSpans())}${hitList(R.hits,S.more,"찾은 곳이 없습니다. 조건을 줄이거나 범위를 넓혀 보세요.")}`; } h+=`</section>`; }
   else h+=`<section class="sec"><span class="label">예시로 시작하기</span>${Q_EX.map(([k,n])=>`<button class="hlitem" data-sqopen="${k}"><small>${esc(Q_RECIPES[k].split("\n")[0])} …</small>${esc(n)}</button>`).join("")}</section>`;
@@ -161,6 +161,8 @@ function qHelpHTML(){ return `<div class="qhelp"><p><b>단위</b> book · chapte
   <p><b>관계</b> 줄 앞에 <code>&lt;</code> 위의 것보다 뒤 · <code>&lt;:</code> 바로 뒤 · <code>=:</code> 맨 앞 · <code>:=</code> 맨 끝 / 이름끼리 <code>w1 &lt; w2</code>, <code>=</code> <code>#</code> <code>&gt;</code> <code>:&gt;</code> <code>::</code> <code>==</code> <code>&amp;&amp;</code> <code>##</code> <code>[[</code> <code>]]</code></p>
   <p><b>아직 안 되는 것</b> 거리 조건(<code>:3:</code> 등), 맨 위 줄 여러 개, 그 밖의 BHSA 조건. 결과는 20,000건까지 셉니다. 히브리어는 끝글자·모음 없이 써도 됩니다.</p></div>`; }
 function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render(); scrollTo({top:y}); };
+  const qs=m.querySelector("#qSave"); if(qs) qs.onclick=()=>{ if(S.qMode==="text"){ const ta=document.getElementById("qText"); if(ta) S.qt=ta.value; } qSaveCurrent(); };
+  const ql=m.querySelector("#qSaved"); if(ql) ql.onclick=qOpenSaved;
   m.querySelectorAll("[data-qmode]").forEach(b=>b.onclick=()=>{ if(b.dataset.qmode==="text"&&S.qMode!=="text") S.qt=qGen(S.qb); if(b.dataset.qmode==="blocks"&&S.qMode==="text"){ const P=qParse(S.qt); if(P.err){ toast("검색식을 상자로 옮기지 못했습니다: "+P.err); return; } S.qb=qFromParse(P.root); } S.qMode=b.dataset.qmode; rr(); });
   m.querySelectorAll("[data-qf]").forEach(s=>s.onchange=()=>{ const b=qAt(s.dataset.qf); if(s.value) b.c[s.dataset.f]=s.value; else delete b.c[s.dataset.f]; if(s.dataset.f==="sp"&&s.value!=="verb"){ delete b.c.vs; delete b.c.vt; } rr(); });
   m.querySelectorAll("[data-qfi]").forEach(s=>s.onchange=()=>{ const b=qAt(s.dataset.qfi); const v=s.value.trim().replace(/[,\s]+/g,"|"); if(v) b.c[s.dataset.f]=v; else delete b.c[s.dataset.f]; rr(); });
@@ -182,3 +184,25 @@ function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render()
   const tb=document.getElementById("qToBlocks"); if(tb) tb.onclick=()=>{ const P=qParse(S.qt); if(P.err){ toast(P.err); return; } S.qb=qFromParse(P.root); S.qMode="blocks"; rr(); };
   const hp=document.getElementById("qHelp"); if(hp) hp.onclick=()=>{ S.qHelp=!S.qHelp; rr(); };
 }
+
+/* ===== 검색식 보관함 (E-2): 이름·식·범위·작성일. 기기 localStorage "milal-study-queries" — 본문 연구 기록(annots)과 따로 둔다 ===== */
+const QS_KEY="milal-study-queries";
+function qSavedList(){ try{ const L=JSON.parse(localStorage.getItem(QS_KEY)||"[]"); return Array.isArray(L)?L.filter(q=>q&&q.text):[]; }catch(e){ return []; } }
+function qSavedSet(L){ try{ localStorage.setItem(QS_KEY,JSON.stringify(L.slice(0,200))); return true; }catch(e){ toast("보관하지 못했습니다(저장 공간)."); return false; } }
+function qCurrentText(){ const S=view.st; return S.qMode==="text"?(S.qt||""):qGen(S.qb||qNew("clause")); }
+function qRangeOf(){ const S=view.st; return {range:S.range||"book",R:S.R?{b:S.R.b,c1:S.R.c1,c2:S.R.c2}:null}; }
+function qRangeLabel(q){ if(!q.range||q.range==="all"||!q.R) return "구약 전체"; const R=q.R; return `${PLAN.abbr[R.b-1]} ${q.range==="chapter"||R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${q.range==="book"?" (책 전체)":""}`; }
+function qSaveCurrent(){ const text=qCurrentText().trim(); if(!text){ toast("먼저 검색식을 만드세요."); return; } const P=qParse(text); if(P.err){ toast("검색식에 문제가 있어 보관하지 않았습니다: "+P.err); return; }
+  const rg=qRangeOf(); sheet("검색식 보관",`<p class="lead">이름을 붙여 두면 보관함에서 다시 실행할 수 있습니다. 범위(${esc(qRangeLabel(rg))})도 함께 저장됩니다.</p><input id="qsName" type="text" placeholder="예: 창 22장 와이크톨+주어" style="width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box"><pre class="qsrc" style="margin:8px 0;white-space:pre-wrap">${esc(text)}</pre><button class="sbtn" id="qsGo">보관하기</button>`);
+  const go=()=>{ const name=(document.getElementById("qsName").value.trim()||text.split("\n")[0].slice(0,40)); const L=qSavedList(); L.unshift({id:Date.now().toString(36),name,text,range:rg.range,R:rg.R,t:Date.now()}); if(qSavedSet(L)){ document.getElementById("sheetRoot").innerHTML=""; toast("보관했습니다."); render(); } };
+  document.getElementById("qsGo").onclick=go; document.getElementById("qsName").onkeydown=e=>{ if(e.key==="Enter") go(); }; setTimeout(()=>document.getElementById("qsName").focus(),50); }
+function qSavedMarkdown(L){ const d=t=>new Date(t).toLocaleDateString("ko-KR"); return ["# 검색식 보관함 (Text-Fabric)","",...L.flatMap(q=>[`## ${q.name}`,`- 범위: ${qRangeLabel(q)} · 작성일: ${d(q.t)}`,"","```",q.text,"```",""])].join("\n"); }
+function qOpenSaved(){ const L=qSavedList(); const d=t=>new Date(t).toLocaleDateString("ko-KR");
+  sheet(`검색식 보관함 · ${L.length}`,L.length?`<p class="lead">누르면 그 범위로 가서 바로 찾습니다. 본문 연구 기록(기록 탭)과는 따로 보관됩니다.</p><div class="snlist">${L.map(q=>`<div class="snitem"><button class="snjump" data-qsrun="${q.id}"><b>${esc(q.name)}</b><small>${esc(qRangeLabel(q))} · ${d(q.t)}</small><span class="snm" style="direction:ltr;font-family:var(--f-mono,monospace);white-space:pre-wrap;font-size:12px">${esc(q.text.split("\n").slice(0,3).join("\n"))}${q.text.split("\n").length>3?"\n…":""}</span></button><button class="sndel" data-qscopy="${q.id}" aria-label="복사" title="Markdown 복사">⧉</button><button class="sndel" data-qsdel="${q.id}" aria-label="지우기">✕</button></div>`).join("")}</div><div class="row" style="margin-top:8px"><button class="btn small ghost" id="qsAllMd">전부 Markdown 으로 복사</button></div>`:`<p class="lead">아직 보관한 검색식이 없습니다. 검색식을 만들고 '보관'을 누르세요.</p>`);
+  const root=document.getElementById("sheetRoot"), S=view.st;
+  root.querySelectorAll("[data-qsrun]").forEach(b=>b.onclick=()=>{ const q=L.find(x=>x.id===b.dataset.qsrun); if(!q) return; root.innerHTML=""; if(q.R&&q.range!=="all") setRange(q.R); S.range=q.range||"book"; S.mode="query"; S.qMode="text"; S.qt=q.text; S.qres=null; render(); qExec(); render(); scrollTo({top:0}); });
+  root.querySelectorAll("[data-qsdel]").forEach(b=>b.onclick=()=>{ if(!confirm("이 검색식을 보관함에서 지울까요?")) return; qSavedSet(L.filter(x=>x.id!==b.dataset.qsdel)); qOpenSaved(); render(); });
+  const copy=(txt,msg)=>{ if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>toast("복사하지 못했습니다.")); else toast("이 브라우저는 복사를 지원하지 않습니다."); window.__lastQsCopy=txt; };
+  root.querySelectorAll("[data-qscopy]").forEach(b=>b.onclick=()=>{ const q=L.find(x=>x.id===b.dataset.qscopy); if(q) copy(qSavedMarkdown([q]),"Markdown 으로 복사했습니다."); });
+  const all=root.querySelector("#qsAllMd"); if(all) all.onclick=()=>copy(qSavedMarkdown(L),`검색식 ${L.length}개를 Markdown 으로 복사했습니다.`); }
+

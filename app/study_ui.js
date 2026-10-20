@@ -141,10 +141,15 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
   if(t==="반복"){ const C=new Map(), CN=new Map(); let tot=0;
     forWords(sp,i=>{ tot++; const li=SD.wl[i]; C.set(li,(C.get(li)||0)+1); if(SD.domW[i]===SD.dN) CN.set(li,(CN.get(li)||0)+1); });
     const NT=SD.wl.length, skip=new Set(["W","H","L","B","K","M",">T","MN","<L",">L",">CR","KJ","KL/","L>","HJH[",">MR[","ZH","HW>","JHWH/",">LHJM/"]);
-    const R=[...C.entries()].filter(([li,c])=>c>=3&&!skip.has(SD.L[li][1])&&["subs","verb","adjv","nmpr","advb"].includes(SD.L[li][2])).map(([li,c])=>{ const e=SD.L[li][7]/NT*tot; return [li,c,c*Math.log(c/Math.max(e,0.5))]; }).filter(x=>x[2]>0).sort((a,b)=>b[2]-a[2]).slice(0,15);
-    if(!R.length) return `<p class="lead">범위가 짧아 두드러진 낱말이 없습니다. 범위를 넓혀 보세요.</p>`;
+    /* 두 가지 정렬: '많이 나온 순'(단순 횟수) / '두드러진 순'(구약 평균 대비 몰림 점수 c·log(c/기대)). 후보 집합과 점수 계산은 같다 */
+    const srt=S.repSort||"count";
+    const R0=[...C.entries()].filter(([li,c])=>c>=3&&!skip.has(SD.L[li][1])&&["subs","verb","adjv","nmpr","advb"].includes(SD.L[li][2])).map(([li,c])=>{ const e=SD.L[li][7]/NT*tot; return [li,c,c*Math.log(c/Math.max(e,0.5)),e]; }).filter(x=>x[2]>0);
+    const R=R0.sort(srt==="count"?((a,b)=>b[1]-a[1]||b[2]-a[2]):((a,b)=>b[2]-a[2])).slice(0,15);
+    const seg=`<div class="seg sseg mseg" style="margin:4px 0 8px">${[["count","많이 나온 순"],["salient","이 범위에서 두드러진 순"]].map(([k,n])=>`<button aria-checked="${srt===k}" data-repsort="${k}">${n}</button>`).join("")}</div>`;
+    if(!R.length) return seg+`<p class="lead">범위가 짧아 세 번 이상 나오는 낱말이 없습니다. 범위를 넓혀 보세요.</p>`;
     const mx=Math.max(...R.map(x=>x[1]));
-    return `<p class="lead">구약 전체의 평균보다 이 범위에 몰려 나오는 낱말입니다. 누르면 이 범위에서 나오는 곳을 봅니다.</p>`+R.map(([li,c])=>{ const n=CN.get(li)||0; return lexRow(li,`<span class="scount"><b>${c}번</b><small>서술 ${n} · 그 밖 ${c-n}</small><span class="bar"><i style="width:${c/mx*100}%"></i></span></span>`); }).join(""); }
+    const expl=srt==="count"?"이 범위에서 <b>세 번 이상</b> 나온 낱말을 <b>나온 횟수</b>대로 늘어놓았습니다(흔한 기능어는 뺌). 누르면 나오는 곳을 봅니다.":"같은 낱말들을 <b>구약 전체 평균에 견주어 이 범위에 얼마나 몰려 있는지</b>로 늘어놓았습니다 — 횟수가 적어도 구약에서 드문 말이면 위로 옵니다. 횟수만 보려면 '많이 나온 순'.";
+    return seg+`<p class="lead">${expl}</p>`+R.map(([li,c,sc,e])=>{ const n=CN.get(li)||0; return lexRow(li,`<span class="scount"><b>${c}번</b><small>서술 ${n} · 그 밖 ${c-n}${srt==="salient"?` · 기대 ${e<1?e.toFixed(1):Math.round(e)}번`:""}</small><span class="bar"><i style="width:${c/mx*100}%"></i></span></span>`); }).join(""); }
   if(t==="화자"){ const C=new Map(); const byBook=!sp||new Set(sp.map(x=>x[0])).size>1;
     forWords(sp,i=>{ const [b,c]=SD.V[SD.vOf[i]]; const k=byBook?b:b*1000+c; const o=C.get(k)||[0,0,0]; const d=SD.domW[i]; o[d===SD.dN?0:d===SD.dQ?1:2]++; C.set(k,o); });
     const L=[...C.entries()].sort((a,b)=>a[0]-b[0]);
@@ -271,6 +276,8 @@ function bindStudy(m){
   m.querySelectorAll("[data-swide]").forEach(b=>b.onclick=()=>{ S.wide=!!b.dataset.swide; rr(); });
   m.querySelectorAll("[data-smode]").forEach(b=>b.onclick=()=>{ S.mode=b.dataset.smode; if(S.mode==="tool"&&S.range==="all") S.range="book"; rr(); });
   m.querySelectorAll("[data-srange]").forEach(b=>b.onclick=()=>{ S.range=b.dataset.srange; rr(); });
+  m.querySelectorAll("[data-repsort]").forEach(b=>b.onclick=()=>{ S.repSort=b.dataset.repsort; try{ localStorage.setItem("milal-study-repsort",S.repSort); }catch(e){} const y=scrollY; render(); scrollTo({top:y}); });
+  if(!S.repSort){ try{ S.repSort=localStorage.getItem("milal-study-repsort")||"count"; }catch(e){ S.repSort="count"; } }
   const rb=document.getElementById("sRb"); if(rb) rb.onchange=()=>{ S.rb=+rb.value; S.rbSet=1; S.rc1=1; S.rc2=0; if(S.range==="day") S.range="book"; rr(); };
   const c1=document.getElementById("sRc1"), c2=document.getElementById("sRc2"); if(c1) c1.onchange=()=>{ S.rc1=+c1.value; if(S.rc2&&S.rc2<S.rc1) S.rc2=S.rc1; if(S.range==="day") S.range="book"; rr(); }; if(c2) c2.onchange=()=>{ S.rc2=+c2.value; if(S.rc2<S.rc1) S.rc1=S.rc2; if(S.range==="day") S.range="book"; rr(); };
   m.querySelectorAll("[data-stool]").forEach(b=>b.onclick=()=>{ S.tool=S.tool===b.dataset.stool?"":b.dataset.stool; S.godv=null; S.sub=""; rr(); const r=document.getElementById("sToolRes"); if(r) r.scrollIntoView({behavior:"smooth",block:"start"}); });
