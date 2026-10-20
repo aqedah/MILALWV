@@ -60,8 +60,8 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
     /* 관계의 장 범위: source·target 의 절(묶음이면 묶음의 절 전부)이 속한 장의 최소·최대 — CHAPTERS 범위 승인에 쓴다 */
     const nodeById=new Map(D.nodes.map(n=>[n.id,n])), grpById=new Map(D.groups.map(g=>[g.id,g]));
     const chOfEnd=e=>(e.type==="group"?((grpById.get(e.id)||{}).members||[]):[e.id]).map(c=>nodeById.get(c)).filter(n=>n&&n.ch!=null).map(n=>n.ch);
-    const relCh=new Map(); for(const r of D.relations){ const cs=[...chOfEnd(r.source),...chOfEnd(r.target)]; if(cs.length) relCh.set(r.id,[Math.min(...cs),Math.max(...cs)]); }
-    const apr=approvalResolve(recs,{fileSha,fileStatus:D.file_status,relIds:D.relations.map(r=>r.id),chaptersOf:id=>relCh.get(id)||null}); apr.records=recs.filter(r=>r.if1_sha256===fileSha); apr.sha=fileSha;
+    const relById=new Map(D.relations.map(r=>[r.id,r])); const relCh=new Map(); for(const r of D.relations){ const cs=[...chOfEnd(r.source),...chOfEnd(r.target)]; if(cs.length) relCh.set(r.id,[Math.min(...cs),Math.max(...cs)]); }
+    const apr=approvalResolve(recs,{fileSha,fileStatus:D.file_status,relIds:D.relations.map(r=>r.id),chaptersOf:id=>relCh.get(id)||null,ruleOf:id=>(relById.get(id)||{}).rule||null,kindOf:id=>(relById.get(id)||{}).kind||null}); apr.records=recs.filter(r=>r.if1_sha256===fileSha); apr.sha=fileSha;
     if(D.review&&D.review.status==="APPROVED"&&apr.status!=="APPROVED") apr.note="파일 안의 review.status=APPROVED 는 무시함(승인 기록 없음)";
     Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,cdepth,warn:chk.warn,test:D.file_status==="TEST_ONLY",review:apr.status,apr}); render();
   }).catch(e=>{ st.state="err"; const m=String(e.message||e); st.msg=/HTTP 404/.test(m)?"분석 파일이 서버에 없습니다(아직 올리지 않았거나 파일 이름이 바뀜) — 본문·구조 화면은 그대로 쓸 수 있습니다":/Failed to fetch|NetworkError|HTTP 5/.test(m)?"분석 파일을 내려받지 못했습니다. 인터넷 연결을 확인하고 '끄기' 뒤 다시 켜 보세요":m; render(); });

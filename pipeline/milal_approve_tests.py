@@ -7,9 +7,12 @@ from milal_approve import resolve
 SHA = "a" * 64
 REL = ["R1", "R2", "R3", "R4"]                  # R1·R2: 32장, R3: 33장, R4: 32–34장(걸침)
 CH = {"R1": [32, 32], "R2": [32, 32], "R3": [33, 33], "R4": [32, 34]}
+RU = {"R1": "G1", "R2": "G2", "R3": "G1", "R4": "HUMAN X"}; KI = {"R1": "SUBORDINATE", "R2": "FRAME_CONTENT", "R3": "SUBORDINATE", "R4": "SUBORDINATE"}
 def rec(status, scope, date, sha=SHA, who="연구자"): return {"id": f"{status}-{date}", "if1_sha256": sha, "status": status, "scope": scope, "date": date, "approver": who}
 ALL, R = {"type": "ALL"}, lambda *ids: {"type": "RELATIONS", "relation_ids": list(ids)}
 C = lambda a, b: {"type": "CHAPTERS", "chapters": [a, b]}
+RL = lambda *ids, ch=None: {"type": "RULES", "rule_ids": list(ids), **({"chapters": ch} if ch else {})}
+KD = lambda *k, ch=None: {"type": "KINDS", "kinds": list(k), **({"chapters": ch} if ch else {})}
 
 CASES = [
  ("기록 없음", [], "REAL", "UNREVIEWED", []),
@@ -31,12 +34,16 @@ CASES = [
  ("APPROVED 에 범위가 있으면 무시", [rec("APPROVED", R("R1"), "2026-10-01")], "REAL", "UNREVIEWED", []),
  ("PARTIAL 에 범위가 없으면 무시", [rec("PARTIAL", ALL, "2026-10-01")], "REAL", "UNREVIEWED", []),
  ("모르는 관계 id 는 무시(나머지는 적용)", [rec("PARTIAL", R("R9", "R1"), "2026-10-01")], "REAL", "PARTIAL", ["R1"]),
+ ("규칙별 승인 G1", [rec("PARTIAL", RL("G1"), "2026-10-01")], "REAL", "PARTIAL", ["R1", "R3"]),
+ ("규칙별 승인 G1 을 32장에만", [rec("PARTIAL", RL("G1", ch=[32, 32]), "2026-10-01")], "REAL", "PARTIAL", ["R1"]),
+ ("종류별 승인 SUBORDINATE 뒤 규칙 G1 기각", [rec("PARTIAL", KD("SUBORDINATE"), "2026-10-01"), rec("REJECTED", RL("G1"), "2026-10-02")], "REAL", "PARTIAL", ["R4"]),
+ ("사람 판정 규칙(HUMAN)만 승인", [rec("PARTIAL", RL("HUMAN X"), "2026-10-01")], "REAL", "PARTIAL", ["R4"]),
 ]
 
 def run_py():
     bad = 0
     for name, recs, fs, st, ok in CASES:
-        r = resolve(recs, SHA, fs, REL, lambda i: CH.get(i))
+        r = resolve(recs, SHA, fs, REL, lambda i: CH.get(i), lambda i: RU.get(i), lambda i: KI.get(i))
         good = r["status"] == st and r["approved"] == set(ok)
         print(("PASS" if good else "FAIL"), "py ·", name, "" if good else f"(기대 {st} {sorted(ok)}, 실제 {r['status']} {sorted(r['approved'])})"); bad += not good
     return bad
@@ -44,8 +51,8 @@ def run_py():
 def run_js():
     if not shutil.which("node"): print("node 없음 — JS 시험 건너뜀"); return 0
     js = f"""const {{approvalResolve}}=require({json.dumps(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app', 'approval.js')))});
-const CASES={json.dumps(CASES, ensure_ascii=False)}, CH={json.dumps(CH)}, REL={json.dumps(REL)}, SHA={json.dumps(SHA)}; let bad=0;
-for(const [name,recs,fs,st,ok] of CASES){{ const r=approvalResolve(recs,{{fileSha:SHA,fileStatus:fs,relIds:REL,chaptersOf:i=>CH[i]||null}}); const got=[...r.approvedRel].sort(); const good=r.status===st&&JSON.stringify(got)===JSON.stringify([...ok].sort()); console.log((good?"PASS":"FAIL")+" js · "+name+(good?"":` (기대 ${{st}} ${{ok}}, 실제 ${{r.status}} ${{got}})`)); if(!good) bad++; }}
+const CASES={json.dumps(CASES, ensure_ascii=False)}, CH={json.dumps(CH)}, RU={json.dumps(RU)}, KI={json.dumps(KI)}, REL={json.dumps(REL)}, SHA={json.dumps(SHA)}; let bad=0;
+for(const [name,recs,fs,st,ok] of CASES){{ const r=approvalResolve(recs,{{fileSha:SHA,fileStatus:fs,relIds:REL,chaptersOf:i=>CH[i]||null,ruleOf:i=>RU[i]||null,kindOf:i=>KI[i]||null}}); const got=[...r.approvedRel].sort(); const good=r.status===st&&JSON.stringify(got)===JSON.stringify([...ok].sort()); console.log((good?"PASS":"FAIL")+" js · "+name+(good?"":` (기대 ${{st}} ${{ok}}, 실제 ${{r.status}} ${{got}})`)); if(!good) bad++; }}
 process.exit(bad?1:0);"""
     p = subprocess.run(["node", "-e", js], capture_output=True, text=True); print(p.stdout.strip()); print(p.stderr.strip())
     return p.returncode

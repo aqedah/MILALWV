@@ -8,8 +8,9 @@
    3. 적용되는 기록을 날짜 오름차순(같은 날짜는 파일에 적힌 순서)으로 차례로 적용한다 — 뒤의 기록이 앞의 기록을 덮는다.
       - APPROVED(범위 ALL):      전체 승인. 앞선 기각 예외를 모두 지운다.
       - REJECTED(범위 ALL):      전체 기각. 앞선 부분 승인을 모두 지운다.
-      - PARTIAL(RELATIONS/CHAPTERS): 그 범위의 관계를 승인 집합에 넣고, 그 관계에 걸린 기각 예외를 지운다(재승인).
-      - REJECTED(RELATIONS/CHAPTERS): 그 범위의 관계를 기각 예외에 넣고 승인 집합에서 뺀다(전체 승인 뒤의 부분 기각도 됨).
+      - PARTIAL(RELATIONS/CHAPTERS/RULES/KINDS): 그 범위의 관계를 승인 집합에 넣고, 그 관계에 걸린 기각 예외를 지운다(재승인).
+      - REJECTED(RELATIONS/CHAPTERS/RULES/KINDS): 그 범위의 관계를 기각 예외에 넣고 승인 집합에서 뺀다(전체 승인 뒤의 부분 기각도 됨).
+      RULES = 규칙 번호(관계의 rule 값: G1, W-A01, HUMAN …)별, KINDS = 관계 종류(SUBORDINATE …)별; 둘 다 선택적으로 chapters 와 교차.
    4. 효력: 관계 하나가 승인된 것은 (전체 승인 상태이거나 승인 집합에 있음) 그리고 기각 예외에 없음.
       파일 상태 = 모든 관계가 승인 → APPROVED · 일부만 → PARTIAL · 하나도 없고 마지막 전체 판정이 기각 → REJECTED · 그 밖 → UNREVIEWED.
    5. 승인자 이름은 기록에 적힌 문자열일 뿐이다(신원 증명 아님). 화면은 '기록된 이름'으로만 표시한다. */
@@ -26,7 +27,10 @@ function approvalResolve(records,ctx){
     recs.push({r,i}); });
   recs.sort((a,b)=>String(a.r.date||"").localeCompare(String(b.r.date||""))||a.i-b.i);
   const inRange=(id,ch)=>{ const c=chOf(id); return !!c&&c[0]>=ch[0]&&c[1]<=ch[1]; };
-  const idsOf=sc=>sc.type==="RELATIONS"?(sc.relation_ids||[]).filter(x=>relIds.includes(x)):sc.type==="CHAPTERS"?relIds.filter(id=>inRange(id,sc.chapters||[0,-1])):[];
+  const ruleOf=ctx.ruleOf||(()=>null), kindOf=ctx.kindOf||(()=>null);
+  const idsOf=sc=>sc.type==="RELATIONS"?(sc.relation_ids||[]).filter(x=>relIds.includes(x)):sc.type==="CHAPTERS"?relIds.filter(id=>inRange(id,sc.chapters||[0,-1]))
+    :sc.type==="RULES"?relIds.filter(id=>(sc.rule_ids||[]).includes(ruleOf(id))&&(!sc.chapters||inRange(id,sc.chapters)))   /* 규칙별 승인(선택: 장 범위와 교차) */
+    :sc.type==="KINDS"?relIds.filter(id=>(sc.kinds||[]).includes(kindOf(id))&&(!sc.chapters||inRange(id,sc.chapters))):[];
   let all=null; const okSet=new Set(), rej=new Set();
   for(const {r} of recs){ const sc=r.scope;
     if(r.status==="APPROVED"){ all="APPROVED"; rej.clear(); }

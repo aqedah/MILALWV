@@ -10,7 +10,7 @@
 
 쓰는 법:
   python3 milal_approve.py <IF-1 json> <approvals.json> --approver <이름> --status APPROVED|PARTIAL|REJECTED
-        --scope ALL | RELATIONS:<id1,id2,…> | CHAPTERS:<from>-<to> [--note "…"] [--date YYYY-MM-DD]
+        --scope ALL | RELATIONS:<id1,id2,…> | CHAPTERS:<from>-<to> | RULES:<G1,G2,…>[@<from>-<to>] | KINDS:<SUBORDINATE,…>[@<from>-<to>] [--note "…"] [--date YYYY-MM-DD]
   python3 milal_approve.py <IF-1 json> <approvals.json> --check     # 이 파일에 적용되는 기록 보기
 """
 import sys, json, hashlib, argparse, datetime, os
@@ -32,7 +32,7 @@ def rel_chapters(D):
         if cs: out[r["id"]] = [min(cs), max(cs)]
     return out
 
-def resolve(records, file_sha, file_status, rel_ids, chapters_of):
+def resolve(records, file_sha, file_status, rel_ids, chapters_of, rule_of=lambda i: None, kind_of=lambda i: None):
     """app/approval.js 의 approvalResolve 와 같은 규칙. 반환 {status, approved:set, applied:[...], ignored:[(rec, why)]}"""
     out = {"status": "UNREVIEWED", "approved": set(), "applied": [], "ignored": []}
     if file_status == "TEST_ONLY":
@@ -52,6 +52,8 @@ def resolve(records, file_sha, file_status, rel_ids, chapters_of):
     def ids_of(sc):
         if sc["type"] == "RELATIONS": return [x for x in sc.get("relation_ids", []) if x in rel_ids]
         if sc["type"] == "CHAPTERS": return [x for x in rel_ids if in_range(x, sc.get("chapters", [0, -1]))]
+        if sc["type"] == "RULES": return [x for x in rel_ids if rule_of(x) in sc.get("rule_ids", []) and (not sc.get("chapters") or in_range(x, sc["chapters"]))]
+        if sc["type"] == "KINDS": return [x for x in rel_ids if kind_of(x) in sc.get("kinds", []) and (not sc.get("chapters") or in_range(x, sc["chapters"]))]
         return []
     all_, ok, rej = None, set(), set()
     for _, _, r in recs:
@@ -76,11 +78,18 @@ def main():
     A = json.load(open(a.approvals, encoding="utf-8")) if os.path.exists(a.approvals) else {"schema": "MILALWV-APPROVAL-1", "records": []}
     if A.get("schema") != "MILALWV-APPROVAL-1": sys.exit("approvals 파일 규격이 다름")
     if a.check:
-        rc = rel_chapters(D); rel_ids = [r["id"] for r in D.get("relations", [])]
-        R = resolve(A.get("records", []), sha(a.if1), D.get("file_status"), rel_ids, lambda i: rc.get(i))
+        rc = rel_chapters(D); rel_ids = [r["id"] for r in D.get("relations", [])]; RU = {r["id"]: r["rule"] for r in D.get("relations", [])}; KI = {r["id"]: r["kind"] for r in D.get("relations", [])}
+        R = resolve(A.get("records", []), sha(a.if1), D.get("file_status"), rel_ids, lambda i: rc.get(i), lambda i: RU.get(i), lambda i: KI.get(i))
         print(f"IF-1 sha256 {sha(a.if1)}  file_status {D.get('file_status')}\n효력: {R['status']}  승인된 관계 {len(R['approved'])}/{len(rel_ids)}\n적용된 기록 {len(R['applied'])}개 (날짜 순):")
         for r in R["applied"]: print("  ", r.get("date"), r.get("status"), json.dumps(r.get("scope"), ensure_ascii=False), "· 기록된 이름:", r.get("approver"))
         for r, why in R["ignored"]: print("   (적용 안 됨:", why, ")", r.get("id") if isinstance(r, dict) else r)
+        # 규칙별 요약: 연구자가 관계 하나하나가 아니라 규칙·범위 단위로 판단하도록
+        from collections import Counter, defaultdict
+        byrule = defaultdict(lambda: {"n": 0, "ok": 0, "st": Counter()})
+        for r in D.get("relations", []): b = byrule[r["rule"]]; b["n"] += 1; b["ok"] += r["id"] in R["approved"]; b["st"][r["status"]] += 1
+        print("규칙별 (승인됨/전체 · 상태):")
+        for k in sorted(byrule): b = byrule[k]; print(f"   {k:28s} {b['ok']}/{b['n']}  {dict(b['st'])}")
+        rej = [x for x in rel_ids if x not in R["approved"]]; print(f"승인 안 된(기각·유보) 관계 {len(rej)}개" + (": " + ", ".join(rej[:8]) + (" …" if len(rej) > 8 else "") if rej else ""))
         return
     if not (a.approver and a.status and a.scope): sys.exit("--approver, --status, --scope 가 모두 필요합니다 (자동 승인 없음)")
     if D.get("file_status") == "TEST_ONLY": sys.exit("TEST_ONLY 파일에는 승인·일부 승인·기각 기록을 만들지 않습니다 (연구 승인 대상이 아님)")
@@ -93,9 +102,16 @@ def main():
         scope = {"type": "RELATIONS", "relation_ids": ids}
     elif sc[0] == "CHAPTERS":
         f, t = sc[1].split("-"); scope = {"type": "CHAPTERS", "chapters": [int(f), int(t)]}
-    else: sys.exit("scope 는 ALL | RELATIONS:… | CHAPTERS:a-b")
+    elif sc[0] in ("RULES", "KINDS"):
+        body, _, ch = sc[1].partition("@"); items = [x.strip() for x in body.split(",") if x.strip()]
+        have = {r["rule"] for r in D["relations"]} if sc[0] == "RULES" else {r["kind"] for r in D["relations"]}
+        bad = [x for x in items if x not in have]
+        if bad: sys.exit(f"파일에 없는 {'규칙' if sc[0] == 'RULES' else '종류'}: " + ", ".join(bad[:5]) + " (있는 것: " + ", ".join(sorted(have)) + ")")
+        scope = {"type": sc[0], ("rule_ids" if sc[0] == "RULES" else "kinds"): items}
+        if ch: f, t = ch.split("-"); scope["chapters"] = [int(f), int(t)]
+    else: sys.exit("scope 는 ALL | RELATIONS:… | CHAPTERS:a-b | RULES:G1,G2[@a-b] | KINDS:SUBORDINATE[@a-b]")
     if a.status == "APPROVED" and scope["type"] != "ALL": sys.exit("일부만 확인했으면 --status PARTIAL 로 적습니다. 전체 APPROVED 는 scope ALL 일 때만")
-    if a.status == "PARTIAL" and scope["type"] == "ALL": sys.exit("PARTIAL 은 범위(RELATIONS:… 또는 CHAPTERS:a-b)가 있어야 합니다")
+    if a.status == "PARTIAL" and scope["type"] == "ALL": sys.exit("PARTIAL 은 범위(RELATIONS:… · CHAPTERS:a-b · RULES:… · KINDS:…)가 있어야 합니다")
     rec = {"id": "APR-" + hashlib.sha256((sha(a.if1) + a.approver + (a.date or datetime.date.today().isoformat()) + a.scope).encode()).hexdigest()[:12],
            "if1_file": os.path.basename(a.if1), "if1_sha256": sha(a.if1), "if1_file_status": D.get("file_status"),
            "v1_network_sha256": D["source"]["milal"].get("network_sha256", ""),
