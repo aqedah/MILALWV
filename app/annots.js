@@ -11,9 +11,10 @@ function anTx(mode,fn){ return anOpen().then(db=>new Promise((res,rej)=>{ const 
 const anId=()=>Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
 let AN_CACHE=null; /* 전체 목록(지운 것 제외) — 화면용 */
 function anAll(){ return anTx("readonly",st=>st.getAll()).then(L=>{ AN_CACHE=(L||[]).filter(a=>!a.deleted).sort((x,y)=>y.updated-x.updated); return AN_CACHE; }); }
-function anSave(a){ a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); return anTx("readwrite",st=>st.put(a)).then(()=>anAll()).then(()=>{ if(window.onAnnotSaved) try{ onAnnotSaved(a); }catch(e){} return a; }); }
+const AN_DEVICE=(()=>{ try{ let d=localStorage.getItem("milal-device"); if(!d){ d=Math.random().toString(36).slice(2,10); localStorage.setItem("milal-device",d); } return d; }catch(e){ return "?"; } })();
+function anSave(a){ a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.deleted=!!a.deleted; return anTx("readwrite",st=>st.put(a)).then(()=>anAll()).then(()=>{ if(window.onAnnotSaved) try{ onAnnotSaved(a); }catch(e){} return a; }); }
 /* 지움은 표시만(동기화에서 되살아나지 않게 묘비 유지) */
-function anDelete(id){ return anTx("readwrite",st=>{ const g=st.get(id); g.onsuccess=()=>{ const a=g.result; if(a){ a.deleted=true; a.updated=Date.now(); st.put(a); } }; }).then(()=>anAll()).then(()=>{ if(window.onAnnotDeleted) try{ onAnnotDeleted(id); }catch(e){} }); }
+function anDelete(id){ return anTx("readwrite",st=>{ const g=st.get(id); g.onsuccess=()=>{ const a=g.result; if(a){ a.deleted=true; a.updated=Date.now(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; st.put(a); } }; }).then(()=>anAll()).then(()=>{ if(window.onAnnotDeleted) try{ onAnnotDeleted(id); }catch(e){} }); }
 function anList(){ return AN_CACHE||[]; }
 function anFor(kind,key){ return anList().filter(a=>a.kind===kind&&a.key===key); }
 /* 자리(anchor) 만들기 — BHSA 번호 */

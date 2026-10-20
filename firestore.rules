@@ -18,7 +18,7 @@ service cloud.firestore {
       function isOwner() { return request.auth != null && request.auth.uid == uid; }
       function d() { return request.resource.data; }
       function validAnnot() {
-        return d().keys().hasOnly(['id', 'kind', 'key', 'anchor', 'observation', 'interpretation', 'tags', 'mark', 'milal_ref', 'created', 'updated', 'deleted', 'shared_id'])
+        return d().keys().hasOnly(['id', 'kind', 'key', 'anchor', 'observation', 'interpretation', 'tags', 'mark', 'style', 'color', 'milal_ref', 'created', 'updated', 'deleted', 'shared_id', 'rev', 'server_at', 'device'])
           && d().id == id
           && d().kind in ['word', 'verse', 'atom', 'range', 'note']
           && d().anchor is map
@@ -29,18 +29,37 @@ service cloud.firestore {
           && d().interpretation is string && d().interpretation.size() <= 2000
           && d().tags is list && d().tags.size() <= 20
           && d().created is int && d().updated is int
-          && d().deleted is bool;
+          && d().deleted is bool
+          && d().rev is int && d().rev >= 1
+          && d().server_at == request.time;          // 서버 시각 — 기기 시계를 믿지 않음
       }
       allow read: if isOwner();
-      allow create: if isOwner() && validAnnot() && d().deleted == false;
-      // 고치기: 자리(anchor)·만든 때·종류는 바꾸지 못함. updated 는 커져야 함
+      allow create: if isOwner() && validAnnot() && d().deleted == false && d().rev == 1;
+      // 고치기: 자리(anchor)·만든 때·종류는 바꾸지 못함. rev 는 정확히 +1 (낡은 기기의 덮어쓰기 거부). 지운 것은 되살리지 못함
       allow update: if isOwner() && validAnnot()
                     && d().anchor == resource.data.anchor
                     && d().created == resource.data.created
                     && d().kind == resource.data.kind
-                    && d().updated >= resource.data.updated;
-      // 지우기: 문서를 지우지 않고 deleted=true 로 표시(위 update 로). 진짜 삭제는 본인만
-      allow delete: if isOwner();
+                    && d().rev == resource.data.rev + 1
+                    && !(resource.data.deleted == true && d().deleted == false);
+      // 진짜 삭제 금지: 묘비(deleted=true)가 사라지면 다른 기기에서 되살아난다
+      allow delete: if false;
+    }
+
+    // ---- 관리자: admins/{uid} 문서가 있으면 관리자 (콘솔에서만 만듦) ----
+    function isAdmin() { return request.auth != null && exists(/databases/$(db)/documents/admins/$(request.auth.uid)); }
+    match /admins/{uid} { allow read: if request.auth != null && request.auth.uid == uid; allow write: if false; }
+
+    // ---- 나눔 신고: 로그인한 사람이 만들기만. 읽기는 관리자만 ----
+    match /reports/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['shared_id', 'reason', 'uid', 't'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.shared_id is string && request.resource.data.shared_id.size() <= 64
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 300
+        && request.resource.data.t == request.time;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     // ---- 나눔: 읽기는 누구나, 올리기는 로그인한 본인 이름으로만, 내리기는 본인만, 고치기 없음 ----
@@ -56,8 +75,11 @@ service cloud.firestore {
         && request.resource.data.gl is string && request.resource.data.gl.size() <= 200
         && request.resource.data.name is string && request.resource.data.name.size() <= 60
         && request.resource.data.t is int;
-      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
-      allow update: if false;
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+      // 고치기는 관리자가 'hidden' 칸만 (부적절한 글 숨김). 글쓴이도 고치지 못함
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden'])
+        && request.resource.data.hidden is bool;
     }
 
     // 그 밖은 모두 막음
