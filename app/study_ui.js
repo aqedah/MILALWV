@@ -469,7 +469,7 @@ function bindRead(m){ const S=view.st;
   m.querySelectorAll("[data-rangemode]").forEach(b=>b.onclick=()=>{ S.rangeMode=b.dataset.rangemode==="1"; S.rangeStart=null; S.mkSel=null; render(); });
   m.querySelectorAll("[data-markshide]").forEach(b=>b.onclick=()=>marksToggle());
   m.querySelectorAll("[data-anedit]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=anList().find(x=>x.id===b.dataset.anedit); if(a) openAnnotEditor(a.kind,null,a); });
-  m.querySelectorAll("[data-mkid]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); if(x.dataset.mkid) openMarkEdit(x.dataset.mkid); });
+  m.querySelectorAll("[data-mkid]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); if(x.dataset.mkid) openMarkChoose(x.dataset.mkid.split(",").filter(Boolean)); });
   if(S.mkSel){ const vi=S.mkSel.vi, G=vGroups(vi); m.querySelectorAll(".rstrip.mksel .rsw").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const k=+b.dataset.rg; if(S.mkSel.set.has(k)) S.mkSel.set.delete(k); else S.mkSel.set.add(k); const y=scrollY; render(); scrollTo({top:y}); });
     const all=document.getElementById("mkAll"); if(all) all.onclick=e=>{ e.stopPropagation(); S.mkSel.set=new Set(G.map((_,k)=>k)); const y=scrollY; render(); scrollTo({top:y}); };
     const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,`낱말 묶음 ${S.mkSel.set.size}개`); };

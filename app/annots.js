@@ -45,7 +45,7 @@ function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._ne
   const b=anchor.book, st=window.ML&&ML[b]; let milal=null;
   if(!existing&&st&&st.state==="ok"&&kind==="atom"){ const m=milalForAtom(b,ref); if(m){ const ids=[...m.o.inRel,...m.o.outRel].map(r=>r.id); if(ids.length) milal={stage:st.data.source.milal.stage,file_status:st.data.file_status,network_sha256:st.data.source.milal.network_sha256||"",relation_ids:ids}; } }
   const ex=existing||{}; const where=kind==="range"?rangeLabel({anchor}):PLAN.abbr[b-1]+" "+anchor.ch+":"+anchor.vs;
-  sheet((isNew?"메모 쓰기":"메모 고치기")+" · "+where,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":kind==="range"?`구간 · 절 원자 ${anchor.clause_atom_ids.length}개 · 낱말 ${anchor.span?anchor.span.words:""}개`:"절"} · BHSA clause_atom ${kind==="range"?anchor.clause_atom_ids[0]+" … "+anchor.clause_atom_ids[anchor.clause_atom_ids.length-1]:anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
+  sheet((isNew?"메모 쓰기":"메모 고치기")+" · "+where,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":kind==="range"?`구간 · 절 원자 ${anchor.clause_atom_count||anchor.clause_atom_ids.length}개 · 낱말 ${anchor.span?anchor.span.words:""}개`:"절"} · BHSA clause_atom ${kind==="range"?anchor.clause_atom_ids[0]+" … "+anchor.clause_atom_ids[anchor.clause_atom_ids.length-1]:anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
     <label class="anlab">관찰 <small>본 것 — 본문·문법·표지에서 확인한 사실</small></label><textarea id="anObs" rows="3" placeholder="예: 와이크톨이 끊기고 명사문이 온다">${esc(ex.observation||"")}</textarea>
     <label class="anlab">해석 <small>내 결론 — 관찰에서 이끌어 낸 뜻</small></label><textarea id="anInt" rows="3" placeholder="예: 서술자가 장면을 멈추고 배경을 알린다">${esc(ex.interpretation||"")}</textarea>
     <label class="anlab">표시 <small>쉼표로</small></label><input id="anTags" type="text" value="${esc((ex.tags||[]).join(", "))}" placeholder="전환, 반복">
@@ -94,10 +94,12 @@ function marksForVerse(vi){ if(marksHidden()) return null; const [, , , , ,s,n]=
   return per; }
 /* 절의 히브리어 줄: 낱말마다 span (표시가 있을 때만 쓴다) */
 function hebMarked(vi,per){ const H=sHeb(vi); return H.map((t,j)=>{ const p=per[j]; const txt=esc(t.replace(/\s+$/,"")), sp=/\s$/.test(t)?" ":""; if(!p||(!p.hl&&!p.ul&&!p.bo&&!p.bc)) return txt+sp;
-  return `${"⟩".repeat(p.bc)?"":""}${"⟦".repeat(p.bo)}<span class="mk${p.ul?" mk-ul":""}" ${p.hl?`style="background:${p.hl}"`:""} data-mkid="${p.ids[0]||""}">${txt}</span>${"⟧".repeat(p.bc)}${sp}`; }).join(""); }
+  /* ⟦ ⟧ 는 거울 짝 문자라 RTL 안에서 저절로 뒤집혀 보인다: 여는 괄호는 낱말 오른쪽, 닫는 괄호는 왼쪽. span 으로 싸서 자리를 잴 수 있게 한다 */
+  const bo=p.bo?`<span class="mkbr mkbr-o" data-mkid="${p.ids.join(",")}">${"⟦".repeat(p.bo)}</span>`:"", bc=p.bc?`<span class="mkbr mkbr-c" data-mkid="${p.ids.join(",")}">${"⟧".repeat(p.bc)}</span>`:"";
+  return `${bo}<span class="mk usr${p.ul?" mk-ul":""}${p.ids.length>1?" mk-multi":""}" ${p.hl?`style="background:${p.hl}"`:""} data-mkid="${p.ids.join(",")}" title="내 표시${p.ids.length>1?" "+p.ids.length+"개(겹침)":""}">${txt}</span>${bc}${sp}`; }).join(""); }
 function marksForWords(vis){ if(marksHidden()) return null; const out=new Map(); for(const vi of vis){ const per=marksForVerse(vi); if(!per) continue; const s=SD.V[vi][5]; per.forEach((p,j)=>{ if(p.hl||p.ul) out.set(s+j,p); }); } return out.size?out:null; }
 /* 표시 고르기 창: 낱말 번호 목록(앱 번호)에 스타일 적용 */
-function openMarkPicker(wordIdx,label){ if(!wordIdx.length){ toast("먼저 낱말을 고르세요."); return; }
+function openMarkPicker(wordIdx,label){ if(!wordIdx.length){ toast("먼저 낱말을 고르세요."); return; } wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); /* 고른 순서가 아니라 본문 순서로 */
   const vi=SD.vOf[wordIdx[0]], [b,c,v]=SD.V[vi]; const heb=wordIdx.map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim();
   sheet("표시 · "+PLAN.abbr[b-1]+" "+c+":"+v,`<p class="heb svheb" style="margin:0 0 6px">${esc(heb)}</p><p class="lead" style="margin:0 0 8px">${esc(label||"")} · 낱말 ${wordIdx.length}개 · 원문은 바뀌지 않고 표시만 덧입힙니다</p>
     <div class="mgrp">형광펜</div><div class="mkrow">${MARK_COLORS.map(([k,hex,n])=>`<button class="mkc" data-mk="hl:${k}" style="background:${hex}" aria-label="${n}"></button>`).join("")}<label class="mkc mkcustom" title="색 직접"><input type="color" id="mkCustom" value="#F6E27A"><span>직접</span></label></div>
@@ -107,6 +109,10 @@ function openMarkPicker(wordIdx,label){ if(!wordIdx.length){ toast("먼저 낱�
     anSave(a).then(()=>{ root.innerHTML=""; view.st.mkSel=null; toast("표시했습니다."); render(); }).catch(e=>toast("표시를 저장하지 못했습니다: "+e.message)); };
   root.querySelectorAll("[data-mk]").forEach(x=>x.onclick=()=>{ const [st,co]=x.dataset.mk.split(":"); save(st,co); });
   root.querySelector("#mkCustom").onchange=e=>save("hl",e.target.value); }
+/* 한 낱말에 표시가 여럿 겹치면 먼저 고르게 한다 */
+function openMarkChoose(ids){ const L=ids.map(id=>anList().find(x=>x.id===id)).filter(Boolean); if(L.length<=1){ if(L[0]) openMarkEdit(L[0].id); return; }
+  sheet(`겹친 표시 ${L.length}개`,`<p class="lead">이 낱말에 표시가 여럿 있습니다. 하나를 고르세요.</p><div class="snlist">${L.map(a=>`<div class="snitem"><button class="snjump" data-mkpick="${a.id}"><span class="heb">${esc((a.anchor.heb||"").slice(0,40))}</span><b>${a.style==="hl"?`<i class="mkdot" style="background:${markColor(a.color)}"></i> 형광펜`:a.style==="ul"?"밑줄":"괄호"}${a.tags&&a.tags[0]?" · "+esc(a.tags[0]):""}</b><small>낱말 ${a.anchor.word_ids.length}개 · ${new Date(a.updated).toLocaleDateString("ko-KR")}</small></button></div>`).join("")}</div>`);
+  document.querySelectorAll("[data-mkpick]").forEach(b=>b.onclick=()=>openMarkEdit(b.dataset.mkpick)); }
 function openMarkEdit(id){ const a=anList().find(x=>x.id===id); if(!a) return; sheet("표시",`<p class="heb svheb" style="margin:0 0 6px">${esc(a.anchor.heb)}</p><p class="lead">${esc(PLAN.abbr[a.anchor.book-1])} ${a.anchor.ch}:${a.anchor.vs} · ${a.style==="hl"?"형광펜":a.style==="ul"?"밑줄":"괄호"}${a.tags&&a.tags[0]?" · "+esc(a.tags[0]):""}</p><div class="row" style="justify-content:space-between"><button class="btn small ghost" id="mkDel">표시 지우기</button><button class="btn small" id="mkNote">이 자리에 메모 쓰기</button></div>`);
   const root=document.getElementById("sheetRoot"); root.querySelector("#mkDel").onclick=()=>anDelete(id).then(()=>{ root.innerHTML=""; render(); }).catch(e=>toast("지우지 못했습니다: "+e.message));
   root.querySelector("#mkNote").onclick=()=>{ root.innerHTML=""; const vi=SD.ref.get(a.anchor.book+"-"+a.anchor.ch+"-"+a.anchor.vs)?.[0]; if(vi!=null) openAnnotEditor("verse",vi); }; }
@@ -115,7 +121,9 @@ function openMarkEdit(id){ const a=anList().find(x=>x.id===id); if(!a) return; s
    읽기 화면에서 '구간' 모드: 시작 절, 끝 절을 차례로 누른다(같은 책 안, 장을 넘어도 됨) */
 function anchorRange(vi1,vi2){ if(vi1>vi2) [vi1,vi2]=[vi2,vi1]; const [b,c1,v1]=SD.V[vi1], [,c2,v2]=SD.V[vi2]; const s=SD.V[vi1][5], e=SD.V[vi2][5]+SD.V[vi2][6]-1;
   const atoms=new Set(), cls=new Set(); for(let i=s;i<=e;i++){ atoms.add(SD.can[SD.wa[i]]); cls.add(String(SD.ccn[SD.wc[i]])); }
-  return {book:b,ch:c1,vs:v1,ch2:c2,vs2:v2,bhsa:SD.bhsa||"2021",clause_atom_ids:[...atoms],clause_ids:[...cls],word_ids:[slotOf(s),slotOf(e)],span:{from_word:slotOf(s),to_word:slotOf(e),words:e-s+1},heb:sHeb(vi1).join("").trim().slice(0,60)+(vi2>vi1?" …":"")}; }
+  /* 긴 구간이면 번호 목록을 다 담지 않고(규칙 상한 1000·문서 크기) 처음·끝과 개수만 둔다. 되찾을 때는 span 의 낱말 번호로 충분하다 */
+  const A=[...atoms], C=[...cls], cap=L=>L.length>200?[L[0],L[L.length-1]]:L;
+  return {book:b,ch:c1,vs:v1,ch2:c2,vs2:v2,bhsa:SD.bhsa||"2021",clause_atom_ids:cap(A),clause_atom_count:A.length,clause_ids:cap(C),clause_count:C.length,word_ids:[slotOf(s),slotOf(e)],span:{from_word:slotOf(s),to_word:slotOf(e),words:e-s+1},heb:sHeb(vi1).join("").trim().slice(0,60)+(vi2>vi1?" …":"")}; }
 function rangeLabel(a){ const A=a.anchor; return `${PLAN.abbr[A.book-1]} ${A.ch}:${A.vs}${A.ch2!=null&&(A.ch2!==A.ch||A.vs2!==A.vs)?`–${A.ch2!==A.ch?A.ch2+":":""}${A.vs2}`:""}`; }
 function rangePick(vi){ const S=view.st; if(S.rangeStart==null){ S.rangeStart=vi; toast(`시작: ${sRef(vi)} — 끝 절을 누르세요`); render(); return; }
   const a1=S.rangeStart; S.rangeStart=null; S.rangeMode=false; if(SD.V[a1][0]!==SD.V[vi][0]){ toast("같은 책 안에서 고르세요."); render(); return; }

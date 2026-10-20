@@ -44,7 +44,13 @@ function sheet(title,body){
   document.getElementById("sheetBg").onclick=e=>{ if(e.target.id==="sheetBg") close(); };
   document.getElementById("sheetX").onclick=close;
   const sh=root.querySelector(".sheet"); sh.scrollTop=0; try{ document.getElementById("sheetX").focus({preventScroll:true}); }catch(e){}
+  sheetFitViewport();
 }
+/* 모바일 키보드: iOS 는 화면(layout viewport)이 안 줄고 visualViewport 만 준다 → 시트를 보이는 높이에 맞추고, 글 칸에 초점이 가면 그 칸을 보이게 민다 */
+function sheetFitViewport(){ const vv=window.visualViewport, root=document.getElementById("sheetRoot"); const bg=root&&root.querySelector(".sheet-bg"), sh=root&&root.querySelector(".sheet"); if(!bg||!sh||bg.classList.contains("drawer-bg")) return;
+  if(vv&&vv.height<innerHeight-40){ bg.style.height=vv.height+"px"; bg.style.top=vv.offsetTop+"px"; sh.style.maxHeight=Math.max(160,vv.height-8)+"px"; } else { bg.style.height=""; bg.style.top=""; sh.style.maxHeight=""; } }
+if(window.visualViewport){ visualViewport.addEventListener("resize",sheetFitViewport); visualViewport.addEventListener("scroll",sheetFitViewport); }
+document.addEventListener("focusin",e=>{ const t=e.target; if(t&&/^(TEXTAREA|INPUT)$/.test(t.tagName)&&t.closest("#sheetRoot .sheet")) setTimeout(()=>{ try{ t.scrollIntoView({block:"center",behavior:"smooth"}); }catch(x){} },300); });
 function toast(msg){ let t=document.getElementById("toast"); if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; t.setAttribute("role","status"); document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
 
 /* ===== 계정 (firebase.js가 채움) — SDK는 첫 화면이 뜬 뒤, 또는 로그인·나눔을 누를 때 받는다 ===== */
