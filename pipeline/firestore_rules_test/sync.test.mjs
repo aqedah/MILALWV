@@ -75,6 +75,16 @@ let wordOk = true; try { await setDoc(doc(db, "users", UID, "study", "notes"), {
 // 17. 양쪽에서 같은 태그·다른 태그 → 합집합
 A.put({ id: "n3", tags: ["x", "공통"] }); B.L.delete("n3"); await B.pull(); B.put({ id: "n3", tags: ["y", "공통"] }); await A.push(); rb = await B.push(); S = await srv("n3");
 ok("17 태그 동시 수정 → 합집합", [...S.tags].sort().join() === "x,y,공통", JSON.stringify(S.tags));
+// 19. 절·절 원자·구간 메모(종류별) 동기화 — 구간은 번호 목록을 처음·끝+개수로 줄인 모양
+A.put(annot("v1", { kind: "verse", key: "v:1-1-1", observation: "절 메모" }));
+A.put(annot("at1", { kind: "atom", key: "a:589766", anchor: { ...annot("x").anchor, clause_atom_ids: [589766], clause_ids: ["499638"] }, observation: "절 원자 메모" }));
+A.put(annot("rg1", { kind: "range", key: "r:1-9000", anchor: { ...annot("x").anchor, ch2: 50, vs2: 26, clause_atom_ids: [1, 6136], clause_atom_count: 6136, clause_ids: ["1", "6000"], clause_count: 6000, word_ids: [1, 28764], span: { from_word: 1, to_word: 28764, words: 28764 } }, observation: "구간 메모(창세기 전체)" }));
+r = await A.push(); p = await B.pull();
+ok("19 절·절 원자·구간 메모 올리기·내려받기(구간은 상한 안 모양)", ["v1", "at1", "rg1"].every(id => r.ok.some(x => x.record.id === id && x.action === "created") && B.L.get(id) && B.L.get(id).kind === A.L.get(id).kind) && (await srv("rg1")).anchor.clause_atom_count === 6136, JSON.stringify(r.failed));
+// 20. 기존 낱말 메모 문서(옛 모양 {list, at})를 새 규칙에서 읽고 다시 쓰기 — 호환
+await env.withSecurityRulesDisabled(async c => { await setDoc(doc(c.firestore(), "users", UID, "study", "notes"), { list: [{ t: 1, b: 1, c: 1, v: 1, heb: "x", gl: "y", st: 0, m: "옛 메모" }], at: 1 }); });
+let legacyOk = true; try { const s = await getDoc(doc(db, "users", UID, "study", "notes")); if (!s.exists() || s.data().list[0].m !== "옛 메모") legacyOk = false; await setDoc(doc(db, "users", UID, "study", "notes"), { list: [...s.data().list, { t: 2 }], at: 2 }); } catch (e) { legacyOk = false; }
+ok("20 기존 낱말 메모 문서 읽기·덧쓰기 호환", legacyOk);
 // 18. 모든 서버 문서가 규칙을 통과해 존재하고 rev 가 연속(건너뜀 없음)
 const all = await getDocs(collection(db, "users", UID, "annots")); ok("18 서버 문서 전부 유효(rev≥1, server_at 있음)", all.docs.every(d => d.data().rev >= 1 && d.data().server_at));
 await env.cleanup(); console.log(R.join("\n")); const bad = R.filter(x => x.startsWith("FAIL")).length; console.log(bad ? `\n동기화 실패 ${bad}` : "\n동기화 모두 기대대로"); process.exit(bad ? 1 : 0);

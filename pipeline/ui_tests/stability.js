@@ -68,6 +68,23 @@ const stateOf = (pg, id) => pg.evaluate(async (id) => { const L = await anAllRaw
   const bad = await pg.evaluate(async () => { try { await restorePlan({ schema: 'X', annots: [] }); return false; } catch (e) { return /백업 파일/.test(e.message); } });
   ok('B8 깨진 항목·중복 id 는 건너뛰고, 다른 규격은 거부', plan.invalid === 3 && bad, JSON.stringify(plan));
   s = await snap(pg); ok('B9 전 과정 뒤 id 중복 없음·건수 설명됨(3건: 원본2+충돌사본1)', s.uniq && s.n === 3, JSON.stringify(s));
+  // D1: 같은 충돌 백업을 다시 복원해도 충돌 사본이 또 생기지 않음
+  plan = await pg.evaluate(async (B) => { const p = await restorePlan(B); await restoreApply(p); return Object.fromEntries(Object.keys(p).map(k => [k, p[k].length])); }, B6);
+  s = await snap(pg); ok('D1 충돌 백업 재복원 → 사본 중복 생성 없음', plan.conflict === 0 && plan.conflict_dup === 1 && s.n === 3, JSON.stringify({ plan, n: s.n }));
+  // D2: 잘린·누락된 백업 검출 (counts 와 실제 수 불일치)
+  const B10 = JSON.parse(JSON.stringify(B)); B10.annots.pop();
+  const w10 = await pg.evaluate(async (B) => (await restorePlan(B)).warnings, B10); ok('D2 일부가 빠진 백업은 경고(파일 표기 수 ≠ 실제)', w10.length === 1 && /잘렸거나/.test(w10[0]), JSON.stringify(w10));
+  const w10b = await pg.evaluate(async () => { try { await restorePlan(JSON.parse('{"schema":"MILALWV-BACKUP-1","annots":[{"id":"q"')); return 'parsed?'; } catch (e) { return 'reject'; } }); ok('D2b 잘린 JSON 은 거부', w10b === 'reject');
+  // D3: 복원된 기록은 dirty(동기화 대상)로 표시 — 서버 동기화 뒤 복원해도 병합 절차를 거침
+  const d3 = await pg.evaluate(async () => (await anAllRaw()).filter(a => a.dirty).length); ok('D3 복원된 기록은 동기화 대상(dirty)으로 표시', d3 >= 2, String(d3));
+  // D4: 기록 5,000건 백업·복원 성능
+  const perf = await pg.evaluate(async () => { const vi = SD.ref.get('1-1-1')[0]; const an = anchorVerse(vi); const L = []; for (let i = 0; i < 5000; i++) L.push({ id: 'perf' + i, kind: 'verse', key: 'v:1-1-1', anchor: an, observation: '관찰 ' + i, interpretation: '해석 ' + i, tags: ['성능'], created: 1, updated: 1 + i, deleted: i % 10 === 0, rev: 1, device: 'x' });
+    let t0 = performance.now(); await anTx('readwrite', st => { for (const a of L) st.put(a); }); await anAll(); const tWrite = performance.now() - t0;
+    t0 = performance.now(); const B = await backupObject(); const txt = JSON.stringify(B); const tBackup = performance.now() - t0;
+    await new Promise(r => { anDB.close(); anDB = null; const q = indexedDB.deleteDatabase('milal-annots'); q.onsuccess = q.onerror = q.onblocked = () => r(); }); await anOpen();
+    t0 = performance.now(); const p = await restorePlan(JSON.parse(txt)); const r = await restoreApply(p); const tRestore = performance.now() - t0;
+    const after = await anAllRaw(); return { n: B.annots.length, bytes: txt.length, tWrite: Math.round(tWrite), tBackup: Math.round(tBackup), tRestore: Math.round(tRestore), restored: after.length, tomb: after.filter(a => a.deleted).length, written: r.written }; });
+  ok('D4 기록 5,000건: 백업·복원 각각 10초 안(에뮬레이션)', perf.n >= 5000 && perf.restored === perf.n && perf.tBackup < 10000 && perf.tRestore < 10000, JSON.stringify(perf));
   await ctx.close();
   // 10a. IndexedDB 없음 → 임시 저장소 + 경고 + 새로고침 뒤 유지(localStorage)
   const br = await chromium.launch(); const c2 = await br.newContext({ viewport: { width: 390, height: 800 } }); await c2.addInitScript(() => { Object.defineProperty(window, 'indexedDB', { value: undefined, configurable: true }); });

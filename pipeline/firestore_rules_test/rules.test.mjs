@@ -89,6 +89,11 @@ await t("신고: 일반 사용자 읽기 거부", getDocs(collection(B, "reports
 await t("신고: 관리자 읽기", getDocs(collection(ADM, "reports")), true);
 await t("관리자 문서: 남이 쓰기 거부", setDoc(doc(B, "admins/uidB"), { role: "admin" }), false);
 await t("나눔: 다른 사용자 삭제 거부", deleteDoc(doc(B, "shared/s1")), false);
+// 규칙 게시 전 올라간 옛 나눔 글(hidden 칸 없음)은 공개 조회에서 빠지고 직접 읽기도 거부된다 → 게시 뒤 콘솔에서 hidden:false 를 채워 넣어야 함(점검표 1단계)
+await env.withSecurityRulesDisabled(async c => { await setDoc(doc(c.firestore(), "shared/legacy1"), { uid: "uidA", name: "A", b: 1, c: 1, v: 1, heb: "x", gl: "y", st: 0, m: "옛 글", lex: "", han: "", t: 1 }); });
+await t("나눔(호환): hidden 칸 없는 옛 글은 공개 조회에 안 나옴(이전 필요)", (async () => { const s = await pub(N); if (s.docs.some(d => d.id === "legacy1")) throw new Error("legacy visible"); })(), true);
+await t("나눔(호환): hidden 칸 없는 옛 글 직접 읽기 거부", getDoc(doc(N, "shared/legacy1")), false);
+await t("나눔(호환): 관리자가 hidden:false 채우면 공개됨", (async () => { await updateDoc(doc(ADM, "shared/legacy1"), { hidden: false }); await getDoc(doc(N, "shared/legacy1")); })(), true);
 await t("나눔: 관리자 삭제", (async () => { await setDoc(doc(A, "shared/s9"), post()); await deleteDoc(doc(ADM, "shared/s9")); })(), true);
 await t("나눔: 본인 삭제", deleteDoc(doc(A, "shared/s1")), true);
 await t("그 밖: 임의 모음 거부", setDoc(doc(A, "other/x"), { a: 1 }), false);

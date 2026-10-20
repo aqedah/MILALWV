@@ -20,7 +20,7 @@ function anTx(mode,fn){ return anOpen().then(db=>new Promise((res,rej)=>{ let tx
 function anPutMany(list){ return anTx("readwrite",st=>{ for(const a of list) st.put(a); }).then(()=>anAll()); }
 function anSyncHint(){ const S=window.ANNOT_SYNC_STATE; if(!S) return `<p class="lead" style="margin-top:6px">기록은 이 기기에 저장됩니다. 기기끼리 맞추기(동기화)는 운영 규칙 승인 뒤 켭니다.</p>`;
   return `<p class="lead" style="margin-top:6px">동기화: ${esc(S.text)}${S.pending?` · 올릴 것 ${S.pending}건`:""}${S.conflicts?` · 충돌 사본 ${S.conflicts}건(메모 안에 ⟪충돌 사본⟫)`:""}</p>`; }
-function anStoreHint(){ return AN_FALLBACK?`<p class="lead warn">⚠ 이 브라우저에서 안전한 저장소(IndexedDB)를 쓸 수 없어(${esc(AN_FALLBACK_WHY)}) 기록을 임시 저장소에 두고 있습니다. 브라우저 자료를 지우면 사라질 수 있으니 <b>JSON 백업</b>을 내려받아 두세요.</p>`:""; }
+function anStoreHint(){ return AN_FALLBACK?`<p class="lead warn">⚠ <b>임시 저장소 사용 중</b> — 이 브라우저에서 정상 저장소(IndexedDB)를 쓸 수 없습니다(${esc(AN_FALLBACK_WHY)}). 임시 저장소는 정상 저장소만큼 안전하지 않습니다: 용량이 작고(수백 건), 사생활 모드 종료·브라우저 자료 삭제·설정 변경만으로 사라질 수 있습니다. 논문·과제용 기록이면 지금 <b>JSON 백업</b>을 내려받고, 되도록 일반 창(사생활 모드 아님)에서 쓰세요.</p>`:""; }
 const anId=()=>Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
 let AN_CACHE=null; /* 전체 목록(지운 것 제외) — 화면용 */
 function anAll(){ return anTx("readonly",st=>st.getAll()).then(L=>{ AN_CACHE=(L||[]).filter(a=>!a.deleted).sort((x,y)=>y.updated-x.updated); return AN_CACHE; }); }
@@ -203,23 +203,31 @@ function annotValid(a){ if(!a||typeof a!=="object") return "형식 아님"; if(t
 const anBody=a=>JSON.stringify({o:a.observation||"",i:a.interpretation||"",t:a.tags||[],s:a.style||"",c:a.color||"",d:!!a.deleted,m:a.milal_ref||null});
 /* 복원 계획 세우기(아직 저장 안 함): 들어온 기록마다 add / update / skip_older / skip_deleted / same / conflict / invalid */
 function restorePlan(B){ if(!B||B.schema!=="MILALWV-BACKUP-1"||!Array.isArray(B.annots)) throw new Error("MILALWV 백업 파일(JSON)이 아닙니다");
-  return anAllRaw().then(L=>{ const cur=new Map(L.map(a=>[a.id,a])); const plan={add:[],update:[],same:[],skip_older:[],skip_deleted:[],conflict:[],invalid:[],word_add:[]}; const seen=new Set();
+  return anAllRaw().then(L=>{ const cur=new Map(L.map(a=>[a.id,a])); const plan={add:[],update:[],same:[],skip_older:[],skip_deleted:[],conflict:[],conflict_dup:[],invalid:[],word_add:[],warnings:[]}; const seen=new Set();
+    /* 손상·누락 검출: 파일이 스스로 적은 개수와 실제 개수가 다르면 잘린 파일이거나 손으로 고친 파일 */
+    if(B.counts&&Number.isInteger(B.counts.annots)&&B.counts.annots!==B.annots.length) plan.warnings.push(`파일에 적힌 기록 수(${B.counts.annots})와 실제(${B.annots.length})가 다릅니다 — 잘렸거나 일부가 빠진 백업일 수 있습니다`);
+    if(B.counts&&Number.isInteger(B.counts.word_notes)&&B.counts.word_notes!==(B.word_notes||[]).length) plan.warnings.push(`낱말 메모 수가 파일 표기(${B.counts.word_notes})와 다릅니다(${(B.word_notes||[]).length})`);
+    const haveConflict=new Set(L.filter(a=>a.conflict_of).map(a=>a.conflict_of.id+"@"+a.conflict_of.rev+":"+a.conflict_of.hash));
     for(const a of B.annots){ const why=annotValid(a); if(why){ plan.invalid.push({a,why}); continue; } if(seen.has(a.id)){ plan.invalid.push({a,why:"백업 안에 같은 id 가 둘"}); continue; } seen.add(a.id);
       const c=cur.get(a.id); if(!c){ plan.add.push(a); continue; }
       if(c.deleted&&!a.deleted){ plan.skip_deleted.push(a); continue; }
       if(a.rev>c.rev){ plan.update.push(a); continue; } if(a.rev<c.rev){ plan.skip_older.push(a); continue; }
-      if(anBody(a)===anBody(c)) plan.same.push(a); else plan.conflict.push({a,c}); }
+      if(anBody(a)===anBody(c)) plan.same.push(a);
+      else { const h=anHash(anBody(a)); if(haveConflict.has(a.id+"@"+a.rev+":"+h)) plan.conflict_dup.push(a); else plan.conflict.push({a,c,hash:h}); } }
     const have=new Set(studyNotes().map(n=>n.t)); for(const n of (B.word_notes||[])){ if(n&&Number.isInteger(n.t)&&n.b&&!have.has(n.t)) plan.word_add.push(n); }
     return plan; }); }
-function restoreApply(plan){ const now=Date.now(); const writes=[...plan.add,...plan.update].map(a=>Object.assign({},a));
-  for(const {a,c} of plan.conflict){ const cp=Object.assign({},a,{id:a.id+"~r"+now.toString(36),key:a.key,rev:1,device:AN_DEVICE,created:a.created||now,updated:now,deleted:false,tags:[...(a.tags||[]),"복원충돌"],
-      observation:`⟪복원 충돌 사본 · 원본 id ${a.id} · rev ${a.rev} 같음, 내용 다름 · ${new Date(now).toLocaleString("ko-KR")}⟫\n`+(a.observation||"")}); writes.push(cp); }
-  return anTx("readwrite",st=>{ for(const w of writes) st.put(w); }).then(()=>{ if(plan.word_add.length) saveStudyNotes(studyNotes().concat(plan.word_add)); return anAll(); }).then(()=>({written:writes.length,word_added:plan.word_add.length})); }
+function anHash(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))|0; return (h>>>0).toString(36); }
+/* 복원 적용: 들어온 기록은 dirty 로 표시해 (동기화가 켜져 있으면) 서버와 병합 절차를 다시 거치게 한다 — 옛 srv_rev 를 믿지 않음 */
+function restoreApply(plan){ const now=Date.now(); const writes=[...plan.add,...plan.update].map(a=>Object.assign({},a,{dirty:true}));
+  for(const {a,c,hash} of plan.conflict){ const cp=Object.assign({},a,{id:a.id+"~r"+now.toString(36)+anHash(a.id+hash).slice(0,4),key:a.key,rev:1,device:AN_DEVICE,created:a.created||now,updated:now,deleted:false,dirty:true,srv_rev:undefined,base:undefined,tags:[...(a.tags||[]),"복원충돌"],conflict_of:{id:a.id,rev:a.rev,hash},
+      observation:`⟪복원 충돌 사본 · 원본 id ${a.id} · rev ${a.rev} 같음, 내용 다름 · ${new Date(now).toLocaleString("ko-KR")}⟫\n`+(a.observation||"")}); delete cp.srv_rev; delete cp.base; writes.push(cp); }
+  return anTx("readwrite",st=>{ for(const w of writes) st.put(w); }).then(()=>{ if(plan.word_add.length) saveStudyNotes(studyNotes().concat(plan.word_add)); return anAll(); }).then(()=>{ if(writes.length&&window.onAnnotSaved) try{ onAnnotSaved(writes[0]); }catch(e){} return {written:writes.length,word_added:plan.word_add.length}; }); }
 function restoreBackupText(txt){ let B; try{ B=JSON.parse(txt); }catch(e){ toast("JSON 을 읽지 못했습니다."); return Promise.resolve(); }
   return restorePlan(B).then(plan=>new Promise(res=>{ const n=k=>plan[k].length;
     sheet("백업 복원 — 미리 보기",`<p class="lead">백업한 때: ${esc(B.exported_at?new Date(B.exported_at).toLocaleString("ko-KR"):"?")} · 기록 ${B.annots.length}건 · 낱말 메모 ${(B.word_notes||[]).length}건${B.device&&B.device!==AN_DEVICE?" · 다른 기기에서 만든 백업":""}</p>
       <ul class="bklist"><li>새로 들어올 기록: <b>${n("add")}</b></li><li>더 새 판(rev 큼)으로 고쳐질 기록: <b>${n("update")}</b></li><li>이미 같음: ${n("same")}</li><li>기기 쪽이 더 새 것이라 건너뜀: ${n("skip_older")}</li><li>기기에서 지운 것은 되살리지 않음: ${n("skip_deleted")}</li>
-      <li>rev 같은데 내용 다름 → 기존 것 두고 <b>충돌 사본 ${n("conflict")}</b>건 따로 보존</li><li>형식이 맞지 않아 건너뜀: ${n("invalid")}${n("invalid")?" ("+esc(plan.invalid.slice(0,3).map(x=>x.why).join(", "))+")":""}</li><li>낱말 메모 새로 들어올 것: ${n("word_add")}</li></ul>
+      <li>rev 같은데 내용 다름 → 기존 것 두고 <b>충돌 사본 ${n("conflict")}</b>건 따로 보존${n("conflict_dup")?` (이미 사본이 있는 ${n("conflict_dup")}건은 다시 만들지 않음)`:""}</li><li>형식이 맞지 않아 건너뜀: ${n("invalid")}${n("invalid")?" ("+esc(plan.invalid.slice(0,3).map(x=>x.why).join(", "))+")":""}</li><li>낱말 메모 새로 들어올 것: ${n("word_add")}</li></ul>
+      ${plan.warnings.length?`<p class="lead warn">⚠ ${plan.warnings.map(esc).join("<br>")}</p>`:""}
       <p class="lead">기존 기록은 지워지거나 덮어써서 사라지지 않습니다(더 새 판으로 바뀌는 것만). 복원 전에 지금 상태를 백업해 두면 되돌릴 수 있습니다.</p>
       <div class="row" style="justify-content:flex-end;gap:8px"><button class="btn small ghost" id="bkNow">지금 상태 먼저 백업</button><button class="sbtn" id="bkGo" style="width:auto;margin:0;padding:10px 18px">복원하기</button></div>`);
     const root=document.getElementById("sheetRoot"); root.querySelector("#bkNow").onclick=()=>exportBackup();
