@@ -11,3 +11,4 @@
 - `node pipeline/ui_tests/compare_d.js` — 5단계 본문 비교기 13건 + 초급(탭 7)·대학원(탭 5) 시나리오
 - `node pipeline/ui_tests/compare_c.js <cmp_expected.json>` — 비교기 정확성(Python 독립 계산과 낱말 번호·형태·횟수·연쇄·LCS 대조 3사례)·대칭·어휘 선택·성능(창22/욥32–37/욥 전체)·범위 검증·비교 메모 복원 24건. 기대값: `python3 pipeline/compare_expected.py <출력>`
 - `node pipeline/ui_tests/print_f.js <출력 폴더>` — 작업 F 인쇄 시제품: 기록·비교 인쇄용 보기, A4 PDF 생성(Playwright), 인쇄 매체에서 앱 화면 숨김, 긴 비교 여러 쪽
+- `node pipeline/ui_tests/query_g.js <스크린샷 폴더>` — 검색식 개편(지시 6) 28건: 첫 화면 질문·결과 흐름·단계 학습·왜 맞았나·본문 왕복·조건 변경 안내·상한/중단·왕복 보존·보관함·초급(탭 14)/대학원(탭 9)·대조 건수

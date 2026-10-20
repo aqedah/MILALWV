@@ -330,8 +330,10 @@ function bindStudy(m){
 }
 /* 검색·도구 결과에서 절 번호(vi)로 읽기 화면 이동: 책·장이 다르면 범위를 그 장으로 바꾸고, 그 절을 펼쳐 둔다 */
 function gotoVerse(vi,wi){ const S=view.st, [b,c,v]=SD.V[vi]; const m=S.mode;
+  /* 돌아갈 자리: 검색·도구 화면의 범위·조건·스크롤을 그대로 기억한다(검색 결과 S.qres 는 지우지 않으므로 복원됨) */
+  const back={mode:m,R:S.R&&{...S.R},range:S.range,wide:S.wide,y:scrollY,label:m==="query"?"검색 결과":m==="word"?"낱말 검색":m==="tool"?"도구 결과":m==="compare"?"본문 비교":"전 화면"};
   if(!S.R||S.R.b!==b||c<S.R.c1||c>S.R.c2) setRange({b,c1:c,c2:c});
-  S.vc=c; S.mode="verse"; S.rd="read"; S.rv=vi; S.rw=wi!=null&&SD.vOf[wi]===vi?wi:null; S.scrollV=v; S.sel=-1; S.back=m; render(); }
+  S.vc=c; S.mode="verse"; S.rd="read"; S.rv=vi; S.rw=wi!=null&&SD.vOf[wi]===vi?wi:null; S.scrollV=v; S.sel=-1; S.back=back; render(); }
 /* 통독 본문 → 원문 보기 */
 function studyOpenVerse(b,c,v){ const S=view.st; view.tab="study";
   const go=()=>{ setRange({b,c1:c,c2:c}); S.mode="verse"; S.scrollV=v; const L=SD.ref.get(b+"-"+c+"-"+v); if(L&&S.rd==="read"){ S.rv=L[0]; S.rw=null; } if(view.tab==="study") render(); };
@@ -450,7 +452,7 @@ function gMain(g){ for(let k=g.length-1;k>=0;k--) if(MAIN_SP.has(SD.L[SD.wl[g[k]
 const wHeb=wi=>{ const vi=SD.vOf[wi]; return sHeb(vi)[wi-SD.V[vi][5]]; }, wHan=wi=>{ const vi=SD.vOf[wi]; return sHan(vi)[wi-SD.V[vi][5]]||""; };
 const stTrName=()=>{ try{ return (TR_INFO[window.BIBLE_SRC||TR]||TR_INFO.krv).name; }catch(e){ return ""; } };
 function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=window.marksHidden&&marksHidden();
-  let h=`<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):"절을 누르면 낱말이 펼쳐집니다"}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
+  let h=`${S.back&&S.back.mode?`<div class="srcnote"><span><button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}${/[가-힣]$/.test(S.back.label||"")&&((S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===0||(S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===8)?"로":"으로"} 돌아가기</button></span></div>`:""}<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):"절을 누르면 낱말이 펼쳐집니다"}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
   for(const vi of vis){ const kv=SD.V[vi][2], k=SD.V[vi][1]+":"+kv, first=k!==lastK; lastK=k;
     let kt=""; if(first&&kv>0){ try{ kt=BIBLE[b-1][c-1][kv-1]||""; }catch(e){} }
     const open=S.rv===vi, num=kv===0?"표제":kv, per=window.marksForVerse?marksForVerse(vi):null, rs=S.rangeMode&&S.rangeStart===vi;

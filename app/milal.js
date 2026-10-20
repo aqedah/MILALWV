@@ -210,7 +210,10 @@ function gotoAtom(b,aid,noBack){ if(!SD.ccnMap||!SD.cFirstA) milalIndex(); const
   if(!S.R||S.R.b!==bb||c<S.R.c1||c>S.R.c2) setRange({b:bb,c1:c,c2:c}); S.vc=c; S.mode="verse"; S.rd="struct"; S.sv="tree"; S.milalOn=true; S.curAid=aid; render();
   setTimeout(()=>{ const el=document.querySelector(`.stl [data-sat="${aid}"]`)?.closest(".stl"); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),2200); } },60); }
 
-function goBack(){ const S=view.st, B=S.back; if(!B) return; S.back=null; if(B.R){ setRange(B.R); S.vc=B.vc; } S.mode="verse"; S.rd=B.rd||"struct"; S.sv=B.sv||"tree"; render(); if(B.aid!=null){ setTimeout(()=>{ const el=document.querySelector(`.stl [data-sat="${B.aid}"]`)?.closest(".stl"); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),2200); } else scrollTo({top:B.y||0}); },60); } else scrollTo({top:B.y||0}); }
+function goBack(){ const S=view.st, B=S.back; if(!B) return; S.back=null;
+  /* 검색·도구·비교 화면으로 돌아가기: 범위·조건·결과(S.qres 등 상태 변수)·스크롤 복원 */
+  if(B.mode&&B.mode!=="verse"){ if(B.R) setRange(B.R); S.range=B.range; S.wide=B.wide; S.mode=B.mode; if(RESEARCH_MODES.includes(B.mode)) S.rmode=B.mode; render(); const y=B.y||0; scrollTo({top:y}); requestAnimationFrame(()=>requestAnimationFrame(()=>scrollTo({top:y}))); setTimeout(()=>scrollTo({top:y}),120); return; }
+  if(B.R){ setRange(B.R); S.vc=B.vc; } S.mode="verse"; S.rd=B.rd||"struct"; S.sv=B.sv||"tree"; render(); if(B.aid!=null){ setTimeout(()=>{ const el=document.querySelector(`.stl [data-sat="${B.aid}"]`)?.closest(".stl"); if(el){ el.scrollIntoView({block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),2200); } else scrollTo({top:B.y||0}); },60); } else scrollTo({top:B.y||0}); }
 /* ===== 발화 보기: BHSA domain/txt(원자료) + MILAL 묶음(판정) ===== */
 function speechView(b,c){ const vis=SD.ch.get(b+"-"+c)||[]; const atoms=[], seen=new Set();
   for(const vi of vis){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const a=SD.wa[j]; if(!seen.has(a)){ seen.add(a); atoms.push({a,vi,w0:j}); } } }

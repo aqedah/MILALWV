@@ -1,0 +1,63 @@
+// 검색식 사용성 개편 검증 (지시 6): 첫 화면·질문 실행·조건 설명·단계별 학습·왜 맞았나·본문 왕복 복원·조건 변경 안내·상한/중단 구별·왕복 보존·보관함·시나리오 탭 수·대조 건수. 실행: node pipeline/ui_tests/query_g.js <스크린샷 폴더>
+const { chromium, devices } = require('playwright'); const out = process.argv[2] || '.'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
+(async () => { process.on('unhandledRejection', e => { console.log(R.join('\n')); console.log('ERR', e.message.split('\n')[0]); process.exit(1); }); const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); let taps = 0; const tap = async (sel, wait = 350) => { taps++; await pg.click(sel); await pg.waitForTimeout(wait); }; const snap = n => pg.screenshot({ path: `${out}/${n}.png` });
+  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); const x = await pg.$('#sheetX'); if (x) await x.click();
+  // 창 22장으로(책 범위 검색이 창세기만 받는지 보려고)
+  await pg.evaluate(() => { setRange({ b: 1, c1: 1, c2: 50 }); view.st.range = 'book'; });
+  // ===== 초급: 도움말 없이 질문 하나 → 결과 → 조건 하나 바꿈 → 다시 검색 → 본문 열기 → 돌아오기 → 관찰 기록
+  taps = 0; await tap('.bnav [data-nav="research"]'); await tap('[data-smode="query"]'); await snap('q1_first');
+  const first = await pg.evaluate(() => ({ title: document.querySelector('.qtitle')?.textContent, qs: [...document.querySelectorAll('.qq b')].map(b => b.textContent), noBlocks: !document.querySelector('.qblk'), loaded: [...SD.loaded] }));
+  ok('A 첫 화면: 제목·연구 질문 4개·빈 조건 상자 없음', first.title === '원문에서 문장 패턴 찾기' && first.qs.length === 4 && first.qs[0].includes('여호와') && first.qs[1].includes('보라') && first.qs[2].includes('서술') && first.qs[3].includes('직접') && first.noBlocks, JSON.stringify(first.qs));
+  await tap('[data-qq="예시2"]', 800); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await pg.waitForTimeout(300); await snap('q2_ran');
+  let st = await pg.evaluate(() => ({ n: view.st.qres.n, say: document.querySelector('.qsay')?.textContent, qsVisible: !!document.querySelector('.qqd'), steps: document.querySelectorAll('.qstep').length, how: !!document.querySelector('.qhow'), hints: [...document.querySelectorAll('.qhow li')].map(l => l.textContent), loaded: [...SD.loaded], all: SD.allLoaded, range: view.st.qres.range }));
+  const loadSpy = await pg.evaluate(() => { const L = SD.loaded, all = SD.allLoaded; const calls = { loadBook: [], ensureAll: 0 }; const lb = window.loadBook, ea = window.ensureAll; SD.loaded = new Set([...L].filter(b => b !== 1)); SD.allLoaded = false; window.loadBook = b => { calls.loadBook.push(b); return Promise.resolve(); }; window.ensureAll = () => { calls.ensureAll++; return Promise.resolve(); }; try { qExec(); } finally { SD.loaded = L; SD.allLoaded = all; window.loadBook = lb; window.ensureAll = ea; } return calls; });
+  ok('E 책 범위 검색은 그 책만 받음(전체 로딩 호출 없음)', loadSpy.loadBook.length === 1 && loadSpy.loadBook[0] === 1 && loadSpy.ensureAll === 0, JSON.stringify(loadSpy));
+  await pg.evaluate(() => { qExec(); render(); }); await pg.waitForTimeout(300);
+  ok('B 예시 실행 뒤: 조건을 쉬운 말로, 다른 질문 다시 고를 수 있음, 단계 카드, 연구 안내', st.n > 0 && /보라|힌네/.test(st.say || '') && st.qsVisible && st.steps === 4 && st.how && st.hints.length >= 2, JSON.stringify({ n: st.n, say: st.say, steps: st.steps, hints: st.hints.length }));
+  // 다른 질문으로 바꿀 수 있는가
+  await tap('.qqd summary'); const other = await pg.evaluate(() => document.querySelectorAll('.qqd[open] .qq').length); ok('B 결과를 보면서 다른 연구 질문 목록을 펼칠 수 있음', other === 4);
+  await tap('.qqd summary');
+  // 단계 2: 분사 조건 빼기
+  const n1 = st.n; await tap('[data-qstep="1"]', 800); await pg.waitForTimeout(300); await snap('q3_step2');
+  st = await pg.evaluate(() => ({ n: view.st.qres.n, prev: view.st.qres.prev && view.st.qres.prev.n, say: document.querySelector('.qsteps .lead')?.textContent, text: view.st.qres.text }));
+  ok('C 단계 2(분사 조건 빼기): 조건이 바뀌고 결과가 늘며 "이전 → 지금" 건수 안내', st.n > n1 && st.prev === n1 && /→/.test(st.say) && !/ptca/.test(st.text), JSON.stringify(st));
+  await tap('[data-qstep="2"]', 800); const n3 = await pg.evaluate(() => ({ n: view.st.qres.n, text: view.st.qres.text })); ok('C 단계 3(서술로 좁히기): 원래보다 줄어듦', n3.n < n1 && /domain=N/.test(n3.text), `${n1} → ${n3.n}`);
+  // 조건 고치기 → 조건 변경 안내 → 다시 찾기
+  await tap('#qEditBtn'); const editing = await pg.evaluate(() => !!document.querySelector('.qblk')); ok('B 조건 고치기 → 상자 편집기 열림', editing);
+  await pg.evaluate(() => { const sel = document.querySelector('[data-qf][data-f="domain"]'); sel.value = 'Q'; sel.dispatchEvent(new Event('change')); }); await pg.waitForTimeout(300); const chg = await pg.evaluate(() => document.querySelector('.qchg')?.textContent || ''); ok('E 조건을 바꾸면 "검색 조건이 변경되었습니다. 다시 찾기" 안내', /변경되었습니다/.test(chg) && /다시 찾기/.test(chg), chg.slice(0, 60));
+  await snap('q4_changed'); await tap('[data-qrerun]', 800); const after = await pg.evaluate(() => ({ chg: !!document.querySelector('.qchg'), n: view.st.qres.n, text: view.st.qres.text })); ok('E 다시 찾기 뒤 안내 사라지고 새 조건 결과', !after.chg && /domain=Q/.test(after.text), JSON.stringify(after));
+  // 왜 맞았나
+  await tap('[data-qwhy]'); const why = await pg.evaluate(() => { const b = document.querySelector('.qwhy:not([hidden])'); return b && { rows: b.querySelectorAll('.qwhyr').length, txt: b.innerText.slice(0, 160) }; }); ok('E 왜 맞았나: 조건마다 실제로 맞은 본문', why && why.rows >= 3 && /→/.test(why.txt) && /lex=HNH/.test(why.txt), JSON.stringify(why)); await snap('q5_why');
+  // 본문 열고 돌아오기
+  const before = await pg.evaluate(() => { window.scrollTo(0, 400); return { y: scrollY, n: view.st.qres.n, text: view.st.qres.text }; });
+  await tap('.shit', 600); await snap('q6_text'); const inText = await pg.evaluate(() => ({ mode: view.st.mode, back: document.getElementById('sBack')?.textContent, y: view.st.back && view.st.back.y })); ok('E 결과를 누르면 본문이 열리고 "← 검색 결과로 돌아가기" 단추', inText.mode === 'verse' && /검색 결과로 돌아가기/.test(inText.back || ''), JSON.stringify(inText));
+  await tap('#sBack', 600); const backed = await pg.evaluate(() => ({ mode: view.st.mode, n: view.st.qres && view.st.qres.n, text: view.st.qres && view.st.qres.text, y: scrollY, res: !!document.querySelector('.shits') })); ok('E 돌아오면 이전 검색 조건·결과·스크롤 복원', backed.mode === 'query' && backed.n === before.n && backed.text === before.text && backed.res && Math.abs(backed.y - inText.y) < 60, JSON.stringify({ y: backed.y, want: inText.y, n: backed.n }));
+  await snap('q7_back');
+  // 관찰 기록
+  await tap('[data-qmemo]'); await pg.fill('#anObs', '보라 뒤에 분사: 보는 사람의 눈앞 장면'); await tap('#anSave'); const memo = await pg.evaluate(() => allRecords().some(r => r.kind === 'verse' && /보라 뒤에 분사/.test(r.observation))); ok('B 결과 줄의 메모 → 그 절에 관찰 기록', memo);
+  const beginnerTaps = taps; ok('시나리오 초급: 질문→결과→조건 바꾸기→다시 찾기→본문→돌아오기→기록 (탭 ' + beginnerTaps + ')', beginnerTaps <= 16, String(beginnerTaps));
+  await tap('#qNote'); const qn = await pg.evaluate(() => ({ obs: document.getElementById('anObs')?.value || '', tags: document.getElementById('anTags')?.value })); ok('B 이 검색에 관찰·해석 쓰기: 검색식·건수가 관찰 칸에 들어가고 #검색식 태그', /검색식\(/.test(qn.obs) && /건/.test(qn.obs) && qn.tags === '검색식', JSON.stringify(qn)); await pg.click('#sheetX');
+  // ===== 상한/중단 구별: 구약 전체에서 아주 넓은 조건(모든 낱말)
+  await pg.evaluate(() => { view.st.wide = true; view.st.range = 'all'; view.st.qMode = 'text'; view.st.qEdit = true; view.st.qkey = null; view.st.qt = 'word\n'; }); await pg.evaluate(() => ensureAll()); await pg.evaluate(() => { qExec(); render(); }); await pg.waitForTimeout(500);
+  const cap = await pg.evaluate(() => ({ limitHit: view.st.qres.limitHit, stepsHit: view.st.qres.stepsHit, txt: document.querySelector('#qResults .lead')?.textContent })); ok('E 20,000건 상한에 걸리면 "건 이상 … 전체 건수가 아닙니다"', cap.limitHit && /이상/.test(cap.txt) && /전체 건수가 아닙니다/.test(cap.txt) && !/전체 \d/.test(cap.txt), cap.txt && cap.txt.slice(0, 90));
+  // ===== 대조 건수 유지
+  const counts = await pg.evaluate(() => { const o = {}; for (const k of ['예시1', '예시2', '예시3', '장면', '인물']) { const P = qParse(Q_RECIPES[k]); o[k] = qRun(P, null, 100000).out.length; } return o; });
+  ok('검색식 대조 건수 227/369/2260/1015/3697 유지', counts['예시1'] === 227 && counts['예시2'] === 369 && counts['예시3'] === 2260 && counts['장면'] === 1015 && counts['인물'] === 3697, JSON.stringify(counts));
+  // ===== 대학원: 복잡한 Text-Fabric 검색식 → 상자 전환 시 관계 보존(왕복) → 결과 본문 대조 → 보관 → 재실행
+  taps = 0; const complex = 'clause typ=NmCl\n  w1:phrase function=Subj\n    word lex=JHWH/\n  w2:phrase function=PreC\n    word sp#verb\nw1 < w2\n';
+  const rt = await pg.evaluate(t => { const r = qRoundTrip(t); return { ok: r.ok, lost: r.lost, back: r.back, readonly: r.readonly, rels: r.block && r.block.rels }; }, complex);
+  ok('D 왕복 검사: 이름 관계(w1 < w2)·이름·# 조건이 상자를 거쳐도 보존', rt.ok && rt.rels && rt.rels.length === 1 && /w1 < w2/.test(rt.back) && /w1:phrase/.test(rt.back) && /sp#verb/.test(rt.back), JSON.stringify({ ok: rt.ok, lost: rt.lost, readonly: rt.readonly }));
+  const rtAll = await pg.evaluate(() => { const bad = []; for (const [k, t] of Object.entries(Q_RECIPES)) { const r = qRoundTrip(t); if (!r.ok) bad.push(k + ':' + JSON.stringify(r.lost || r.err)); } for (const t of ['clause\n  w1:word sp=verb\n  w2:word sp=subs\nw1 <: w2\n', 'clause domain#Q\n  =: word lex=W\n  <: word lex=HJH[ vt=wayq\n', 'verse\n  clause typ=NmCl\n  :> clause typ=Way0\n', 'word lex_utf8=ברא\n', 'word lex~^B\n']) { const r = qRoundTrip(t); if (!r.ok) bad.push(t.split('\n')[0] + ':' + JSON.stringify(r.lost || r.err)); } return bad; });
+  ok('D 준비된 검색식 전부 + 관계 기호(:> <: =: ::)·정규식·히브리어 조건 왕복 보존', rtAll.length === 0, rtAll.join(' | '));
+  await pg.evaluate(t => { view.st.wide = false; view.st.range = 'book'; view.st.mode = 'query'; view.st.qMode = 'text'; view.st.qEdit = true; view.st.qkey = null; view.st.qt = t; view.st.qres = null; render(); }, complex);
+  await tap('#qToBlocks', 500); const blocks = await pg.evaluate(() => ({ mode: view.st.qMode, rels: view.st.qb.rels, names: document.querySelectorAll('.qname').length, relChip: !!document.querySelector('.qblk .qchip'), gen: qGen(view.st.qb) })); ok('D 상자로 옮기면 이름·관계가 화면에 보이고 다시 텍스트로 가도 같음', blocks.mode === 'blocks' && blocks.rels.length === 1 && blocks.names === 2 && blocks.relChip && /w1 < w2/.test(blocks.gen), JSON.stringify({ names: blocks.names, rels: blocks.rels }));
+  await snap('q8_blocks_rel');
+  await tap('#qRun', 1200); await pg.waitForFunction(() => view.st.qres && (view.st.qres.hits || view.st.qres.err), null, { timeout: 60000 }); const gr = await pg.evaluate(() => ({ n: view.st.qres.n, err: view.st.qres.err, hits: view.st.qres.hits && view.st.qres.hits.size })); ok('대학원 검색식 실행(창세기): 결과 있음', !gr.err && gr.n > 0, JSON.stringify(gr));
+  await tap('[data-qwhy]'); const why2 = await pg.evaluate(() => document.querySelector('.qwhy:not([hidden])')?.innerText || ''); ok('대학원: 왜 맞았나에 이름 관계 표시', /이름 관계: w1 < w2/.test(why2), why2.slice(-60));
+  await tap('.shit', 500); await tap('#sBack', 500); const back2 = await pg.evaluate(() => view.st.mode === 'query' && !!view.st.qres.hits); ok('대학원: 본문 대조 뒤 결과로 복귀', back2);
+  await tap('#qSave'); await pg.fill('#qsName', '여호와 주어 명사문 + 술어구'); await tap('#qsGo'); const saved = await pg.evaluate(() => qSavedList()[0]); ok('대학원: 보관함에 저장(이름·식·범위)', saved && /w1 < w2/.test(saved.text) && saved.range === 'book', saved && saved.name);
+  await pg.evaluate(() => { view.st.qres = null; view.st.qt = ''; render(); }); await tap('#qSaved'); await tap('[data-qsrun]', 1200); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); const rerun = await pg.evaluate(() => ({ n: view.st.qres.n, text: view.st.qres.text })); ok('대학원: 보관함에서 재실행 → 같은 결과', rerun.n === gr.n && /w1 < w2/.test(rerun.text), JSON.stringify(rerun.n));
+  const gradTaps = taps; ok('시나리오 대학원: 입력→상자 전환→실행→왜 맞았나→본문 왕복→보관→재실행 (탭 ' + gradTaps + ')', gradTaps <= 12, String(gradTaps));
+  // 왕복 불가 사례: 안 되는 조건이면 원본 보존·안내
+  const noconv = await pg.evaluate(() => { view.st.qMode = 'text'; view.st.qt = 'clause\n  word sp=verb\n  :3: word sp=subs\n'; return qToBlocks(view.st); }); const keep = await pg.evaluate(() => view.st.qt); ok('D 옮길 수 없는 검색식은 원본 텍스트를 그대로 두고 이유를 알림', noconv === false && /:3:/.test(keep));
+  console.log(R.join('\n')); console.log('errors:', errs); const b = R.filter(r => r.startsWith('FAIL')).length; console.log(b ? `실패 ${b}` : '모두 통과'); await br.close(); process.exit(b ? 1 : 0); })();
