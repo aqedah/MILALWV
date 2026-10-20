@@ -17,11 +17,21 @@ service cloud.firestore {
     match /users/{uid}/annots/{id} {
       function isOwner() { return request.auth != null && request.auth.uid == uid; }
       function d() { return request.resource.data; }
+      // 표시(mark): 형광펜 hl · 밑줄 ul · 괄호 br. 색은 짧은 문자열(미리 정한 이름 또는 #rrggbb). 낱말이 하나는 있어야 한다
+      function validMark() {
+        return d().style in ['hl', 'ul', 'br']
+          && d().anchor.word_ids.size() >= 1
+          && d().anchor.word_ids[0] is int && d().anchor.word_ids[0] >= 1 && d().anchor.word_ids[0] <= 426590
+          && (d().style != 'hl' || (d().color is string && d().color.size() <= 16 && d().color.matches('^(#[0-9a-fA-F]{6}|[a-z]{1,8})$')));
+      }
       function validAnnot() {
         return d().keys().hasOnly(['id', 'kind', 'key', 'anchor', 'observation', 'interpretation', 'tags', 'mark', 'style', 'color', 'milal_ref', 'created', 'updated', 'deleted', 'shared_id', 'rev', 'server_at', 'device'])
           && d().id == id
-          && d().kind in ['word', 'verse', 'atom', 'range', 'note']
+          && d().kind in ['word', 'verse', 'atom', 'range', 'note', 'mark']
           && d().anchor is map
+          && d().anchor.word_ids is list && d().anchor.word_ids.size() <= 5000
+          && d().anchor.clause_atom_ids is list && d().anchor.clause_atom_ids.size() <= 1000
+          && (d().kind != 'mark' || validMark())
           && d().anchor.book is int && d().anchor.book >= 1 && d().anchor.book <= 39
           && d().anchor.ch is int && d().anchor.vs is int
           && d().anchor.bhsa == '2021'
@@ -62,12 +72,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // ---- 나눔: 읽기는 누구나, 올리기는 로그인한 본인 이름으로만, 내리기는 본인만, 고치기 없음 ----
+    // ---- 나눔: 숨기지 않은 글은 누구나 읽음(목록 조회는 where('hidden','==',false) 를 붙여야 통과), 관리자는 전부.
+    //      올리기는 로그인한 본인 이름으로만(hidden=false 로 시작), 내리기는 본인·관리자, 고치기는 관리자가 hidden 만 ----
     match /shared/{id} {
-      allow read: if true;
+      allow read: if resource.data.hidden == false || isAdmin();
       allow create: if request.auth != null
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 'name', 'b', 'c', 'v', 'heb', 'gl', 'st', 'm', 'lex', 'han', 't'])
+        && request.resource.data.hidden == false
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'b', 'c', 'v', 'heb', 'gl', 'st', 'm', 'lex', 'han', 't', 'hidden'])
         && request.resource.data.b is int && request.resource.data.b >= 1 && request.resource.data.b <= 39
         && request.resource.data.c is int && request.resource.data.v is int
         && request.resource.data.m is string && request.resource.data.m.size() <= 500

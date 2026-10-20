@@ -1,7 +1,7 @@
 // Firestore 규칙 허용·거부 시험 (에뮬레이터). 실행: pipeline/firestore_rules_test/run.sh
 import { initializeTestEnvironment, assertSucceeds, assertFails } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, setDoc, getDoc, getDocs, collection, deleteDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection, deleteDoc, updateDoc, serverTimestamp, query, where } from "firebase/firestore";
 
 const env = await initializeTestEnvironment({ projectId: "milalwv-test", firestore: { rules: readFileSync(process.argv[2] || "firestore.rules", "utf8"), host: "127.0.0.1", port: 8080 } });
 const A = env.authenticatedContext("uidA", { name: "A" }).firestore(), B = env.authenticatedContext("uidB").firestore(), N = env.unauthenticatedContext().firestore();
@@ -41,10 +41,32 @@ await t("주석: 오프라인 낡은 기기(rev 3 기준)의 되살리기 거부
 await t("주석: 남이 지우기 거부", deleteDoc(doc(B, "users/uidA/annots/a1")), false);
 await t("주석: 본인도 진짜 삭제 거부(묘비 유지)", deleteDoc(doc(A, "users/uidA/annots/a1")), false);
 await t("주석: 다른 하위 경로(users/uidA/anything) 거부", setDoc(doc(A, "users/uidA/anything/x"), { a: 1 }), false);
+// ---- 표시(mark) : 작업 A-1 ----
+const mark = (over = {}) => annot({ id: "m1", kind: "mark", key: "m:m1", style: "hl", color: "a", observation: "", interpretation: "", tags: [], anchor: { ...annot().anchor, word_ids: [339210, 339211] }, ...over });
+await t("표시: 형광펜 만들기", setDoc(doc(A, "users/uidA/annots/m1"), mark()), true);
+await t("표시: 밑줄 만들기(color 없음)", setDoc(doc(A, "users/uidA/annots/m2"), (() => { const m = mark({ id: "m2", style: "ul" }); delete m.color; return m; })()), true);
+await t("표시: 괄호 만들기", setDoc(doc(A, "users/uidA/annots/m3"), mark({ id: "m3", style: "br" })), true);
+await t("표시: 직접 고른 색(#rrggbb)", setDoc(doc(A, "users/uidA/annots/m4"), mark({ id: "m4", color: "#F6E27A" })), true);
+await t("표시: 모르는 style 거부", setDoc(doc(A, "users/uidA/annots/m5"), mark({ id: "m5", style: "bold" })), false);
+await t("표시: 색에 긴 문자열(스크립트) 거부", setDoc(doc(A, "users/uidA/annots/m6"), mark({ id: "m6", color: "url(javascript:1)" })), false);
+await t("표시: 낱말 ID 없음 거부", setDoc(doc(A, "users/uidA/annots/m7"), mark({ id: "m7", anchor: { ...annot().anchor, word_ids: [] } })), false);
+await t("표시: 낱말 ID 범위 밖(0) 거부", setDoc(doc(A, "users/uidA/annots/m8"), mark({ id: "m8", anchor: { ...annot().anchor, word_ids: [0] } })), false);
+await t("표시: 낱말 ID 문자열 거부", setDoc(doc(A, "users/uidA/annots/m9"), mark({ id: "m9", anchor: { ...annot().anchor, word_ids: ["339210"] } })), false);
+await t("표시: 고치기(색 바꾸기, rev 2)", setDoc(doc(A, "users/uidA/annots/m1"), mark({ color: "b", updated: 2, rev: 2 })), true);
+await t("표시: 고치기에서 낱말 자리 바꾸기 거부", setDoc(doc(A, "users/uidA/annots/m1"), mark({ anchor: { ...annot().anchor, word_ids: [1] }, updated: 3, rev: 3 })), false);
+await t("표시: 지움 표시(묘비, rev 3)", setDoc(doc(A, "users/uidA/annots/m1"), mark({ color: "b", updated: 3, rev: 3, deleted: true })), true);
+await t("표시: 묘비 되살리기 거부", setDoc(doc(A, "users/uidA/annots/m1"), mark({ color: "b", updated: 4, rev: 4, deleted: false })), false);
+await t("표시: 남이 읽기 거부", getDoc(doc(B, "users/uidA/annots/m1")), false);
+await t("표시: 남이 만들기 거부", setDoc(doc(B, "users/uidA/annots/m10"), mark({ id: "m10" })), false);
+await t("표시: 남이 지우기 거부", deleteDoc(doc(B, "users/uidA/annots/m1")), false);
 // ---- 나눔 ----
-const post = (over = {}) => ({ uid: "uidA", name: "A", b: 1, c: 1, v: 1, heb: "x", gl: "y", st: 0, m: "memo", lex: "", han: "", t: 1, ...over });
+const post = (over = {}) => ({ uid: "uidA", name: "A", b: 1, c: 1, v: 1, heb: "x", gl: "y", st: 0, m: "memo", lex: "", han: "", t: 1, hidden: false, ...over });
 await t("나눔: 본인 이름으로 올리기", setDoc(doc(A, "shared/s1"), post()), true);
-await t("나눔: 익명 열람", getDocs(collection(N, "shared")), true);
+const pub = db => getDocs(query(collection(db, "shared"), where("hidden", "==", false)));
+await t("나눔: 익명 열람(hidden=false 조건 붙인 조회)", pub(N), true);
+await t("나눔: 조건 없는 전체 조회는 거부(숨긴 글이 섞일 수 있으므로)", getDocs(collection(N, "shared")), false);
+await t("나눔: hidden 칸 없이 올리기 거부", setDoc(doc(A, "shared/s0"), (() => { const p = post(); delete p.hidden; return p; })()), false);
+await t("나눔: 처음부터 hidden=true 로 올리기 거부", setDoc(doc(A, "shared/s00"), post({ hidden: true })), false);
 await t("나눔: 비로그인 올리기 거부", setDoc(doc(N, "shared/s2"), post()), false);
 await t("나눔: 남의 uid 로 올리기 거부", setDoc(doc(B, "shared/s3"), post()), false);
 await t("나눔: 사진 칸(photo) 거부", setDoc(doc(A, "shared/s4"), post({ photo: "http://x" })), false);
@@ -53,6 +75,13 @@ await t("나눔: 고치기 거부(본인도)", updateDoc(doc(A, "shared/s1"), { 
 await t("나눔: 관리자가 내용 고치기 거부(hidden 만 됨)", updateDoc(doc(ADM, "shared/s1"), { m: "edited" }), false);
 await t("나눔: 관리자가 숨기기(hidden=true)", updateDoc(doc(ADM, "shared/s1"), { hidden: true }), true);
 await t("나눔: 일반 사용자가 숨기기 거부", updateDoc(doc(B, "shared/s1"), { hidden: true }), false);
+await t("나눔: 숨긴 글을 익명이 직접 읽기 거부", getDoc(doc(N, "shared/s1")), false);
+await t("나눔: 숨긴 글을 글쓴이 본인도 읽기 거부(공개 조회 기준)", getDoc(doc(A, "shared/s1")), false);
+await t("나눔: 공개 조회(hidden=false)에 숨긴 글이 안 섞임", (async () => { const s = await pub(N); if (s.docs.some(d => d.id === "s1")) throw new Error("hidden leaked"); })(), true);
+await t("나눔: 관리자는 숨긴 글 읽기", getDoc(doc(ADM, "shared/s1")), true);
+await t("나눔: 관리자는 조건 없는 전체 조회", getDocs(collection(ADM, "shared")), true);
+await t("나눔: 관리자가 다시 보이기(hidden=false)", updateDoc(doc(ADM, "shared/s1"), { hidden: false }), true);
+await t("나눔: 다시 보인 글은 익명 읽기", getDoc(doc(N, "shared/s1")), true);
 await t("신고: 로그인한 사람이 만들기", setDoc(doc(B, "reports/r1"), { shared_id: "s1", reason: "부적절", uid: "uidB", t: serverTimestamp() }), true);
 await t("신고: 비로그인 거부", setDoc(doc(N, "reports/r2"), { shared_id: "s1", reason: "x", uid: "uidB", t: serverTimestamp() }), false);
 await t("신고: 300자 초과 거부", setDoc(doc(B, "reports/r3"), { shared_id: "s1", reason: "x".repeat(301), uid: "uidB", t: serverTimestamp() }), false);

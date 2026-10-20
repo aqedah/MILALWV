@@ -315,3 +315,20 @@ MILAL의 규칙·판정·동결 파일은 바꾸지 않는다. 내보내기는 �
 - 기록 한 건: `if1_sha256`(승인 대상 IF-1 파일 해시) · `v1_network_sha256` · `milal{stage, rules_version, commit}` · `approver` · `date` · `scope`(ALL / RELATIONS:[id…] / CHAPTERS:[a,b]) · `status`(APPROVED / PARTIAL / REJECTED) · `note`.
 - 앱은 받은 IF-1 파일의 바이트 SHA-256을 계산해 **같은 해시의 기록만** 적용한다. 기록이 없거나 해시가 다르면 UNREVIEWED("승인 전 — 검증 대기"). PARTIAL이면 범위에 든 관계에만 "승인" 배지. 파일 안의 `review.status`는 **읽되 믿지 않는다**(파일이 자기를 승인할 수 없음; APPROVED라 적혀 있어도 기록이 없으면 무시하고 비고에 남김).
 - 전환: 기존 `review` 칸은 변환기가 늘 `{"status":"UNREVIEWED"}`로 쓰며 정보용으로만 남긴다(V16은 그대로). 승인은 approvals.json 쪽이 유일한 출처다. 나중에 `review` 칸을 없애도 앱은 영향 없다.
+
+### 11.1 기록이 여러 건일 때의 우선순위 (2026-10-20, 작업 A-2) — `app/approval.js` = `pipeline/milal_approve.py resolve()`
+
+1. **TEST_ONLY 파일에는 어떤 기록도 적용하지 않는다**(만들지도 않는다). 상태는 `TEST_ONLY`.
+2. `if1_sha256`이 지금 파일의 해시와 다른 기록은 적용하지 않는다(파일이 한 바이트라도 바뀌면 승인은 무효 → 다시 승인).
+3. 적용되는 기록을 **날짜 오름차순**(같은 날짜는 파일에 적힌 순서)으로 차례로 적용한다 — 뒤의 기록이 앞을 덮는다.
+   | 기록 | 효과 |
+   |---|---|
+   | APPROVED (scope ALL만 허용) | 전체 승인. 앞선 부분 기각 예외를 지움 |
+   | REJECTED (ALL) | 전체 기각. 앞선 부분 승인을 지움 |
+   | PARTIAL (RELATIONS / CHAPTERS) | 범위의 관계를 승인 집합에 넣고, 그 관계의 기각 예외를 지움(재승인) |
+   | REJECTED (RELATIONS / CHAPTERS) | 범위의 관계를 기각 예외에 넣고 승인 집합에서 뺌(전체 승인 뒤의 부분 기각도 됨) |
+   CHAPTERS 범위는 관계의 source·target 절(묶음이면 묶음의 절 전부)이 **모두** 그 장 범위 안에 있을 때만 든다(장을 걸친 관계는 제외).
+4. 관계 하나의 효력 = (전체 승인 상태 또는 승인 집합에 있음) 그리고 기각 예외에 없음. 파일 상태 = 모든 관계 승인 → APPROVED · 일부 → PARTIAL · 없고 마지막 전체 판정이 기각 → REJECTED · 그 밖 → UNREVIEWED. 앱의 관계별 '승인' 배지는 이 집합으로만 켠다(CHAPTERS 부분 승인도 배지에 반영 — 이전엔 RELATIONS만 반영되던 결함 고침).
+5. **승인자 이름은 입력 문자열**이다. 앱은 "기록된 이름(입력값, 신원 확인 아님)"으로만 표시하고, 암호학적 서명·계정 확인으로 표현하지 않는다.
+6. 자동 승인은 없다. 시험: `python3 pipeline/milal_approve_tests.py`(Python·JS 19건 동일 답).
+

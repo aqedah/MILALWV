@@ -4,6 +4,9 @@
 - 자동으로 APPROVED 를 만들지 않는다: --approver, --status, --scope 를 사람이 직접 줘야 한다.
 - 기록에는 승인 대상 IF-1 의 SHA-256, 원본 V1 관계망 SHA-256, MILAL 규칙 판·커밋, 승인자, 날짜, 범위, 상태, 비고.
 - 파일이 바뀌면(해시 불일치) 기록은 그 파일에 적용되지 않는다 → 앱은 UNREVIEWED 로 본다.
+- TEST_ONLY 파일에는 어떤 기록(APPROVED·PARTIAL·REJECTED)도 만들지 않는다 — 연구 승인 대상이 아니다.
+- 기록이 여러 건이면 우선순위는 app/approval.js 와 같다(날짜 오름차순, 뒤가 앞을 덮음; 부분 기각은 예외로 남음). --check 가 효력을 보여 준다.
+- 승인자 이름은 입력 문자열이다(신원 증명 아님).
 
 쓰는 법:
   python3 milal_approve.py <IF-1 json> <approvals.json> --approver <이름> --status APPROVED|PARTIAL|REJECTED
@@ -17,6 +20,54 @@ def sha(path): return hashlib.sha256(open(path, "rb").read()).hexdigest()
 def applicable(D_path, A):
     h = sha(D_path); return [r for r in A.get("records", []) if r.get("if1_sha256") == h]
 
+def rel_chapters(D):
+    """관계 id → [최소 장, 최대 장] (source·target 의 절, 묶음이면 묶음의 절 전부)"""
+    node = {n["id"]: n for n in D.get("nodes", [])}; grp = {g["id"]: g for g in D.get("groups", [])}
+    def chs(e):
+        ids = grp.get(e["id"], {}).get("members", []) if e.get("type") == "group" else [e["id"]]
+        return [node[c]["ch"] for c in ids if c in node and node[c].get("ch") is not None]
+    out = {}
+    for r in D.get("relations", []):
+        cs = chs(r["source"]) + chs(r["target"])
+        if cs: out[r["id"]] = [min(cs), max(cs)]
+    return out
+
+def resolve(records, file_sha, file_status, rel_ids, chapters_of):
+    """app/approval.js 의 approvalResolve 와 같은 규칙. 반환 {status, approved:set, applied:[...], ignored:[(rec, why)]}"""
+    out = {"status": "UNREVIEWED", "approved": set(), "applied": [], "ignored": []}
+    if file_status == "TEST_ONLY":
+        out["status"] = "TEST_ONLY"; out["ignored"] = [(r, "TEST_ONLY 파일에는 승인 기록을 적용하지 않음") for r in records]; return out
+    recs = []
+    for i, r in enumerate(records):
+        if not isinstance(r, dict): out["ignored"].append((r, "형식 아님")); continue
+        if r.get("if1_sha256") != file_sha: out["ignored"].append((r, "파일 해시가 다름")); continue
+        sc = r.get("scope") or {}
+        if r.get("status") not in ("APPROVED", "PARTIAL", "REJECTED") or not sc.get("type"): out["ignored"].append((r, "status/scope 없음")); continue
+        if r["status"] == "APPROVED" and sc["type"] != "ALL": out["ignored"].append((r, "APPROVED 는 scope ALL 일 때만")); continue
+        if r["status"] == "PARTIAL" and sc["type"] == "ALL": out["ignored"].append((r, "PARTIAL 은 범위가 있어야 함")); continue
+        recs.append((str(r.get("date", "")), i, r))
+    recs.sort(key=lambda t: (t[0], t[1]))
+    def in_range(rid, ch):
+        c = chapters_of(rid); return bool(c) and c[0] >= ch[0] and c[1] <= ch[1]
+    def ids_of(sc):
+        if sc["type"] == "RELATIONS": return [x for x in sc.get("relation_ids", []) if x in rel_ids]
+        if sc["type"] == "CHAPTERS": return [x for x in rel_ids if in_range(x, sc.get("chapters", [0, -1]))]
+        return []
+    all_, ok, rej = None, set(), set()
+    for _, _, r in recs:
+        sc = r["scope"]
+        if r["status"] == "APPROVED": all_ = "APPROVED"; rej.clear()
+        elif r["status"] == "REJECTED" and sc["type"] == "ALL": all_ = "REJECTED"; ok.clear(); rej.clear()
+        elif r["status"] == "PARTIAL":
+            for x in ids_of(sc): ok.add(x); rej.discard(x)
+        else:
+            for x in ids_of(sc): rej.add(x); ok.discard(x)
+        out["applied"].append(r)
+    out["approved"] = {x for x in rel_ids if (all_ == "APPROVED" or x in ok) and x not in rej}
+    n = len(out["approved"])
+    out["status"] = "APPROVED" if rel_ids and n == len(rel_ids) else "PARTIAL" if n else "REJECTED" if all_ == "REJECTED" else "UNREVIEWED"
+    out["all"] = all_; return out
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("if1"); ap.add_argument("approvals")
     ap.add_argument("--approver"); ap.add_argument("--status", choices=["APPROVED", "PARTIAL", "REJECTED"]); ap.add_argument("--scope")
@@ -25,9 +76,14 @@ def main():
     A = json.load(open(a.approvals, encoding="utf-8")) if os.path.exists(a.approvals) else {"schema": "MILALWV-APPROVAL-1", "records": []}
     if A.get("schema") != "MILALWV-APPROVAL-1": sys.exit("approvals 파일 규격이 다름")
     if a.check:
-        L = applicable(a.if1, A); print(f"IF-1 sha256 {sha(a.if1)}\n적용되는 기록 {len(L)}개"); [print(json.dumps(r, ensure_ascii=False)) for r in L]; return
+        rc = rel_chapters(D); rel_ids = [r["id"] for r in D.get("relations", [])]
+        R = resolve(A.get("records", []), sha(a.if1), D.get("file_status"), rel_ids, lambda i: rc.get(i))
+        print(f"IF-1 sha256 {sha(a.if1)}  file_status {D.get('file_status')}\n효력: {R['status']}  승인된 관계 {len(R['approved'])}/{len(rel_ids)}\n적용된 기록 {len(R['applied'])}개 (날짜 순):")
+        for r in R["applied"]: print("  ", r.get("date"), r.get("status"), json.dumps(r.get("scope"), ensure_ascii=False), "· 기록된 이름:", r.get("approver"))
+        for r, why in R["ignored"]: print("   (적용 안 됨:", why, ")", r.get("id") if isinstance(r, dict) else r)
+        return
     if not (a.approver and a.status and a.scope): sys.exit("--approver, --status, --scope 가 모두 필요합니다 (자동 승인 없음)")
-    if D.get("file_status") == "TEST_ONLY" and a.status == "APPROVED": sys.exit("TEST_ONLY 파일은 승인 대상이 아닙니다")
+    if D.get("file_status") == "TEST_ONLY": sys.exit("TEST_ONLY 파일에는 승인·일부 승인·기각 기록을 만들지 않습니다 (연구 승인 대상이 아님)")
     sc = a.scope.split(":", 1)
     if sc[0] == "ALL": scope = {"type": "ALL"}
     elif sc[0] == "RELATIONS":
@@ -39,6 +95,7 @@ def main():
         f, t = sc[1].split("-"); scope = {"type": "CHAPTERS", "chapters": [int(f), int(t)]}
     else: sys.exit("scope 는 ALL | RELATIONS:… | CHAPTERS:a-b")
     if a.status == "APPROVED" and scope["type"] != "ALL": sys.exit("일부만 확인했으면 --status PARTIAL 로 적습니다. 전체 APPROVED 는 scope ALL 일 때만")
+    if a.status == "PARTIAL" and scope["type"] == "ALL": sys.exit("PARTIAL 은 범위(RELATIONS:… 또는 CHAPTERS:a-b)가 있어야 합니다")
     rec = {"id": "APR-" + hashlib.sha256((sha(a.if1) + a.approver + (a.date or datetime.date.today().isoformat()) + a.scope).encode()).hexdigest()[:12],
            "if1_file": os.path.basename(a.if1), "if1_sha256": sha(a.if1), "if1_file_status": D.get("file_status"),
            "v1_network_sha256": D["source"]["milal"].get("network_sha256", ""),

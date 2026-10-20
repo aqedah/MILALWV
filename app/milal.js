@@ -9,9 +9,10 @@ const MI_KO={ALTERNATIVE_SET:"대안 묶음",UNRESOLVED:"미결",SCOPE_CONFLICT:
 const ML={}; /* book → {state:"loading"|"ok"|"err", data, byCid, msg} */
 /* 자료 상태 배지: 시험 자료 / 승인 전 / 승인됨 — '검증된 MILAL 자료'는 연구자 승인(APPROVED) 뒤에만 */
 function milalBadgeFile(st){ if(!st||st.state!=="ok") return ""; if(st.test) return '<em class="mb mb-t">시험 자료</em>'; const a=st.apr||{status:"UNREVIEWED"};
-  return a.status==="APPROVED"?`<em class="mb mb-c" title="${esc(a.records[0]?.approver||"")} ${esc(a.records[0]?.date||"")}">연구자 승인(전체)</em>`:a.status==="PARTIAL"?`<em class="mb mb-p">일부 승인 — ${a.approvedRel.size?`관계 ${a.approvedRel.size}개`:a.chapters?`${a.chapters[0]}–${a.chapters[1]}장`:""}</em>`:a.status==="REJECTED"?'<em class="mb mb-x">연구자 기각</em>':'<em class="mb mb-i">승인 전 — 검증 대기</em>'; }
-/* 관계 하나가 승인 범위에 드는가 (전체 승인 또는 RELATIONS 범위에 포함) */
-function relApproved(st,r){ const a=st.apr; if(!a) return false; return a.status==="APPROVED"||a.approvedRel.has(r.id); }
+  const who=a.last?`기록된 이름(입력값, 신원 확인 아님): ${a.last.approver} · ${a.last.date}`:"";
+  return a.status==="APPROVED"?`<em class="mb mb-c" title="${esc(who)}">연구자 승인(전체)</em>`:a.status==="PARTIAL"?`<em class="mb mb-p" title="${esc(who)}">일부 승인 — 관계 ${a.approvedRel.size}/${a.total}</em>`:a.status==="REJECTED"?`<em class="mb mb-x" title="${esc(who)}">연구자 기각</em>`:'<em class="mb mb-i">승인 전 — 검증 대기</em>'; }
+/* 관계 하나가 승인 범위에 드는가 — approval.js 가 계산한 집합(전체 승인·RELATIONS·CHAPTERS 범위, 기각 예외 반영) */
+function relApproved(st,r){ const a=st.apr; return !!a&&a.approvedRel.has(r.id); }
 
 function milalFile(b){ return MILAL_FILES.find(f=>f.book===b); }
 function milalState(b){ return ML[b]; }
@@ -55,9 +56,12 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
     const memo=new Map(); const depth=(k,seen)=>{ if(memo.has(k)) return memo.get(k); if(seen.has(k)) return 0; seen.add(k); let d=0; const p=parent.get(k); if(p) d=1+depth(p,seen); else if(k.startsWith("c:")){ for(const gid0 of groupsOfClause.get(k.slice(2))||[]){ const pg=parent.get("g:"+gid0); if(pg){ d=Math.max(d,1+depth(pg,seen)); } } } memo.set(k,d); return d; };
     const cdepth=new Map(); for(const n of D.nodes){ const d=depth("c:"+n.id,new Set()); if(d>0) cdepth.set(n.id,d); }
     /* 승인: 분리된 approvals.json 에서 이 파일의 sha256 과 같은 기록만. 파일 안 review.status 는 믿지 않는다(파일이 자기를 승인할 수 없음) */
-    const recs=(approvals&&approvals.schema==="MILALWV-APPROVAL-1"&&approvals.records||[]).filter(r=>r.if1_sha256===fileSha);
-    const apr={status:"UNREVIEWED",records:recs,sha:fileSha,approvedRel:new Set(),chapters:null};
-    for(const r of recs){ if(r.status==="APPROVED"&&r.scope&&r.scope.type==="ALL") apr.status="APPROVED"; else if(r.status==="PARTIAL"&&apr.status!=="APPROVED"){ apr.status="PARTIAL"; if(r.scope.type==="RELATIONS") r.scope.relation_ids.forEach(x=>apr.approvedRel.add(x)); if(r.scope.type==="CHAPTERS") apr.chapters=r.scope.chapters; } else if(r.status==="REJECTED"&&apr.status==="UNREVIEWED") apr.status="REJECTED"; }
+    const recs=(approvals&&approvals.schema==="MILALWV-APPROVAL-1"&&approvals.records||[]);
+    /* 관계의 장 범위: source·target 의 절(묶음이면 묶음의 절 전부)이 속한 장의 최소·최대 — CHAPTERS 범위 승인에 쓴다 */
+    const nodeById=new Map(D.nodes.map(n=>[n.id,n])), grpById=new Map(D.groups.map(g=>[g.id,g]));
+    const chOfEnd=e=>(e.type==="group"?((grpById.get(e.id)||{}).members||[]):[e.id]).map(c=>nodeById.get(c)).filter(n=>n&&n.ch!=null).map(n=>n.ch);
+    const relCh=new Map(); for(const r of D.relations){ const cs=[...chOfEnd(r.source),...chOfEnd(r.target)]; if(cs.length) relCh.set(r.id,[Math.min(...cs),Math.max(...cs)]); }
+    const apr=approvalResolve(recs,{fileSha,fileStatus:D.file_status,relIds:D.relations.map(r=>r.id),chaptersOf:id=>relCh.get(id)||null}); apr.records=recs.filter(r=>r.if1_sha256===fileSha); apr.sha=fileSha;
     if(D.review&&D.review.status==="APPROVED"&&apr.status!=="APPROVED") apr.note="파일 안의 review.status=APPROVED 는 무시함(승인 기록 없음)";
     Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,cdepth,warn:chk.warn,test:D.file_status==="TEST_ONLY",review:apr.status,apr}); render();
   }).catch(e=>{ st.state="err"; st.msg=String(e.message||e); render(); });

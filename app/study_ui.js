@@ -510,7 +510,7 @@ function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L
 let SHL=null, SHerr="", SHadmin=false;
 function sharedPage(){ const A=window.MILAL_AUTH;
   if(!window.MILAL_SHARE){ if(window.loadFirebase) loadFirebase().then(()=>{ if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">${window.FIREBASE_CONFIG?"서버에 연결하는 중…":"나눔은 서버 연결이 있어야 합니다."}</p></section>`; }
-  if(!SHL&&!SHerr){ MILAL_SHARE.list().then(async L=>{ SHL=L; SHadmin=await MILAL_SHARE.isAdmin(); if(view.st.mode==="notes") render(); }).catch(e=>{ SHerr=e.code||e.message||"불러오지 못했습니다"; if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">나눔 목록을 불러오는 중…</p></section>`; }
+  if(!SHL&&!SHerr){ MILAL_SHARE.isAdmin().then(ad=>{ SHadmin=!!ad; return MILAL_SHARE.list(SHadmin); }).then(L=>{ SHL=L; if(view.st.mode==="notes") render(); }).catch(e=>{ SHerr=e.code||e.message||"불러오지 못했습니다"; if(view.st.mode==="notes") render(); }); return `<section class="sec"><p class="lead">나눔 목록을 불러오는 중…</p></section>`; }
   const vis=SHL?SHL.filter(n=>!n.hidden||SHadmin):[];
   let h=`<section class="sec"><span class="label">나눔 · ${vis.length}</span><p class="lead">다른 이들이 '내 기록'에서 ↗로 올린 원어 메모입니다. <b>로그인 없이 누구나 볼 수 있는 공개 글</b>입니다. 누르면 그 절로 갑니다.${A.user?"":" 올리려면 로그인하세요."}${SHadmin?" · 관리자로 보는 중(숨긴 글 포함)":""}</p>`;
   if(SHerr) h+=`<p class="lead">${/permission/i.test(SHerr)?"아직 서버 쪽 문이 열리지 않았습니다. 관리자가 Firestore 규칙에 나눔(shared)을 추가하면 보입니다.":esc(SHerr)}</p>`;
