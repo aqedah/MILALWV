@@ -20,7 +20,7 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   // 보관
   await tap('#qSave'); await pg.fill('#qsName', '전체 여호와 주어'); await tap('#qsGo');
   const saved = await pg.evaluate(() => JSON.parse(localStorage.getItem('milal-study-queries') || '[]'));
-  ok('A4 보관 기록에 실제 실행 범위 "all"(구약 전체)과 판 표시(v:2)가 들어감', saved.length === 1 && saved[0].range === 'all' && saved[0].v === 2 && saved[0].R && saved[0].R.b === 1, JSON.stringify(saved[0]));
+  ok('A4 보관 기록에 실제 실행 범위 "all"(구약 전체)과 판 표시(v:3)가 들어감', saved.length === 1 && saved[0].range === 'all' && saved[0].v === 3 && saved[0].R && saved[0].R.b === 1, JSON.stringify(saved[0]));
   // 다른 본문 연구(출 3장, 이 범위) 후 보관함에서 실행
   await pg.evaluate(() => { setRange({ b: 2, c1: 3, c2: 3 }); view.st.wide = false; view.st.mode = 'query'; view.st.qres = null; view.st.qkey = null; view.st.qt = ''; render(); }); await W(300);
   await tap('#qSaved'); await pg.screenshot({ path: OUT + 'h_saved_list.png' }); await tap('[data-qsrun]'); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const s2 = await st();
@@ -73,12 +73,44 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   const pend = await pg.evaluate(() => ({ txt: (document.querySelector('.qpend') || {}).textContent || '', ran: !!(view.st.qres && view.st.qres.hits) })); ok('E2a 검색 메모를 열면 먼저 기록 당시 정보와 "이 검색 다시 실행" 단추가 보이고 아직 실행하지 않음', /기록 당시/.test(pend.txt) && /\d+건 · 전체 계산/.test(pend.txt) && !pend.ran, pend.txt.slice(0, 120));
   await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const e2 = await st();
   const e2n = await pg.evaluate(() => (document.querySelector('.qfrom') || {}).textContent || '');
-  ok('E2 기록 탭에서 검색 메모를 열면 검색 화면·같은 식·같은 범위(창 22)로 다시 실행되고 "같은 결과입니다" 안내', e2.mode === 'query' && /w1 < w2/.test(e2.text) && !e2.wide && e2.R.b === 1 && e2.R.c1 === 22 && /검색 메모에서 다시 실행/.test(e2n) && /같은 결과입니다/.test(e2n), JSON.stringify({ mode: e2.mode, r: e2.rangeTxt, n: e2.n, note: e2n.slice(0, 140) }));
+  ok('E2 기록 탭에서 검색 메모를 열면 검색 화면·같은 식·같은 범위(창 22)로 다시 실행되고 "동일한 검색 결과로 확인"(지문 일치)', e2.mode === 'query' && /w1 < w2/.test(e2.text) && !e2.wide && e2.R.b === 1 && e2.R.c1 === 22 && /검색 메모에서 다시 실행/.test(e2n) && /동일한 검색 결과로 확인/.test(e2n), JSON.stringify({ mode: e2.mode, r: e2.rangeTxt, n: e2.n, note: e2n.slice(0, 140) }));
   await pg.screenshot({ path: OUT + 'h_from_note.png' });
   // 기록 당시 값이 다르면 경고
-  await pg.evaluate(async () => { const a = anList().find(x => x.tags.includes('검색식')); a.anchor.query.n = a.anchor.query.n + 5; a.anchor.query.bhsa = '2017'; await anSave(a); }); await tap('.bnav [data-nav="notes"]'); const rec2 = await pg.$('[data-rgo]'); await rec2.click(); await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300);
+  await pg.evaluate(async () => { const a = anList().find(x => x.tags.includes('검색식')); a.anchor.query.n = a.anchor.query.n + 5; a.anchor.query.bhsa = '2017'; a.anchor.query.fp = 'x:deadbeef'; await anSave(a); }); await tap('.bnav [data-nav="notes"]'); const rec2 = await pg.$('[data-rgo]'); await rec2.click(); await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300);
   const e3 = await pg.evaluate(() => { const el = document.querySelector('.qfrom'); return { txt: el ? el.textContent : '', warn: !!(el && el.classList.contains('warn')) }; });
-  ok('E3 기록 당시 건수·자료판이 지금과 다르면 두 값을 나란히 보이고 "결과가 다릅니다" 경고', e3.warn && /결과가 다릅니다/.test(e3.txt) && /BHSA 2017/.test(e3.txt) && /BHSA 2021/.test(e3.txt), e3.txt.slice(0, 160));
+  ok('E3 기록 당시 건수·자료판·지문이 지금과 다르면 두 값을 나란히 보이고 "검색 결과가 달라졌습니다" 경고', e3.warn && /검색 결과가 달라졌습니다/.test(e3.txt) && /자료 판 다름/.test(e3.txt) && /BHSA 2017/.test(e3.txt) && /BHSA 2021/.test(e3.txt), e3.txt.slice(0, 160));
+  // ---- 지문(최종 보완 1): 합성 사례 — 건수는 같은데 일치한 본문이 다름 / 옛 기록(지문 없음) / 상한에 걸린 검색
+  const fpSyn = await pg.evaluate(async () => { const a = anList().find(x => x.tags.includes('검색식')); const R = view.st.qres; const q = a.anchor.query;
+    // 같은 건수·같은 판·같은 범위·같은 조건, 지문만 다른 메모(= 일치한 본문이 다른 경우를 흉내)
+    q.n = R.n; q.bhsa = SD.bhsa || '2021'; q.status = R.status; q.canon = R.canon; q.fp = R.fp.replace(/[0-9a-f]+$/, h => (h[0] === '0' ? '1' : '0') + h.slice(1)); await anSave(a);
+    const v1 = qSameVerdict({ n: q.n, status: q.status, bhsa: q.bhsa, canon: q.canon, fp: q.fp }, R);
+    const v0 = qSameVerdict({ n: q.n, status: q.status, bhsa: q.bhsa, canon: q.canon, fp: null }, R);
+    const vs = qSameVerdict({ n: R.n, status: R.status, bhsa: q.bhsa, canon: R.canon, fp: R.fp }, R);
+    return { v1, v0, vs, n: R.n }; });
+  ok('FP1 합성 사례: 건수·판·범위·조건이 모두 같고 지문만 다르면 "건수는 같지만 … 일치한 본문이 달라졌습니다"로 검출(건수 일치만으로 같다고 하지 않음)', fpSyn.v1.k === 'diff' && !fpSyn.v1.ok && /건수는 같지만/.test(fpSyn.v1.msg), JSON.stringify(fpSyn.v1));
+  ok('FP2 옛 기록(지문 없음): "동일성 확인 불가"', fpSyn.v0.k === 'nofp' && /확인 불가/.test(fpSyn.v0.msg), fpSyn.v0.msg);
+  ok('FP3 실제 재실행: 전체 계산 + 지문 일치 → "동일한 검색 결과로 확인"', fpSyn.vs.k === 'same' && fpSyn.vs.ok, fpSyn.vs.msg);
+  // 화면에서도 합성 메모(지문 다름)를 열어 재실행하면 경고
+  await tap('.bnav [data-nav="notes"]'); const recS = await pg.$('[data-rgo]'); await recS.click(); await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300);
+  const fpUi = await pg.evaluate(() => { const el = document.querySelector('.qfrom'); return { v: el && el.dataset.verdict, warn: !!(el && el.classList.contains('warn')), txt: el ? el.textContent : '' }; });
+  ok('FP4 화면: 건수가 같은 합성 메모를 재실행하면 "건수는 같지만 … 달라졌습니다" 경고(같다고 표시하지 않음)', fpUi.v === 'diff' && fpUi.warn && /건수는 같지만/.test(fpUi.txt), fpUi.txt.slice(-120));
+  // 상한에 걸린 검색의 메모 → 재실행 → "확인된 범위까지만 비교"
+  await pg.evaluate(() => { view.st.wide = true; view.st.qres = null; view.st.qt = 'clause\n  w1:phrase function=Subj\n  w2:word\nw1 < w2\n'; view.st.qMode = 'text'; view.st.qkey = null; render(); }); await pg.evaluate(() => qExec()); await pg.evaluate(() => render()); await pg.waitForFunction(() => view.st.qres && view.st.qres.status === 'limit', null, { timeout: 120000 }); await W(200);
+  await tap('#qNote'); await pg.fill('#anObs', '상한 검색 메모'); await tap('#anSave');
+  const fpLim = await pg.evaluate(() => { const a = anList().find(x => x.tags.includes('검색식') && /상한/.test(x.observation)); const R = view.st.qres; return { st: a.anchor.query.status, fp: a.anchor.query.fp === R.fp, v: qSameVerdict({ n: a.anchor.query.n, status: a.anchor.query.status, bhsa: a.anchor.query.bhsa, canon: a.anchor.query.canon, fp: a.anchor.query.fp }, R) }; });
+  ok('FP5 상한(20,000)에 걸린 검색: 메모에 상태 limit 과 지문이 저장되고, 재실행 판정은 "확인된 범위까지만 비교"', fpLim.st === 'limit' && fpLim.fp && fpLim.v.k === 'partial-same' && /확인된 범위까지만/.test(fpLim.v.msg), JSON.stringify(fpLim));
+  await pg.evaluate(() => { view.st.wide = false; setRange({ b: 1, c1: 22, c2: 22 }); });
+  // ---- 범위 명칭(최종 보완 2): 저장값·화면 명칭·실제 검색 대상이 일치
+  const rn = await pg.evaluate(() => { const S = view.st; const o = {}; S.wide = false; setRange({ b: 1, c1: 22, c2: 22 }); o.ch = { rg: qRangeOf(), label: qRangeLabel(qRangeOf()), sp: stSpans() };
+    setRange({ b: 1, c1: 1, c2: 50 }); o.bk = { rg: qRangeOf(), label: qRangeLabel(qRangeOf()), sp: stSpans() }; S.wide = true; S.mode = 'query'; o.all = { rg: qRangeOf(), label: qRangeLabel(qRangeOf()), sp: stSpans() }; S.wide = false; setRange({ b: 1, c1: 22, c2: 22 });
+    o.v2 = qRangeLabel({ range: 'book', R: { b: 1, c1: 22, c2: 22 }, v: 2 }); return o; });
+  ok('R1 창 22만 검색 → 저장값 chapter · 이름 "창 22장" · 실제 대상 [1,22,22]', rn.ch.rg.range === 'chapter' && rn.ch.label === '창 22장' && JSON.stringify(rn.ch.sp) === '[[1,22,22]]', JSON.stringify(rn.ch));
+  ok('R2 창 1–50 → 저장값 book · 이름 "창세기 전체 (1–50장)" · 실제 대상 [1,1,50]', rn.bk.rg.range === 'book' && /창세기 전체 \(1–50장\)/.test(rn.bk.label) && JSON.stringify(rn.bk.sp) === '[[1,1,50]]', JSON.stringify(rn.bk));
+  ok('R3 구약 전체 → 저장값 all · 이름 "구약 전체" · 실제 대상 전체(null)', rn.all.rg.range === 'all' && rn.all.label === '구약 전체' && rn.all.sp === null, JSON.stringify(rn.all));
+  ok('R4 오늘 낮에 저장된 기록(range:"book"이지만 실제는 창 22)은 "창 22"로만 표시(책 전체라 하지 않음)', rn.v2 === '창 22', rn.v2);
+  await pg.evaluate(() => { const L = JSON.parse(localStorage.getItem('milal-study-queries') || '[]'); L.push({ id: 'v2x', name: '낮 기록', text: 'clause\n  word sp=verb vt=wayq\n', range: 'book', R: { b: 1, c1: 22, c2: 22 }, v: 2, t: Date.now() }); localStorage.setItem('milal-study-queries', JSON.stringify(L)); });
+  await tap('#qSaved'); const v2tag = await pg.evaluate(() => [...document.querySelectorAll('[data-qsrun="v2x"] small')].map(e => e.textContent).join(' ')); await tap('[data-qsrun="v2x"]'); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits && /wayq/.test(view.st.qres.text), null, { timeout: 60000 }); await W(200); const v2s = await st();
+  ok('R5 그 기록을 실행하면 실제로 창 22만 검색(49건)하고 결과 범위도 "창세기 22장"', /창 22/.test(v2tag) && !/전체/.test(v2tag) && v2s.rangeTxt === '창세기 22장' && v2s.n === 49 && JSON.stringify(v2s.R) === '{"b":1,"c1":22,"c2":22}', JSON.stringify({ tag: v2tag, r: v2s.rangeTxt, n: v2s.n }));
   ok(`시나리오 대학원: 관계식 실행→뒤쪽 절 근거→범위 변경 경고→재실행→검색 메모 저장·복원 (탭 ${gradTaps + 1})`, true, String(gradTaps + 1));
   // ---- 초급 재방문: 구약 전체 예시 → 보관 → 다른 본문 → 보관함 실행 → 범위·결과 확인 → 본문 왕복 → 관찰 메모 다시 열기
   taps = 0; await pg.evaluate(() => { localStorage.removeItem('milal-study-queries'); view.st.qres = null; view.st.qkey = null; view.st.qt = ''; view.st.qEdit = false; view.st.mode = 'query'; view.st.wide = false; setRange({ b: 1, c1: 1, c2: 1 }); render(); });
@@ -90,7 +122,7 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   await tap('.shit'); await pg.waitForFunction(() => document.querySelector('#sBack'), null, { timeout: 20000 }); await tap('#sBack'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.n === 369, null, { timeout: 20000 }); await W(200);
   await tap('#qNote'); await pg.fill('#anObs', '보라 뒤 분사 — 서술자 설명에 많음(관찰)'); await tap('#anSave');
   await tap('.bnav [data-nav="notes"]'); const rr = await pg.$$('[data-rgo]'); await rr[0].click(); taps++; await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const r2 = await st(); const r2n = await pg.evaluate(() => (document.querySelector('.qfrom') || {}).textContent || '');
-  ok(`재방문 2 관찰 메모를 다시 열면 구약 전체·369건 복원, 같은 결과 (초급 탭 ${taps})`, r2.mode === 'query' && r2.wide && r2.n === 369 && /같은 결과/.test(r2n), JSON.stringify({ wide: r2.wide, n: r2.n }));
+  ok(`재방문 2 관찰 메모를 다시 열면 구약 전체·369건 복원, 같은 결과 (초급 탭 ${taps})`, r2.mode === 'query' && r2.wide && r2.n === 369 && /동일한 검색 결과로 확인/.test(r2n), JSON.stringify({ wide: r2.wide, n: r2.n }));
   // 대조 건수
   const cnts = await pg.evaluate(() => Object.fromEntries(Object.keys(Q_RECIPES).map(k => [k, qRun(qParse(Q_RECIPES[k]), null, 100000).out.length])));
   ok('대조 건수 227/369/2260/1015/3697 유지', cnts['예시1'] === 227 && cnts['예시2'] === 369 && cnts['예시3'] === 2260 && cnts['장면'] === 1015 && cnts['인물'] === 3697, JSON.stringify(cnts));

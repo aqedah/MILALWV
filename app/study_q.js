@@ -144,12 +144,16 @@ function qExec(){ const S=view.st; S.qPending=null; const text=S.qMode==="text"?
   else if(!SD.allLoaded){ S.qres={err:`구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 자동으로 실행합니다.`,loading:true}; ensureAll().then(()=>{ qExec(); render(); }).catch(()=>{}); return; }
   if(P.err){ S.qres={err:P.err}; return; } let r; try{ r=qRun(P,sp,20000); }catch(e){ S.qres={err:"검색 중 문제가 생겼습니다: "+e.message}; return; }
   const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:null;
-  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote:S.qFromNote||null}; S.qFromNote=null; S.more=1; }
+  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),fp:qFingerprint(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote:S.qFromNote||null}; S.qFromNote=null; S.more=1; }
 /* 절마다 실제로 맞은 묶음 수와 대표 묶음(최대 3개)을 실행 때 보존한다 — 결과 전체(상한 20,000)를 훑으므로 뒤쪽 절도 근거를 잃지 않는다 */
 function qWhyIndex(r){ const W=new Map(); const leaf=r.order.map(n=>!n.ch.length);
   for(const tup of r.out){ const vs=new Set(); tup.forEach((a,k)=>{ if(!leaf[k]) return; for(const w of qWords(...a)) vs.add(SD.vOf[w]); });
     for(const vi of vs){ let e=W.get(vi); if(!e){ e={n:0,t:[]}; W.set(vi,e); } e.n++; if(e.t.length<3) e.t.push(tup); } }
   return W; }
+/* 결과 지문: 묶음마다 (단위, 첫 낱말 BHSA 번호, 낱말 수)를 적어 정렬한 뒤 해시. 내부 색인이 아니라 BHSA 낱말 번호를 쓰므로 자료를 다시 만들어도 같은 판이면 같다 */
+function qFingerprint(r){ const L=[]; for(const tup of r.out){ L.push(tup.map((a,k)=>{ const ws=qWords(...a); return `${r.order[k].t}${ws.length?slotOf(ws[0]):"-"}+${ws.length}`; }).join(" ")); } L.sort();
+  let h1=0x811c9dc5, h2=0x01000193; for(const t of L){ for(let i=0;i<t.length;i++){ const c=t.charCodeAt(i); h1=Math.imul(h1^c,16777619)>>>0; h2=Math.imul(h2^c,2246822519)>>>0; } h1=Math.imul(h1^10,16777619)>>>0; h2=Math.imul(h2^10,2246822519)>>>0; }
+  return `${L.length}:${h1.toString(16)}${h2.toString(16)}`; }
 function qStatusKo(st){ return st==="limit"?"상한 20,000건까지만":st==="steps"?"계산 중단(전체 아님)":"전체 계산"; }
 /* 블록 화면 */
 function qSel(path,f,opts,cur,label){ return `<label class="qf">${label}<select data-qf="${path}" data-f="${f}"><option value="">아무거나</option>${opts.map(([v,n])=>`<option value="${esc(v)}"${cur===v?" selected":""}>${esc(n)}</option>`).join("")}${cur&&!opts.some(o=>o[0]===cur)?`<option value="${esc(cur)}" selected>${esc(cur.split("|").map(v=>((opts.find(o=>o[0]===v)||[])[1]||v).replace(/ \(.*\)$/,"")).join(" 또는 "))}</option>`:""}</select></label>`; }
@@ -289,34 +293,45 @@ function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render()
 /* 검색 결과에 관찰·해석 쓰기: 범위 안이면 그 범위의 구간 메모, 구약 전체면 첫 결과 절의 절 메모. 검색식과 건수를 참조로 담는다 */
 function qNoteForSearch(){ const S=view.st, R=S.qres; if(!R||!R.hits||!window.openAnnotEditor) return; const vs=[...R.hits.keys()].sort((a,b)=>a-b); const sp=stSpans(); let anchor, kind;
   if(sp){ const V=spanVerses(sp); anchor=anchorRange(V[0],V[V.length-1]); kind="range"; } else { anchor=anchorVerse(vs[0]); kind="verse"; }
-  anchor.query={text:R.text,range:R.range,rg:R.rg||qRangeOf(),n:R.n,capped:!!R.capped,status:R.status||"full",verses:R.hits.size,bhsa:SD.bhsa||"2021",canon:R.canon};
+  anchor.query={text:R.text,range:R.range,rg:R.rg||qRangeOf(),n:R.n,capped:!!R.capped,status:R.status||"full",verses:R.hits.size,bhsa:SD.bhsa||"2021",canon:R.canon,fp:R.fp,fpv:1};
   openAnnotEditor(kind,kind==="verse"?vs[0]:null,{kind,key:"q:"+(R.canon||R.text).length+":"+anchor.span?.from_word,anchor,_new:true,tags:["검색식"],observation:`검색식(${R.range}, ${R.n}건${R.capped?"+":""}):\n${R.text.trim()}\n관찰: `}); }
 /* 기록 탭의 검색 메모 → 검색 화면으로 돌아와 같은 식·범위로 다시 실행하고, 기록 당시 결과와 견준다(판정이 아니라 재현 확인) */
 function qOpenFromAnnot(a){ const q=a&&a.anchor&&a.anchor.query; if(!q||!q.text) return false; const S=view.st;
   if(q.rg) qApplyRange(q.rg); else if(q.range==="구약 전체") S.wide=true; else { S.wide=false; if(a.anchor.book) setRange({b:a.anchor.book,c1:a.anchor.ch,c2:a.anchor.span?a.anchor.span.to_ch||a.anchor.ch:a.anchor.ch}); }   /* 옛 메모: 범위 이름과 메모의 닻으로 복원 */
-  S.mode="query"; S.rmode="query"; S.qMode="text"; S.qt=q.text; S.qkey=null; S.qstep=0; S.qEdit=false; S.qres=null; S.qPending={from:{n:q.n,status:q.status||(q.capped?"limit":"full"),bhsa:q.bhsa,range:q.range,when:a.updated||a.created,id:a.id},obs:a.observation||"",text:q.text}; render(); scrollTo({top:0}); return true; }
+  S.mode="query"; S.rmode="query"; S.qMode="text"; S.qt=q.text; S.qkey=null; S.qstep=0; S.qEdit=false; S.qres=null; S.qPending={from:{n:q.n,status:q.status||(q.capped?"limit":"full"),bhsa:q.bhsa,range:q.range,when:a.updated||a.created,id:a.id,fp:q.fp||null,canon:q.canon||null},obs:a.observation||"",text:q.text}; render(); scrollTo({top:0}); return true; }
+/* 재실행 결과와 기록을 견준 판정(다섯 가지) — 건수가 같다는 것은 본문이 같다는 증거가 아니므로 지문으로 판단한다 */
+function qSameVerdict(F,R){ const bhsaSame=(F.bhsa||"2021")===(SD.bhsa||"2021"), condSame=!F.canon||F.canon===R.canon, nSame=Number(F.n)===R.n;
+  if(!F.fp) return {k:"nofp",ok:false,msg:`동일성 확인 불가 — 옛 기록이라 결과 지문이 없습니다(건수 ${nSame?"같음":"다름"}${bhsaSame?"":" · 자료 판 다름"}${condSame?"":" · 조건 다름"}). 이번 실행으로 메모를 다시 저장하면 다음부터 확인할 수 있습니다.`};
+  const partial=(F.status||"full")!=="full"||(R.status||"full")!=="full";
+  if(F.fp===R.fp) return partial?{k:"partial-same",ok:true,msg:`상한·중단이 있어 확인된 범위까지만 비교 — 그 안에서는 지문이 같습니다(${qStatusKo(F.status)} → ${qStatusKo(R.status)}).`}:{k:"same",ok:true,msg:"전체 검색을 마쳤고 결과 지문이 같습니다 — 동일한 검색 결과로 확인."};
+  if(partial) return {k:"partial-diff",ok:false,msg:`상한·중단이 있어 확인된 범위까지만 비교 — 그 안에서 지문이 다릅니다(${qStatusKo(F.status)} → ${qStatusKo(R.status)})${bhsaSame?"":" · 자료 판 다름"}${condSame?"":" · 조건 다름"}.`};
+  return {k:"diff",ok:false,msg:nSame?`건수는 같지만 결과 지문이 다릅니다 — 일치한 본문이 달라졌습니다${bhsaSame?"":"(자료 판 다름)"}${condSame?"":"(조건 다름)"}.`:`결과 지문이 다릅니다 — 검색 결과가 달라졌습니다${bhsaSame?"":"(자료 판 다름)"}${condSame?"":"(조건 다름)"}.`}; }
 /* 검색 메모를 열었을 때: 기록 당시 정보와 '이 검색 다시 실행' 단추(누르기 전에는 실행하지 않는다) */
 function qPendingHTML(){ const Pn=view.st.qPending; if(!Pn) return ""; const F=Pn.from;
   return `<div class="qpend"><span class="label">검색 메모에서 열었습니다</span><p class="lead" style="margin:0 0 6px">기록 당시(${F.when?new Date(F.when).toLocaleDateString("ko-KR"):"날짜 없음"}): ${F.range?esc(F.range)+" · ":""}${Number(F.n).toLocaleString()}건 · ${qStatusKo(F.status)} · BHSA ${esc(F.bhsa||"?")}. 지금 범위: <b>${esc(stRangeLabel())}</b></p>${Pn.obs?`<p class="lead" style="margin:0 0 6px"><b>관찰</b> ${esc(Pn.obs.split("\n").slice(-1)[0]).slice(0,160)}</p>`:""}<pre class="qsrc qmini" dir="ltr">${esc(Pn.text.trim())}</pre><div class="row"><button class="btn" id="qRerunNote" style="flex:1">이 검색 다시 실행</button><button class="btn ghost small" id="qEditBtn">조건 고치기</button></div></div>`; }
-function qFromNoteHTML(){ const R=view.st.qres, F=R&&R.fromNote; if(!F) return ""; const same=F.n===R.n&&(F.status||"full")===(R.status||"full")&&(F.bhsa||"2021")===(SD.bhsa||"2021")&&(!F.range||F.range===R.range);
-  return `<p class="lead ${same?"":"warn"} qfrom">검색 메모에서 다시 실행했습니다 — 기록 당시(${F.when?new Date(F.when).toLocaleDateString("ko-KR"):"날짜 없음"}): ${F.range?esc(F.range)+" · ":""}${Number(F.n).toLocaleString()}건 · ${qStatusKo(F.status)} · BHSA ${esc(F.bhsa||"?")} → 지금: ${esc(R.range)} · ${R.n.toLocaleString()}건 · ${qStatusKo(R.status)} · BHSA ${esc(SD.bhsa||"2021")}. ${same?"같은 결과입니다.":"결과가 다릅니다 — 자료 판이나 범위·조건이 달라졌는지 위에서 확인하세요."}</p>`; }
+function qFromNoteHTML(){ const R=view.st.qres, F=R&&R.fromNote; if(!F) return ""; const V=qSameVerdict(F,R);
+  return `<p class="lead ${V.ok?"":"warn"} qfrom" data-verdict="${V.k}">검색 메모에서 다시 실행했습니다 — 기록 당시(${F.when?new Date(F.when).toLocaleDateString("ko-KR"):"날짜 없음"}): ${F.range?esc(F.range)+" · ":""}${Number(F.n).toLocaleString()}건 · ${qStatusKo(F.status)} · BHSA ${esc(F.bhsa||"?")} → 지금: ${esc(R.range)} · ${R.n.toLocaleString()}건 · ${qStatusKo(R.status)} · BHSA ${esc(SD.bhsa||"2021")}. <b>${esc(V.msg)}</b></p>`; }
 /* ===== 검색식 보관함 (E-2): 이름·식·범위·작성일. 기기 localStorage "milal-study-queries" — 본문 연구 기록(annots)과 따로 둔다 ===== */
 const QS_KEY="milal-study-queries";
 function qSavedList(){ try{ const L=JSON.parse(localStorage.getItem(QS_KEY)||"[]"); return Array.isArray(L)?L.filter(q=>q&&q.text):[]; }catch(e){ return []; } }
 function qSavedSet(L){ try{ localStorage.setItem(QS_KEY,JSON.stringify(L.slice(0,200))); return true; }catch(e){ toast("보관하지 못했습니다(저장 공간)."); return false; } }
 function qCurrentText(){ const S=view.st; return S.qMode==="text"?(S.qt||""):qGen(S.qb||qNew("clause")); }
 /* 실행 범위를 그대로 기록한다: 구약 전체(all) / 현재 책 전체(book) / 장·장 범위(chapter). 전 판은 S.wide 를 빼먹어 '구약 전체'로 찾은 식을 보관하면 책 범위로 재실행됐다 */
-function qRangeOf(){ const S=view.st; return {range:S.wide?"all":(S.range||"book"),R:S.R?{b:S.R.b,c1:S.R.c1,c2:S.R.c2}:null,v:2}; }
+function qBookChs(b){ const B=SD.book&&SD.book[b]; return B&&B.chs?Math.max(...B.chs):null; }
+/* 저장값은 실제 검색 대상(stSpans)에서 만든다: wide → all(구약 전체) / R 이 그 책의 1장~끝장 → book(책 전체) / 그 밖 → chapter(장·장 범위). 옛 S.range 는 쓰지 않는다 */
+function qRangeOf(){ const S=view.st; const sp=stSpans(); if(!sp) return {range:"all",R:S.R?{b:S.R.b,c1:S.R.c1,c2:S.R.c2}:null,v:3};
+  const [b,c1,c2]=sp[0]; const last=qBookChs(b); return {range:c1===1&&last&&c2===last?"book":"chapter",R:{b,c1,c2},v:3}; }
 /* 보관된 범위를 그대로 되살린다. 옛 기록(v 없음)은 all 이 없으므로 책·장 범위로 복원(그때 S.wide 가 켜져 있었는지는 알 수 없음 — 목록에 '옛 기록' 표시) */
-function qApplyRange(q){ const S=view.st; if(q.R) setRange(q.R); S.wide=q.range==="all"; S.range=q.range==="all"?(S.range||"book"):(q.range||"book"); }
-function qRangeLabel(q){ if(!q.range||q.range==="all"||!q.R) return "구약 전체"; const R=q.R; return `${PLAN.abbr[R.b-1]} ${q.range==="chapter"||R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${q.range==="book"?" (책 전체)":""}`; }
+function qApplyRange(q){ const S=view.st; if(q.range==="book"&&q.R&&q.v>=3){ const last=qBookChs(q.R.b); setRange({b:q.R.b,c1:1,c2:last||q.R.c2}); } else if(q.R) setRange(q.R); S.wide=q.range==="all"; }
+function qRangeLabel(q){ if(q.range==="all") return "구약 전체"; if(!q.R) return "범위 없음"; const R=q.R; if(!q.v||q.v<3) return `${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}`;   /* 옛 기록: 실제 장 범위만 적고 '책 전체'라 하지 않는다 */
+  return q.range==="book"?`${PLAN.full[R.b-1]} 전체 (1–${R.c2}장)`:`${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}장`; }
 function qSaveCurrent(){ const text=qCurrentText().trim(); if(!text){ toast("먼저 검색식을 만드세요."); return; } const P=qParse(text); if(P.err){ toast("검색식에 문제가 있어 보관하지 않았습니다: "+P.err); return; }
   const rg=qRangeOf(); sheet("검색식 보관",`<p class="lead">이름을 붙여 두면 보관함에서 다시 실행할 수 있습니다. 범위(${esc(qRangeLabel(rg))})도 함께 저장됩니다.</p><input id="qsName" type="text" placeholder="예: 창 22장 와이크톨+주어" style="width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box"><pre class="qsrc" style="margin:8px 0;white-space:pre-wrap">${esc(text)}</pre><button class="sbtn" id="qsGo">보관하기</button>`);
   const go=()=>{ const name=(document.getElementById("qsName").value.trim()||text.split("\n")[0].slice(0,40)); const L=qSavedList(); L.unshift({id:Date.now().toString(36),name,text,range:rg.range,R:rg.R,v:rg.v,t:Date.now()}); if(qSavedSet(L)){ document.getElementById("sheetRoot").innerHTML=""; toast("보관했습니다."); render(); } };
   document.getElementById("qsGo").onclick=go; document.getElementById("qsName").onkeydown=e=>{ if(e.key==="Enter") go(); }; setTimeout(()=>document.getElementById("qsName").focus(),50); }
 function qSavedMarkdown(L){ const d=t=>new Date(t).toLocaleDateString("ko-KR"); return ["# 검색식 보관함 (Text-Fabric)","",...L.flatMap(q=>[`## ${q.name}`,`- 범위: ${qRangeLabel(q)} · 작성일: ${d(q.t)}`,"","```",q.text,"```",""])].join("\n"); }
 function qOpenSaved(){ const L=qSavedList(); const d=t=>new Date(t).toLocaleDateString("ko-KR");
-  sheet(`검색식 보관함 · ${L.length}`,L.length?`<p class="lead">누르면 그 범위로 가서 바로 찾습니다. 본문 연구 기록(기록 탭)과는 따로 보관됩니다.</p><div class="snlist">${L.map(q=>`<div class="snitem"><button class="snjump" data-qsrun="${q.id}"><b>${esc(q.name)}</b><small>${esc(qRangeLabel(q))}${q.v?"":" · 옛 기록(범위 표기 전)"} · ${d(q.t)}</small><span class="snm" style="direction:ltr;font-family:var(--f-mono,monospace);white-space:pre-wrap;font-size:12px">${esc(q.text.split("\n").slice(0,3).join("\n"))}${q.text.split("\n").length>3?"\n…":""}</span></button><button class="sndel" data-qscopy="${q.id}" aria-label="복사" title="Markdown 복사">⧉</button><button class="sndel" data-qsdel="${q.id}" aria-label="지우기">✕</button></div>`).join("")}</div><div class="row" style="margin-top:8px"><button class="btn small ghost" id="qsAllMd">전부 Markdown 으로 복사</button></div>`:`<p class="lead">아직 보관한 검색식이 없습니다. 검색식을 만들고 '보관'을 누르세요.</p>`);
+  sheet(`검색식 보관함 · ${L.length}`,L.length?`<p class="lead">누르면 그 범위로 가서 바로 찾습니다. 본문 연구 기록(기록 탭)과는 따로 보관됩니다.</p><div class="snlist">${L.map(q=>`<div class="snitem"><button class="snjump" data-qsrun="${q.id}"><b>${esc(q.name)}</b><small>${esc(qRangeLabel(q))}${q.v>=2?"":" · 옛 기록(범위 표기 전)"} · ${d(q.t)}</small><span class="snm" style="direction:ltr;font-family:var(--f-mono,monospace);white-space:pre-wrap;font-size:12px">${esc(q.text.split("\n").slice(0,3).join("\n"))}${q.text.split("\n").length>3?"\n…":""}</span></button><button class="sndel" data-qscopy="${q.id}" aria-label="복사" title="Markdown 복사">⧉</button><button class="sndel" data-qsdel="${q.id}" aria-label="지우기">✕</button></div>`).join("")}</div><div class="row" style="margin-top:8px"><button class="btn small ghost" id="qsAllMd">전부 Markdown 으로 복사</button></div>`:`<p class="lead">아직 보관한 검색식이 없습니다. 검색식을 만들고 '보관'을 누르세요.</p>`);
   const root=document.getElementById("sheetRoot"), S=view.st;
   root.querySelectorAll("[data-qsrun]").forEach(b=>b.onclick=()=>{ const q=L.find(x=>x.id===b.dataset.qsrun); if(!q) return; root.innerHTML=""; qApplyRange(q); S.mode="query"; S.qMode="text"; S.qt=q.text; S.qres=null; S.qkey=null; S.qstep=0; S.qEdit=false; render(); qExec(); render(); scrollTo({top:0}); });
   root.querySelectorAll("[data-qsdel]").forEach(b=>b.onclick=()=>{ if(!confirm("이 검색식을 보관함에서 지울까요?")) return; qSavedSet(L.filter(x=>x.id!==b.dataset.qsdel)); qOpenSaved(); render(); });
