@@ -23,7 +23,7 @@ function render(){ const m=document.getElementById("main"); m.innerHTML=renderSt
 /* ===== 하단 탭 4개: 본문 · 구조 · 연구 · 기록 =====
    본문·구조 = mode "verse"(rd read/struct) · 연구 = mode tool/word/query/theory · 기록 = mode "notes"
    탭을 바꿔도 보고 있던 책·장(view.st.R, vc)은 그대로입니다. */
-const RESEARCH_MODES=["tool","word","query","theory"];
+const RESEARCH_MODES=["tool","word","query","compare","theory"];
 function navOf(){ const S=view.st; if(S.pick||!S.entered||!S.R) return "";
   if(S.mode==="notes") return "notes"; if(RESEARCH_MODES.includes(S.mode)) return "research";
   return (typeof rdMode==="function"?rdMode():"read")==="struct"?"struct":"text"; }

@@ -41,7 +41,7 @@ function anchorVerse(vi){ const [b,c,v,,,s,n]=SD.V[vi]; const bf=SD.V[SD.book[b]
 const anKey=(kind,anchor)=>kind==="atom"?"a:"+anchor.clause_atom_ids[0]:"v:"+anchor.book+"-"+anchor.ch+"-"+anchor.vs;
 
 /* --- 편집 창 --- */
-function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._new; const anchor=existing?existing.anchor:(kind==="atom"?anchorAtom(ref):anchorVerse(ref)); const key=existing?existing.key:anKey(kind,anchor); if(existing&&existing._new) existing={anchor:existing.anchor,key:existing.key};
+function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._new; const anchor=existing?existing.anchor:(kind==="atom"?anchorAtom(ref):anchorVerse(ref)); const key=existing?existing.key:anKey(kind,anchor); if(existing&&existing._new) existing={anchor:existing.anchor,key:existing.key,tags:existing.tags,observation:existing.observation}; /* 새 메모 씨앗(비교기 등): 태그·관찰 미리 채움 */
   const b=anchor.book, st=(typeof ML!=="undefined")&&ML[b]; let milal=null; /* ML 은 const 라 window.ML 로는 안 보임(결함 고침) */
   if(!existing&&st&&st.state==="ok"&&kind==="atom"){ const m=milalForAtom(b,ref); if(m){ const gr=(m.o.groups||[]).flatMap(({g})=>{ const G=st.byGid.get(g.id); return G?[...G.inRel,...G.outRel].filter(r=>r.kind!=="MEMBERSHIP"):[]; }); const ids=[...new Set([...m.o.inRel,...m.o.outRel,...gr].map(r=>r.id))]; /* 이 절의 관계 + 이 절이 속한 묶음의 관계(소속 제외) */ if(ids.length) milal={stage:st.data.source.milal.stage,file_status:st.data.file_status,network_sha256:st.data.source.milal.network_sha256||"",relation_ids:ids}; } }
   const ex=existing||{}; const where=kind==="range"?rangeLabel({anchor}):PLAN.abbr[b-1]+" "+anchor.ch+":"+anchor.vs;

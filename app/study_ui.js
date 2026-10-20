@@ -231,7 +231,7 @@ function renderStudy(){
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
-  if(RESEARCH_MODES.includes(S.mode)) h+=`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
+  if(RESEARCH_MODES.includes(S.mode)) h+=`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
   if(S.mode==="theory") return h+renderTheory();
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
@@ -240,6 +240,7 @@ function renderStudy(){
       ${rd==="read"?readView(S.R.b,vc):((S.sv||"tree")==="map"?unitMapView(S.R.b):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true)))}
       ${multi&&k<chs.length-1?`<button class="sbtn snextch" id="sVcN2">${chs[k+1]}${u} 이어서 보기 ›</button>`:""}</section>`; }
   else if(S.mode==="query") h+=renderQuery();
+  else if(S.mode==="compare") h+=(window.renderCompare?renderCompare():"");
   else if(S.mode==="word"){
     h+=`<section class="sec">${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>`;
     if(S.lex!=null){ const x=SD.L[S.lex], H=wordHits(); let cnt=0; H.forEach(s=>cnt+=s.size);
@@ -259,7 +260,7 @@ function bindStudy(m){
   const S=view.st, rr=()=>{ S.more=1; render(); };
   const r=document.getElementById("sdRetry"); if(r) r.onclick=()=>{ studyLoad(); render(); };
   if(!SD) return;
-  bindQuery(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
+  bindQuery(m); if(view.st.mode==="compare"&&window.bindCompare) bindCompare(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
   const sh=document.getElementById("sHome"); if(sh) sh.onclick=openAddr;
     m.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ setRange(JSON.parse(b.dataset.ar)); S.mode="verse"; render(); scrollTo({top:0}); });
   const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostMenu) bindHostMenu(ha);
