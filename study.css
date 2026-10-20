@@ -308,3 +308,16 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .anchk{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);margin:8px 0}
 .anitem{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.anitem p{margin:0;font-size:14px;line-height:1.5}.anitem small{color:var(--muted)}
 .mb-n{background:#E7B64A;color:#2A1F00}
+
+/* 표시·구간·기록 */
+.rdtools{display:flex;align-items:center;gap:6px;margin:0 0 8px}.mtog.on{background:var(--accent);color:var(--accent-ink)}
+.mk{border-radius:3px;padding:0 1px}.mk-ul{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--accent)}
+.rdvs.rsel{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px}
+.rgchip{display:inline-block;border:1px solid var(--accent);color:var(--accent);background:var(--accent-soft);border-radius:999px;font:inherit;font-size:11.5px;padding:1px 8px;margin:2px 4px 2px 0;cursor:pointer}
+.mkbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--muted);padding:6px 0}
+.rstrip.mksel .rsw.sel{outline:2px solid var(--accent);outline-offset:-2px}.rstrip.mksel .rsw{opacity:.7}.rstrip.mksel .rsw.sel{opacity:1}
+.mkrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 6px}.mkc{width:40px;height:34px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.mkcustom{display:grid;place-items:center;font-size:11px;color:var(--muted);width:auto;padding:0 8px;gap:0}.mkcustom input{width:28px;height:18px;border:0;padding:0;background:none}
+.rfbar{display:grid;gap:8px;margin-bottom:8px}#rfQ{width:100%;font:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);box-sizing:border-box}
+.rfrow{display:flex;gap:8px;align-items:center}.rfrow select{font:inherit;font-size:13.5px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.seg.sseg.mseg.rfkind button{font-size:12.5px;padding:7px 2px}

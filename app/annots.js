@@ -25,21 +25,21 @@ function anchorVerse(vi){ const [b,c,v,,,s,n]=SD.V[vi]; const bf=SD.V[SD.book[b]
 const anKey=(kind,anchor)=>kind==="atom"?"a:"+anchor.clause_atom_ids[0]:"v:"+anchor.book+"-"+anchor.ch+"-"+anchor.vs;
 
 /* --- 편집 창 --- */
-function openAnnotEditor(kind,ref,existing){ const anchor=existing?existing.anchor:(kind==="atom"?anchorAtom(ref):anchorVerse(ref)); const key=existing?existing.key:anKey(kind,anchor);
+function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._new; const anchor=existing?existing.anchor:(kind==="atom"?anchorAtom(ref):anchorVerse(ref)); const key=existing?existing.key:anKey(kind,anchor); if(existing&&existing._new) existing={anchor:existing.anchor,key:existing.key};
   const b=anchor.book, st=window.ML&&ML[b]; let milal=null;
   if(!existing&&st&&st.state==="ok"&&kind==="atom"){ const m=milalForAtom(b,ref); if(m){ const ids=[...m.o.inRel,...m.o.outRel].map(r=>r.id); if(ids.length) milal={stage:st.data.source.milal.stage,file_status:st.data.file_status,network_sha256:st.data.source.milal.network_sha256||"",relation_ids:ids}; } }
-  const ex=existing||{};
-  sheet((existing?"메모 고치기":"메모 쓰기")+" · "+PLAN.abbr[b-1]+" "+anchor.ch+":"+anchor.vs,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":"절"} · BHSA clause_atom ${anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
+  const ex=existing||{}; const where=kind==="range"?rangeLabel({anchor}):PLAN.abbr[b-1]+" "+anchor.ch+":"+anchor.vs;
+  sheet((isNew?"메모 쓰기":"메모 고치기")+" · "+where,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":kind==="range"?`구간 · 절 원자 ${anchor.clause_atom_ids.length}개 · 낱말 ${anchor.span?anchor.span.words:""}개`:"절"} · BHSA clause_atom ${kind==="range"?anchor.clause_atom_ids[0]+" … "+anchor.clause_atom_ids[anchor.clause_atom_ids.length-1]:anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
     <label class="anlab">관찰 <small>본 것 — 본문·문법·표지에서 확인한 사실</small></label><textarea id="anObs" rows="3" placeholder="예: 와이크톨이 끊기고 명사문이 온다">${esc(ex.observation||"")}</textarea>
     <label class="anlab">해석 <small>내 결론 — 관찰에서 이끌어 낸 뜻</small></label><textarea id="anInt" rows="3" placeholder="예: 서술자가 장면을 멈추고 배경을 알린다">${esc(ex.interpretation||"")}</textarea>
     <label class="anlab">표시 <small>쉼표로</small></label><input id="anTags" type="text" value="${esc((ex.tags||[]).join(", "))}" placeholder="전환, 반복">
     ${milal?`<label class="anchk"><input type="checkbox" id="anRef" checked> 보고 있던 MILAL 관계 ${milal.relation_ids.length}개를 참조로 함께 저장 (${esc(milal.stage)}${milal.file_status==="TEST_ONLY"?" · 시험 자료":""}) — 참조일 뿐, MILAL 판정을 바꾸지 않습니다</label>`:ex.milal_ref?`<p class="lead">MILAL 참조: ${esc(ex.milal_ref.stage)} · 관계 ${ex.milal_ref.relation_ids.length}개</p>`:""}
-    <div class="row" style="justify-content:space-between"><span>${existing?`<button class="btn small ghost" id="anDel">지우기</button>`:""}</span><button class="sbtn" id="anSave" style="width:auto;margin:0;padding:10px 18px">저장</button></div>`);
+    <div class="row" style="justify-content:space-between"><span>${!isNew?`<button class="btn small ghost" id="anDel">지우기</button>`:""}</span><button class="sbtn" id="anSave" style="width:auto;margin:0;padding:10px 18px">저장</button></div>`);
   const root=document.getElementById("sheetRoot");
   root.querySelector("#anSave").onclick=()=>{ const obs=root.querySelector("#anObs").value.trim(), it=root.querySelector("#anInt").value.trim(); if(!obs&&!it){ toast("관찰이나 해석 중 하나는 적어 주세요."); return; }
     const a=Object.assign({},ex,{kind,key,anchor,observation:obs,interpretation:it,tags:root.querySelector("#anTags").value.split(",").map(s=>s.trim()).filter(Boolean)});
     if(milal&&root.querySelector("#anRef")&&root.querySelector("#anRef").checked) a.milal_ref=milal;
-    anSave(a).then(()=>{ root.innerHTML=""; toast(existing?"메모를 고쳤습니다.":"메모를 저장했습니다."); render(); }).catch(e=>toast("저장하지 못했습니다: "+e.message)); };
+    anSave(a).then(()=>{ root.innerHTML=""; toast(isNew?"메모를 저장했습니다.":"메모를 고쳤습니다."); render(); }).catch(e=>toast("저장하지 못했습니다: "+e.message)); };
   const d=root.querySelector("#anDel"); if(d) d.onclick=()=>{ if(!confirm("이 메모를 지울까요?")) return; anDelete(ex.id).then(()=>{ root.innerHTML=""; toast("지웠습니다."); render(); }); }; }
 /* 상세 창·읽기 화면에 끼우는 목록 */
 function annotListHTML(kind,key,ref){ const L=anFor(kind,key);
@@ -59,3 +59,102 @@ function bindAnnotsPage(root){ bindAnnots(root); root.querySelectorAll("[data-an
 function anAtomOf(a){ const b=a.anchor.book; if(!SD.loaded.has(b)){ loadBook(b).then(()=>{ const aid=anAtomOf(a); if(aid!=null) gotoAtom(b,aid); }); return null; }
   const want=a.anchor.clause_atom_ids[0]; const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let i=a0;i<a1;i++) if(SD.can[i]===want) return i; return null; }
 anOpen().then(()=>anAll()).catch(()=>{});
+
+/* ===================== D-1 본문 표시(형광펜·밑줄·괄호) =====================
+   kind:"mark" — anchor.word_ids(BHSA 낱말 번호)에 style(hl|ul|br)·color 를 입힌다. 원문은 바꾸지 않는다. */
+const MARK_COLORS=[["y","#F6E27A","노랑"],["g","#BFE3B4","초록"],["b","#BBD6F3","파랑"],["p","#F3C4D8","분홍"]];
+function markColor(c){ const k=MARK_COLORS.find(x=>x[0]===c); return k?k[1]:(/^#[0-9a-f]{6}$/i.test(c||"")?c:"#F6E27A"); }
+function marksHidden(){ try{ return localStorage.getItem("milal-marks-hide")==="1"; }catch(e){ return false; } }
+function marksToggle(){ try{ localStorage.setItem("milal-marks-hide",marksHidden()?"0":"1"); }catch(e){} render(); }
+/* 앱 낱말 i → BHSA 슬롯, 그 역 */
+function slotOf(i){ const b=SD.V[SD.vOf[i]][0], bf=SD.V[SD.book[b].a][5]; return SD.bs[b-1]+(i-bf); }
+/* 절 vi 의 낱말마다 적용되는 표시 목록 → [{hl,ul,brOpen,brClose}] */
+function marksForVerse(vi){ if(marksHidden()) return null; const [, , , , ,s,n]=SD.V[vi]; const lo=slotOf(s), hi=slotOf(s+n-1);
+  const M=anList().filter(a=>a.kind==="mark"&&a.anchor.book===SD.V[vi][0]&&a.anchor.word_ids.some(w=>w>=lo&&w<=hi)); if(!M.length) return null;
+  const per=Array.from({length:n},()=>({hl:null,ul:false,bo:0,bc:0,ids:[]}));
+  for(const a of M){ const ws=a.anchor.word_ids.filter(w=>w>=lo&&w<=hi).sort((x,y)=>x-y); if(!ws.length) continue;
+    for(const w of ws){ const p=per[w-lo]; if(a.style==="hl") p.hl=markColor(a.color); if(a.style==="ul") p.ul=true; p.ids.push(a.id); }
+    if(a.style==="br"){ per[ws[0]-lo].bo++; per[ws[ws.length-1]-lo].bc++; } }
+  return per; }
+/* 절의 히브리어 줄: 낱말마다 span (표시가 있을 때만 쓴다) */
+function hebMarked(vi,per){ const H=sHeb(vi); return H.map((t,j)=>{ const p=per[j]; const txt=esc(t.replace(/\s+$/,"")), sp=/\s$/.test(t)?" ":""; if(!p||(!p.hl&&!p.ul&&!p.bo&&!p.bc)) return txt+sp;
+  return `${"⟩".repeat(p.bc)?"":""}${"⟦".repeat(p.bo)}<span class="mk${p.ul?" mk-ul":""}" ${p.hl?`style="background:${p.hl}"`:""} data-mkid="${p.ids[0]||""}">${txt}</span>${"⟧".repeat(p.bc)}${sp}`; }).join(""); }
+function marksForWords(vis){ if(marksHidden()) return null; const out=new Map(); for(const vi of vis){ const per=marksForVerse(vi); if(!per) continue; const s=SD.V[vi][5]; per.forEach((p,j)=>{ if(p.hl||p.ul) out.set(s+j,p); }); } return out.size?out:null; }
+/* 표시 고르기 창: 낱말 번호 목록(앱 번호)에 스타일 적용 */
+function openMarkPicker(wordIdx,label){ if(!wordIdx.length){ toast("먼저 낱말을 고르세요."); return; }
+  const vi=SD.vOf[wordIdx[0]], [b,c,v]=SD.V[vi]; const heb=wordIdx.map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim();
+  sheet("표시 · "+PLAN.abbr[b-1]+" "+c+":"+v,`<p class="heb svheb" style="margin:0 0 6px">${esc(heb)}</p><p class="lead" style="margin:0 0 8px">${esc(label||"")} · 낱말 ${wordIdx.length}개 · 원문은 바뀌지 않고 표시만 덧입힙니다</p>
+    <div class="mgrp">형광펜</div><div class="mkrow">${MARK_COLORS.map(([k,hex,n])=>`<button class="mkc" data-mk="hl:${k}" style="background:${hex}" aria-label="${n}"></button>`).join("")}<label class="mkc mkcustom" title="색 직접"><input type="color" id="mkCustom" value="#F6E27A"><span>직접</span></label></div>
+    <div class="mgrp">그 밖</div><div class="mkrow"><button class="btn small" data-mk="ul:">밑줄</button><button class="btn small" data-mk="br:">괄호로 묶기 ⟦ ⟧</button></div>
+    <input id="mkLabel" type="text" placeholder="이 표시의 뜻 (예: 반복되는 말) — 비워도 됨" style="width:100%;margin-top:10px;font:inherit;font-size:14px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box">`);
+  const root=document.getElementById("sheetRoot"); const save=(style,color)=>{ const a={kind:"mark",key:"m:"+anId(),anchor:{book:b,ch:c,vs:v,bhsa:SD.bhsa||"2021",word_ids:wordIdx.map(slotOf),clause_atom_ids:[...new Set(wordIdx.map(j=>SD.can[SD.wa[j]]))],clause_ids:[...new Set(wordIdx.map(j=>String(SD.ccn[SD.wc[j]])))],heb},style,color,observation:"",interpretation:"",tags:(root.querySelector("#mkLabel").value.trim()?[root.querySelector("#mkLabel").value.trim()]:[])};
+    anSave(a).then(()=>{ root.innerHTML=""; view.st.mkSel=null; toast("표시했습니다."); render(); }); };
+  root.querySelectorAll("[data-mk]").forEach(x=>x.onclick=()=>{ const [st,co]=x.dataset.mk.split(":"); save(st,co); });
+  root.querySelector("#mkCustom").onchange=e=>save("hl",e.target.value); }
+function openMarkEdit(id){ const a=anList().find(x=>x.id===id); if(!a) return; sheet("표시",`<p class="heb svheb" style="margin:0 0 6px">${esc(a.anchor.heb)}</p><p class="lead">${esc(PLAN.abbr[a.anchor.book-1])} ${a.anchor.ch}:${a.anchor.vs} · ${a.style==="hl"?"형광펜":a.style==="ul"?"밑줄":"괄호"}${a.tags&&a.tags[0]?" · "+esc(a.tags[0]):""}</p><div class="row" style="justify-content:space-between"><button class="btn small ghost" id="mkDel">표시 지우기</button><button class="btn small" id="mkNote">이 자리에 메모 쓰기</button></div>`);
+  const root=document.getElementById("sheetRoot"); root.querySelector("#mkDel").onclick=()=>anDelete(id).then(()=>{ root.innerHTML=""; render(); });
+  root.querySelector("#mkNote").onclick=()=>{ root.innerHTML=""; const vi=SD.ref.get(a.anchor.book+"-"+a.anchor.ch+"-"+a.anchor.vs)?.[0]; if(vi!=null) openAnnotEditor("verse",vi); }; }
+
+/* ===================== D-2 구간 메모 =====================
+   읽기 화면에서 '구간' 모드: 시작 절, 끝 절을 차례로 누른다(같은 책 안, 장을 넘어도 됨) */
+function anchorRange(vi1,vi2){ if(vi1>vi2) [vi1,vi2]=[vi2,vi1]; const [b,c1,v1]=SD.V[vi1], [,c2,v2]=SD.V[vi2]; const s=SD.V[vi1][5], e=SD.V[vi2][5]+SD.V[vi2][6]-1;
+  const atoms=new Set(), cls=new Set(); for(let i=s;i<=e;i++){ atoms.add(SD.can[SD.wa[i]]); cls.add(String(SD.ccn[SD.wc[i]])); }
+  return {book:b,ch:c1,vs:v1,ch2:c2,vs2:v2,bhsa:SD.bhsa||"2021",clause_atom_ids:[...atoms],clause_ids:[...cls],word_ids:[slotOf(s),slotOf(e)],span:{from_word:slotOf(s),to_word:slotOf(e),words:e-s+1},heb:sHeb(vi1).join("").trim().slice(0,60)+(vi2>vi1?" …":"")}; }
+function rangeLabel(a){ const A=a.anchor; return `${PLAN.abbr[A.book-1]} ${A.ch}:${A.vs}${A.ch2!=null&&(A.ch2!==A.ch||A.vs2!==A.vs)?`–${A.ch2!==A.ch?A.ch2+":":""}${A.vs2}`:""}`; }
+function rangePick(vi){ const S=view.st; if(S.rangeStart==null){ S.rangeStart=vi; toast(`시작: ${sRef(vi)} — 끝 절을 누르세요`); render(); return; }
+  const a1=S.rangeStart; S.rangeStart=null; S.rangeMode=false; if(SD.V[a1][0]!==SD.V[vi][0]){ toast("같은 책 안에서 고르세요."); render(); return; }
+  const anchor=anchorRange(a1,vi); render(); openAnnotEditor("range",null,{kind:"range",key:"r:"+anchor.span.from_word+"-"+anchor.span.to_word,anchor,_new:true}); }
+/* 절 줄 머리에 붙는 구간 칩: 이 절에서 시작하는 구간 메모 */
+function rangeChips(vi){ const [b,c,v]=SD.V[vi]; const L=anList().filter(a=>a.kind==="range"&&a.anchor.book===b&&a.anchor.ch===c&&a.anchor.vs===v); if(!L.length) return "";
+  return L.map(a=>`<button class="rgchip" data-anedit="${a.id}">구간 ${esc(rangeLabel(a).replace(/^\S+ /,""))}${a.tags&&a.tags[0]?" · "+esc(a.tags[0]):""}</button>`).join(""); }
+
+/* ===================== D-3 기록 탭 통합 =====================
+   낱말 메모(옛 저장)와 주석(새 저장)을 한 목록에서 — 저장은 따로, 보기는 같이 */
+function allRecords(){ const W=studyNotes().map(n=>({id:"w:"+n.t,kind:"word",book:n.b,ch:n.c,vs:n.v,heb:n.heb,title:n.gl,observation:n.m||"",interpretation:"",tags:[],updated:n.t,word:n}));
+  const A=anList().map(a=>({id:a.id,kind:a.kind,book:a.anchor.book,ch:a.anchor.ch,vs:a.anchor.vs,heb:a.anchor.heb,title:a.kind==="range"?rangeLabel(a):"",observation:a.observation||"",interpretation:a.interpretation||"",tags:a.tags||[],updated:a.updated,style:a.style,color:a.color,milal_ref:a.milal_ref,a}));
+  return W.concat(A); }
+const KIND_KO={word:"낱말 메모",verse:"절 메모",atom:"절 원자 메모",range:"구간 메모",mark:"표시"};
+function recordsPage(){ const S=view.st; S.rf ||= {kind:"all",tag:"",q:"",sort:"recent"}; const F=S.rf; let L=allRecords();
+  const tags=[...new Set(L.flatMap(r=>r.tags))].sort();
+  if(F.kind!=="all") L=L.filter(r=>r.kind===F.kind); if(F.tag) L=L.filter(r=>r.tags.includes(F.tag));
+  if(F.q){ const q=F.q.toLowerCase(); L=L.filter(r=>[r.observation,r.interpretation,r.heb,r.title,r.tags.join(" ")].join(" ").toLowerCase().includes(q)); }
+  L.sort(F.sort==="recent"?(x,y)=>y.updated-x.updated:(x,y)=>x.book-y.book||x.ch-y.ch||x.vs-y.vs||x.updated-y.updated);
+  let h=`<section class="sec"><div class="rfbar"><input id="rfQ" type="search" placeholder="기록 찾기 (관찰·해석·원문·태그)" value="${esc(F.q)}"><div class="seg sseg mseg rfkind">${[["all","전체"],["word","낱말"],["verse","절"],["atom","절 원자"],["range","구간"],["mark","표시"]].map(([k,n])=>`<button aria-checked="${F.kind===k}" data-rfk="${k}">${n}</button>`).join("")}</div>
+    <div class="rfrow"><select id="rfTag"><option value="">태그 전체</option>${tags.map(t=>`<option value="${esc(t)}"${F.tag===t?" selected":""}>#${esc(t)}</option>`).join("")}</select><div class="seg sseg mseg" style="flex:1"><button aria-checked="${F.sort==="recent"}" data-rfs="recent">최근 순</button><button aria-checked="${F.sort==="text"}" data-rfs="text">본문 순</button></div></div>
+    <div class="rfrow"><span class="label" style="margin:0">${L.length}건</span><span style="flex:1"></span><button class="btn small ghost" data-export="md">Markdown 내보내기</button><button class="btn small ghost" data-export="csv">CSV</button></div></div>`;
+  if(!L.length) return h+`<p class="lead">기록이 없습니다. 본문에서 절을 펼쳐 메모·표시를 남기세요.</p></section>`;
+  let lastG=""; for(const r of L){ const g=F.sort==="text"?`${PLAN.full[r.book-1]} ${r.ch}장`:""; if(g&&g!==lastG){ h+=`<div class="pkgrp">${esc(g)}</div>`; lastG=g; }
+    const where=r.kind==="range"?r.title:`${PLAN.abbr[r.book-1]} ${r.ch}:${r.vs===0?"표제":r.vs}`;
+    h+=`<div class="snitem"><button class="snjump" data-rgo="${r.id}"><span class="heb">${esc((r.heb||"").slice(0,40))}</span><b>${esc(where)} · ${KIND_KO[r.kind]}${r.kind==="mark"?` (${r.style==="hl"?"형광펜":r.style==="ul"?"밑줄":"괄호"})`:""}${r.kind==="word"?" · "+esc(r.title):""}</b>${r.observation?`<span class="snm"><b>관찰</b> ${esc(r.observation)}</span>`:""}${r.interpretation?`<span class="snm"><b>해석</b> ${esc(r.interpretation)}</span>`:""}<small>${new Date(r.updated).toLocaleDateString("ko-KR")}${r.milal_ref?" · MILAL 참조":""}${r.tags.length?" · "+r.tags.map(t=>"#"+esc(t)).join(" "):""}</small></button>${r.kind==="word"?`<button class="sndel" data-snd="${r.word.t}" aria-label="지우기">✕</button>`:`<button class="sndel" data-anedit="${r.id}" aria-label="고치기">✎</button>`}</div>`; }
+  return h+`</section>`; }
+function bindRecordsPage(root){ const S=view.st, F=S.rf; bindAnnots(root);
+  root.querySelectorAll("[data-anedit]").forEach(b=>{ const a=anList().find(x=>x.id===b.dataset.anedit); if(a&&a.kind==="mark") b.onclick=e=>{ e.stopPropagation(); openMarkEdit(a.id); }; });
+  const q=root.querySelector("#rfQ"); if(q) q.oninput=()=>{ F.q=q.value; const y=scrollY; render(); scrollTo({top:y}); const q2=document.getElementById("rfQ"); if(q2){ q2.focus(); q2.setSelectionRange(q2.value.length,q2.value.length); } };
+  root.querySelectorAll("[data-rfk]").forEach(b=>b.onclick=()=>{ F.kind=b.dataset.rfk; render(); }); root.querySelectorAll("[data-rfs]").forEach(b=>b.onclick=()=>{ F.sort=b.dataset.rfs; render(); });
+  const t=root.querySelector("#rfTag"); if(t) t.onchange=()=>{ F.tag=t.value; render(); };
+  root.querySelectorAll("[data-rgo]").forEach(b=>b.onclick=()=>{ const r=allRecords().find(x=>x.id===b.dataset.rgo); if(!r) return;
+    if(r.kind==="word"){ view.st.rd="read"; studyOpenVerse(r.book,r.ch,r.vs); return; }
+    if(r.kind==="atom"){ const aid=anAtomOf(r.a); if(aid!=null) gotoAtom(r.book,aid); return; }
+    view.st.rd="read"; view.st.rangeStart=null; studyOpenVerse(r.book,r.ch,r.vs); });
+  root.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportRecords(b.dataset.export)); }
+
+/* ===================== D-4 내보내기 (Markdown / CSV) ===================== */
+function exportRecords(fmt){ const S=view.st, F=S.rf||{kind:"all",tag:"",q:"",sort:"text"}; let L=allRecords();
+  if(F.kind!=="all") L=L.filter(r=>r.kind===F.kind); if(F.tag) L=L.filter(r=>r.tags.includes(F.tag)); if(F.q){ const q=F.q.toLowerCase(); L=L.filter(r=>[r.observation,r.interpretation,r.heb,r.title,r.tags.join(" ")].join(" ").toLowerCase().includes(q)); }
+  L.sort((x,y)=>x.book-y.book||x.ch-y.ch||x.vs-y.vs||x.updated-y.updated);
+  const where=r=>r.kind==="range"?r.title:`${PLAN.full[r.book-1]} ${r.ch}:${r.vs===0?"표제":r.vs}`;
+  const styleKo=r=>r.kind!=="mark"?"":(r.style==="hl"?"형광펜 "+(r.color||""):r.style==="ul"?"밑줄":"괄호");
+  const milalTxt=r=>r.milal_ref?`${r.milal_ref.stage} (${r.milal_ref.file_status==="TEST_ONLY"?"시험 자료":"MILAL 출력"}; sha ${(r.milal_ref.network_sha256||"").slice(0,12)}) 관계 ${r.milal_ref.relation_ids.join(", ")}`:"";
+  const date=new Date().toISOString().slice(0,10); let txt, name;
+  if(fmt==="md"){ const lines=[`# MILAL 연구 기록`,``,`- 내보낸 날: ${date}`,`- 자료: BHSA ${SD.bhsa||"2021"} · 번역 ${TR_INFO.tr.name||"없음"} · 앱 자료판 ${STUDY_V}`,`- 기록 ${L.length}건 (${F.kind==="all"?"전체":KIND_KO[F.kind]}${F.tag?" · #"+F.tag:""}${F.q?" · 검색 \""+F.q+"\"":""})`,``,`> **구분**: '관찰'은 본문에서 본 것, '해석'은 나(사용자)의 결론입니다. 'MILAL 참조'는 메모를 쓸 때 보고 있던 MILAL의 **기계·연구자 판정 기록**을 가리키는 것이지, 내 해석이 MILAL의 판정이라는 뜻이 아닙니다.`,``];
+    let g=""; for(const r of L){ const gg=`${PLAN.full[r.book-1]} ${r.ch}장`; if(gg!==g){ lines.push(`## ${gg}`,``); g=gg; }
+      lines.push(`### ${where(r)} — ${KIND_KO[r.kind]}${r.kind==="word"?" ("+r.title+")":""}${styleKo(r)?" ("+styleKo(r)+")":""}`); if(r.heb) lines.push(``,`> ${r.heb}`,``);
+      if(r.observation) lines.push(`- **관찰**: ${r.observation}`); if(r.interpretation) lines.push(`- **해석**: ${r.interpretation}`); if(r.tags.length) lines.push(`- 태그: ${r.tags.map(t=>"#"+t).join(" ")}`); if(r.milal_ref) lines.push(`- MILAL 참조: ${milalTxt(r)}`); lines.push(`- 기록일: ${new Date(r.updated).toLocaleDateString("ko-KR")}`,``); }
+    txt=lines.join("\n"); name=`milal-기록-${date}.md`; }
+  else { const esc2=s=>`"${String(s||"").replace(/"/g,'""')}"`; const rows=[["위치","종류","표시","원문","관찰","해석","태그","MILAL 참조","기록일","BHSA 낱말 번호"].map(esc2).join(",")];
+    for(const r of L) rows.push([where(r),KIND_KO[r.kind]+(r.kind==="word"?" "+r.title:""),styleKo(r),r.heb||"",r.observation,r.interpretation,r.tags.join(" "),milalTxt(r),new Date(r.updated).toISOString().slice(0,10),r.a?(r.a.anchor.word_ids||[]).join(" "):""].map(esc2).join(","));
+    txt="﻿"+rows.join("\r\n"); name=`milal-기록-${date}.csv`; }
+  const blob=new Blob([txt],{type:fmt==="md"?"text/markdown;charset=utf-8":"text/csv;charset=utf-8"}); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500);
+  if(navigator.clipboard&&fmt==="md") navigator.clipboard.writeText(txt).then(()=>toast("Markdown 파일을 내려받고 클립보드에도 복사했습니다."),()=>toast("파일을 내려받았습니다.")); else toast("파일을 내려받았습니다.");
+  window.__lastExport={name,txt}; }

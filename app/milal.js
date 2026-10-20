@@ -128,8 +128,9 @@ function openAtomSheet(b,aid){ const w0=atomFirstWord(aid), cid=SD.wc[w0], vi=SD
     h+=`</div>`;
     /* BHSA 원 자료의 mother/rela — 이 절 원자 것만, 판정 아님 */
     const nx=st.natByAtom.get(SD.can[aid]); if(nx){ const mc=nx.mother_clause_id&&st.nodeCid.get(nx.mother_clause_id); h+=`<div class="src3"><span class="label">BHSA 원 자료의 mother/rela <small>(원 데이터 — MILAL 판정 아님)</small></span><dl class="rdl"><dt>이 절 원자의 mother</dt><dd>clause_atom ${nx.mother_clause_atom}${mc!=null?` · ${esc(sRef(SD.vOf[atomFirstWord(SD.cFirstA[mc])]))} <button class="mgo" data-mgo="${SD.cFirstA[mc]}">가기 ›</button>`:""}</dd><dt>rela</dt><dd>${esc(nx.rela)}${nx.rela_level==="clause"?" (절 수준 값)":""}</dd></dl></div>`; } }
-  if(window.annotListHTML) h+=annotListHTML("atom","a:"+SD.can[aid],aid);
+  if(window.annotListHTML) h+=annotListHTML("atom","a:"+SD.can[aid],aid).replace(/<\/div>$/,`<button class="btn small ghost" data-mkatom="${aid}" style="margin-left:6px">이 절 원자 표시(형광펜·괄호)</button></div>`);
   sheet("절 원자 · "+sRef(vi),`<div class="sdetail sheetd">${h}</div>`); if(window.bindAnnots) bindAnnots(document.getElementById("sheetRoot"));
+  document.querySelectorAll("#sheetRoot [data-mkatom]").forEach(x=>x.onclick=()=>{ const a2=+x.dataset.mkatom, w1=atomFirstWord(a2), ws=[]; for(let i=w1;i<SD.wa.length&&SD.wa[i]===a2;i++) ws.push(i); openMarkPicker(ws,"절 원자"); });
   document.querySelectorAll("#sheetRoot [data-mgo]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); document.getElementById("sheetRoot").innerHTML=""; gotoAtom(b,+x.dataset.mgo); }); }
 /* 절 원자로 이동: 다른 장이면 범위를 바꾸고 구조 화면에서 그 줄을 비춘다 */
 function gotoAtom(b,aid,noBack){ if(!SD.ccnMap||!SD.cFirstA) milalIndex(); const S=view.st, w0=atomFirstWord(aid), vi=SD.vOf[w0], [bb,c,v]=SD.V[vi];

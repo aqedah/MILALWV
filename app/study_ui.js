@@ -295,7 +295,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-sfz]").forEach(x=>x.onclick=()=>{ const v=Math.round(Math.min(1.5,Math.max(0.8,sFs()+(+x.dataset.sfz)*0.1))*10)/10; try{ localStorage.setItem("milal-study-fs",v); }catch(e){} applySfs(); const y=scrollY; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>{ S.rd=b.dataset.svm; try{ localStorage.setItem(RD_KEY,S.rd); }catch(e){} render(); });
   if(S.mode==="verse"&&rdMode()==="read") bindRead(m);
-  if(S.mode==="notes"){ bindStudyNotes(); if(S.nseg==="annots"&&window.bindAnnotsPage) bindAnnotsPage(m); }
+  if(S.mode==="notes"){ bindStudyNotes(); if(S.nseg!=="shared"&&window.bindRecordsPage) bindRecordsPage(m); }
   m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
@@ -324,7 +324,7 @@ function gotoVerse(vi,wi){ const S=view.st, [b,c,v]=SD.V[vi]; const m=S.mode;
   S.vc=c; S.mode="verse"; S.rd="read"; S.rv=vi; S.rw=wi!=null&&SD.vOf[wi]===vi?wi:null; S.scrollV=v; S.sel=-1; S.back=m; render(); }
 /* 통독 본문 → 원문 보기 */
 function studyOpenVerse(b,c,v){ const S=view.st; view.tab="study";
-  const go=()=>{ setRange({b,c1:c,c2:c}); S.mode="verse"; S.scrollV=v; if(view.tab==="study") render(); };
+  const go=()=>{ setRange({b,c1:c,c2:c}); S.mode="verse"; S.scrollV=v; const L=SD.ref.get(b+"-"+c+"-"+v); if(L&&S.rd==="read"){ S.rv=L[0]; S.rw=null; } if(view.tab==="study") render(); };
   if(SD){ go(); scrollTo({top:0}); } else { render(); scrollTo({top:0}); const pr=studyLoad(); if(pr) pr.then(go); } }
 
 /* 구조 화면 머리: 세 출처(BHSA 원자료 / 앱 관찰 후보 / MILAL 판정)와 MILAL 자료 상태 */
@@ -364,7 +364,7 @@ function structView(b,c,mini){
   const vis=SD.ch.get(b+"-"+c)||[]; const atoms=[], seen=new Map();
   for(const vi of vis){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const a=SD.wa[j]; if(!seen.has(a)){ seen.set(a,atoms.length); atoms.push({a,vi,w:[]}); } atoms[seen.get(a)].w.push(j); } }
   let h=`<div class="stlines">`;
-  let lastVi=-1; const S=view.st; S.fold ||= {};
+  let lastVi=-1; const S=view.st; S.fold ||= {}; const MK=window.marksForWords?marksForWords(vis):null;
   /* 1) 줄마다 표지·종류 판정(전체 줄 기준) */
   let carry=null;
   const info=atoms.map((at,ai)=>{ const typ=SD.TY[SD.ay[at.a]], txt=SD.TXT[SD.ax[at.a]]||"";
@@ -388,7 +388,7 @@ function structView(b,c,mini){
     let cells=""; const dd=Math.max(Math.min(tab,16),sc);
     for(let L=1;L<=dd;L++){ let cls; if(L<tab) cls=hasNextSib(ri,L)?"v":"e"; else if(L===tab) cls=hasNextSib(ri,tab)?"b":"l"; else cls=L===sc?"s":"e"; cells=`<i class="tc ${cls}"></i>`+cells; }
     const vfirst=at.vi!==lastVi; const vnum=at.vi!==lastVi?`<b class="stv">${SD.V[at.vi][2]===0?"표제":SD.V[at.vi][2]}</b>`:""; lastVi=at.vi;
-    const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]]; return `<span class="sww" data-sw="${j}">${esc(tx)}</span>`; }).join("");
+    const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]], p=MK&&MK.get(j); return `<span class="sww${p&&p.ul?" mk-ul":""}" data-sw="${j}"${p&&p.hl?` style="background:${p.hl}"`:""}>${esc(tx)}</span>`; }).join("");
     const canFold=blk[ai]>ai, folded=visible.includes(-ai-1);
     const mon=S.milalOn&&ML[b]&&ML[b].state==="ok"; if(mon) h+=milalGroupHead(b,at.a);
     h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세"><small>${esc(typ)}</small><i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}${window.annotDot?annotDot(at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
@@ -432,16 +432,18 @@ function vGroups(vi){ const s=SD.V[vi][5], n=SD.V[vi][6], H=sHeb(vi), G=[]; let 
 function gMain(g){ for(let k=g.length-1;k>=0;k--) if(MAIN_SP.has(SD.L[SD.wl[g[k]]][2])) return g[k]; return g[g.length-1]; }
 const wHeb=wi=>{ const vi=SD.vOf[wi]; return sHeb(vi)[wi-SD.V[vi][5]]; }, wHan=wi=>{ const vi=SD.vOf[wi]; return sHan(vi)[wi-SD.V[vi][5]]||""; };
 const stTrName=()=>{ try{ return (TR_INFO[window.BIBLE_SRC||TR]||TR_INFO.krv).name; }catch(e){ return ""; } };
-function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; let h=`<p class="rdnote">${window.BIBLE?esc(stTrName())+" 번역과 ":""}히브리어 원문 · 절을 누르면 낱말이 펼쳐집니다</p><div class="rdv">`, lastK="";
+function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=window.marksHidden&&marksHidden();
+  let h=`<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):"절을 누르면 낱말이 펼쳐집니다"}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
   for(const vi of vis){ const kv=SD.V[vi][2], k=SD.V[vi][1]+":"+kv, first=k!==lastK; lastK=k;
     let kt=""; if(first&&kv>0){ try{ kt=BIBLE[b-1][c-1][kv-1]||""; }catch(e){} }
-    const open=S.rv===vi, num=kv===0?"표제":kv;
-    h+=`<div class="rdvs${open?" on":""}" data-rdv="${vi}" id="stv-${vi}">${kt?`<p class="rdk"><b>${num}</b>${esc(kt)}</p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${esc(sHeb(vi).join("").trim())}</p></div>`;
-    if(open) h+=stripHTML(vi); }
+    const open=S.rv===vi, num=kv===0?"표제":kv, per=window.marksForVerse?marksForVerse(vi):null, rs=S.rangeMode&&S.rangeStart===vi;
+    h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b>${esc(kt)}</p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p></div>`;
+    if(open&&!S.rangeMode) h+=stripHTML(vi); }
   return h+`</div>`; }
 function stripHTML(vi){ const S=view.st, G=vGroups(vi); if(S.rw==null||SD.vOf[S.rw]!==vi) S.rw=gMain(G[0]);
-  const gi=G.findIndex(g=>g.includes(S.rw));
-  return `<div class="rstripw"><div class="rstrip" dir="rtl">${G.map((g,k)=>{ const m=gMain(g); return `<button class="rsw${k===gi?" on":""}" data-rsw="${m}" data-rg="${k}"><span class="heb">${esc(g.map(wHeb).join("").trim())}</span><b>${esc(lexGloss(SD.wl[m]))}</b><small>${esc(g.map(wHan).join(""))}</small></button>`; }).join("")}</div><div class="rdet" id="rDet">${readDetail(S.rw)}</div></div>`; }
+  const gi=G.findIndex(g=>g.includes(S.rw)), sel=S.mkSel&&S.mkSel.vi===vi?S.mkSel.set:null;
+  const bar=sel?`<div class="mkbar"><span>고른 묶음 ${sel.size}개 — 띠에서 더 고르거나</span><button class="btn small" id="mkAll">절 전체</button><button class="btn small" id="mkGo"${sel.size?"":" disabled"}>표시하기</button><button class="btn small ghost" id="mkCancel">취소</button></div>`:"";
+  return `<div class="rstripw">${bar}<div class="rstrip${sel?" mksel":""}" dir="rtl">${G.map((g,k)=>{ const m=gMain(g); return `<button class="rsw${!sel&&k===gi?" on":""}${sel&&sel.has(k)?" sel":""}" data-rsw="${m}" data-rg="${k}"><span class="heb">${esc(g.map(wHeb).join("").trim())}</span><b>${esc(lexGloss(SD.wl[m]))}</b><small>${esc(g.map(wHan).join(""))}</small></button>`; }).join("")}</div>${sel?"":`<div class="rdet" id="rDet">${readDetail(S.rw)}</div>`}</div>`; }
 function strongText(t){ return esc(t).replace(/H(\d+)/g,(m,n)=>`<button class="shl" data-sh="${n}">H${n}</button>`); }
 function strongBlock(n){ if(!n) return ""; if(!STR){ strongLoad().then(()=>{ const d=document.getElementById("rDet"); if(d&&view.st.rw!=null){ d.innerHTML=readDetail(view.st.rw); bindReadDet(d); } }); return `<p class="lead">스트롱 사전을 불러오는 중입니다…</p>`; }
   const e=STR[n]; if(!e) return ""; const [,s,m,u]=e;
@@ -454,22 +456,31 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
    ${strongBlock(x[3])}
    ${lexKo(li)?`<dt>한글 사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>한글 사전 풀이</dt><dd>받는 중…</dd>`}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
-   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button><button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
+   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button><button class="btn small ghost" data-mkstart="${vi}">표시(형광펜·괄호)</button><button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
    ${window.annotListHTML?annotListHTML("verse","v:"+SD.V[vi][0]+"-"+SD.V[vi][1]+"-"+SD.V[vi][2],vi):""}`; }
 function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rpt]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.rw=+b.dataset.rpt; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   d.querySelectorAll("[data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); });
   d.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.wide=true; S.mode="word"; S.lex=+b.dataset.sfindw; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); });
   d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); });
-  if(window.bindAnnots) bindAnnots(d); }
+  if(window.bindAnnots) bindAnnots(d);
+  d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }
 function bindRead(m){ const S=view.st;
-  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv, top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; const y=scrollY; render(); scrollTo({top:y});
+  m.querySelectorAll("[data-rangemode]").forEach(b=>b.onclick=()=>{ S.rangeMode=b.dataset.rangemode==="1"; S.rangeStart=null; S.mkSel=null; render(); });
+  m.querySelectorAll("[data-markshide]").forEach(b=>b.onclick=()=>marksToggle());
+  m.querySelectorAll("[data-anedit]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=anList().find(x=>x.id===b.dataset.anedit); if(a) openAnnotEditor(a.kind,null,a); });
+  m.querySelectorAll("[data-mkid]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); if(x.dataset.mkid) openMarkEdit(x.dataset.mkid); });
+  if(S.mkSel){ const vi=S.mkSel.vi, G=vGroups(vi); m.querySelectorAll(".rstrip.mksel .rsw").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const k=+b.dataset.rg; if(S.mkSel.set.has(k)) S.mkSel.set.delete(k); else S.mkSel.set.add(k); const y=scrollY; render(); scrollTo({top:y}); });
+    const all=document.getElementById("mkAll"); if(all) all.onclick=e=>{ e.stopPropagation(); S.mkSel.set=new Set(G.map((_,k)=>k)); const y=scrollY; render(); scrollTo({top:y}); };
+    const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,`낱말 묶음 ${S.mkSel.set.size}개`); };
+    const cn=document.getElementById("mkCancel"); if(cn) cn.onclick=e=>{ e.stopPropagation(); S.mkSel=null; const y=scrollY; render(); scrollTo({top:y}); }; }
+  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; const y=scrollY; render(); scrollTo({top:y});
     /* 누른 절이 화면에서 같은 자리에 머물게: 위쪽 띠가 닫히며 줄어든 만큼 되돌림 */
     const ne=document.getElementById("stv-"+vi); if(ne){ scrollBy(0,ne.getBoundingClientRect().top-top0);
       const hd=document.querySelector(".shead2"), hb=hd?hd.getBoundingClientRect().bottom:0, sw=document.querySelector(".rstripw");
       if(S.rv===vi&&sw&&sw.getBoundingClientRect().top>innerHeight*0.62) scrollBy(0,ne.getBoundingClientRect().top-hb-8); }
     const st=document.querySelector(".rstrip .rsw.on"); if(st){ const r=st.parentNode; r.scrollLeft=0; } if(S.rv>=0) strongLoad(); });
-  m.querySelectorAll("[data-rsw]").forEach(b=>b.onclick=()=>{ S.rw=+b.dataset.rsw; b.parentNode.querySelectorAll(".rsw").forEach(x=>x.classList.toggle("on",x===b)); const d=document.getElementById("rDet"); d.innerHTML=readDetail(S.rw); bindReadDet(d); });
+  if(!S.mkSel) m.querySelectorAll("[data-rsw]").forEach(b=>b.onclick=()=>{ S.rw=+b.dataset.rsw; b.parentNode.querySelectorAll(".rsw").forEach(x=>x.classList.toggle("on",x===b)); const d=document.getElementById("rDet"); if(!d) return; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   const d=document.getElementById("rDet"); if(d) bindReadDet(d); }
 function openStrongSheet(n){ const go=()=>{ const e=STR&&STR[n]; const lis=(SD.L.map((x,i)=>[x,i]).filter(([x])=>x[3]===n).sort((a,b)=>b[0][7]-a[0][7])); const li=lis.length?lis[0][1]:-1;
     sheet(`스트롱 H${n}`,e?`<div class="sdetail sheetd"><div class="rdh2"><span class="heb">${esc(e[0])}</span>${li>=0?`<span class="rdp">${esc(SD.L[li][6])}</span><b>${esc(lexGloss(li))}</b>`:""}</div><dl class="rdl">${e[1]?`<dt>유래</dt><dd>${strongText(e[1])}</dd>`:""}${e[2]?`<dt>단어 정의</dt><dd>${strongText(e[2])}</dd>`:""}${e[3]?`<dt>KJV에서 옮긴 말 <small class="rdx">× 는 다른 말과 묶여 그렇게 옮겨진 경우</small></dt><dd>${strongText(e[3])}</dd>`:""}${li>=0?`<dt>구약에 나오는 횟수</dt><dd>${SD.L[li][7].toLocaleString()}번</dd>`:""}</dl>${li>=0?`<div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button></div>`:""}</div>`:`<p class="lead">이 번호의 풀이가 없습니다.</p>`);
@@ -485,9 +496,10 @@ function openNoteSheet(wi){ const vi=SD.vOf[wi], [b,c,v]=SD.V[vi], li=SD.wl[wi],
   const root=document.getElementById("sheetRoot");
   root.querySelector("#rnSave").onclick=()=>{ const L=studyNotes(); L.unshift({t:Date.now(),b,c,v,heb:wHeb(wi).trim(),lex:x[0],han:wHan(wi),gl:lexGloss(li),st:x[3]||0,m:root.querySelector("#rnMemo").value.trim()}); saveStudyNotes(L.slice(0,500)); root.innerHTML=""; toast("원어 메모에 넣었습니다."); }; }
 function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L.slice(0,30); S.nseg ||= "mine";
-  let h=`<div class="seg smode rseg" role="tablist">${[["mine","낱말 메모"],["annots","절·절 원자 메모"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;
+  if(S.nseg==="annots") S.nseg="mine";
+  let h=`<div class="seg smode rseg" role="tablist">${[["mine","내 기록"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;
   if(S.nseg==="shared") return h+sharedPage();
-  if(S.nseg==="annots") return h+(window.annotsPage?annotsPage():"");
+  if(window.recordsPage) return h+recordsPage();
   h+=`<section class="sec"><span class="label">원어 메모 · ${L.length}</span>`;
   h+=L.length?`<div class="snlist">${show.map(n=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button>${window.MILAL_SHARE?`<button class="snshare" data-snsh="${n.t}" aria-label="나누기" title="나눔에 올리기">↗</button>`:""}<button class="sndel" data-snd="${n.t}" aria-label="지우기">✕</button></div>`).join("")}</div>${L.length>30?`<button class="morebtn" id="snAll">${view.snAll?"접기 ▴":`${L.length-30}개 더 보기 ▾`}</button>`:""}`
     :`<p class="lead">아직 메모가 없습니다. 본문 화면에서 절을 누르고 낱말을 고른 뒤 '메모 남기기'를 누르세요.</p>`;
