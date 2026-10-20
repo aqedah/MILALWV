@@ -48,8 +48,10 @@ function sheet(title,body){
 function toast(msg){ let t=document.getElementById("toast"); if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; t.setAttribute("role","status"); document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
 
 /* ===== 계정 (firebase.js가 채움) — SDK는 첫 화면이 뜬 뒤, 또는 로그인·나눔을 누를 때 받는다 ===== */
-function loadFirebase(){ if(!window.FIREBASE_CONFIG) return Promise.resolve(); if(window.__fb) return window.__fb; return window.__fb=import("./firebase.js?v=6").catch(e=>{ console.warn(e); window.__fb=null; }); }
+function loadFirebase(){ if(!window.FIREBASE_CONFIG) return Promise.resolve(); if(window.__fb) return window.__fb; return window.__fb=import("./firebase.js?v=7").catch(e=>{ console.warn(e); window.__fb=null; }); }
 window.MILAL_AUTH={user:null,ready:false,signIn:null,signOut:null};
+/* 연구 기록 동기화 스위치 — 운영 Firestore 규칙(firestore.rules)을 연구자가 승인·게시한 뒤에만 config.js 에서 true 로. 그 전엔 기기 저장만 */
+if(window.ANNOT_SYNC_ENABLED===undefined) window.ANNOT_SYNC_ENABLED=false;
 function hostAcctHTML(){ const A=window.MILAL_AUTH, u=A.user;
   if(!window.FIREBASE_CONFIG) return "";
   if(u) return `<button class="acct on" id="acctBtn" title="${esc(u.displayName||u.email||"")}">${u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:`<i>${esc((u.displayName||u.email||"?").slice(0,1))}</i>`}</button>`;

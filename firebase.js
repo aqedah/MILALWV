@@ -2,7 +2,7 @@
    보는 것은 로그인 없이 됩니다. 로그인은 메모를 기기끼리 맞출 때만 씁니다. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, getDocs, query, orderBy, limit, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, getDocs, query, orderBy, limit, where, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const A=window.MILAL_AUTH;
 if(!window.FIREBASE_CONFIG){ A.ready=false; }
@@ -17,8 +17,35 @@ else {
   A.signOut=async()=>{ try{ await signOut(auth); toast("로그아웃했습니다."); }catch(e){} };
   getRedirectResult(auth).catch(()=>{});
 
+  /* ===== 연구 기록(annots) 동기화 — app/sync_core.js 의 규칙으로. 스위치(ANNOT_SYNC_ENABLED)가 꺼져 있으면 아무것도 안 함 =====
+     올리기: 저장할 때마다(1.5초 모아서) dirty 기록을 트랜잭션으로. 내려받기: 모음 onSnapshot. 충돌은 메모 안에 ⟪충돌 사본⟫으로 남기고 알린다. */
+  let anUnsub=null, pushTimer=null, pushing=false;
+  const anRef=(u,id)=>doc(db,"users",u.uid,"annots",id);
+  const deps=u=>({device:(typeof AN_DEVICE!=="undefined"?AN_DEVICE:"?"),serverTs:()=>serverTimestamp(),now:()=>new Date().toLocaleString("ko-KR"),
+    transaction:fn=>runTransaction(db,async tx=>{ const t={ get:async id=>{ const s=await tx.get(anRef(u,id)); return s.exists()?s.data():null; }, set:(id,d)=>tx.set(anRef(u,id),d) }; return fn(t); })});
+  const syncState=(text,extra)=>{ window.ANNOT_SYNC_STATE=Object.assign({text,pending:0,conflicts:0},window.ANNOT_SYNC_STATE||{},{text},extra||{}); };
+  async function pushDirty(){ const u=A.user; if(!u||!window.ANNOT_SYNC_ENABLED||!window.SYNC_CORE||pushing) return; pushing=true;
+    try{ const L=(await anAllRaw()).filter(a=>a.dirty||(a.srv_rev==null&&!a.deleted)); if(!L.length){ syncState("맞춤",{pending:0}); return; }
+      const r=await SYNC_CORE.syncPushAll(L,deps(u)); const changed=r.ok.filter(x=>x.action!=="noop").map(x=>x.record); const conf=r.ok.filter(x=>x.action==="merged_conflict").length;
+      if(changed.length) await anPutMany(changed);
+      syncState(r.failed.length?`일부 실패(${r.failed.length}건, 다시 시도함)`:"맞춤",{pending:r.failed.length,conflicts:(window.ANNOT_SYNC_STATE?.conflicts||0)+conf});
+      if(conf) toast(`다른 기기와 겹친 수정 ${conf}건 — 양쪽 글을 모두 남겼습니다(메모 안 ⟪충돌 사본⟫).`);
+      if(r.failed.length) setTimeout(pushDirty,15000);
+      if(changed.length&&view.st.mode==="notes") render();
+    }catch(e){ console.warn(e); syncState("올리지 못함: "+(e.code||e.message)); }
+    finally{ pushing=false; } }
+  function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(pushDirty,1500); }
+  function startAnnotSync(u){ if(!window.ANNOT_SYNC_ENABLED||!window.SYNC_CORE) return; syncState("연결 중");
+    anUnsub=onSnapshot(collection(db,"users",u.uid,"annots"),async snap=>{ try{ const L=await anAllRaw(); const M=new Map(L.map(a=>[a.id,a])); const put=[];
+        snap.docChanges().forEach(ch=>{ if(ch.type==="removed") return; const r=SYNC_CORE.syncPullOne(M.get(ch.doc.id),ch.doc.data()); if(r.action==="added"||r.action==="replaced") put.push(r.record); });
+        if(put.length){ await anPutMany(put); render(); } syncState("맞춤"); schedulePush(); }catch(e){ console.warn(e); syncState("내려받지 못함: "+(e.code||e.message)); } },
+      e=>{ console.warn(e); syncState(/permission/i.test(e.code||"")?"서버 규칙이 아직 열리지 않음(기기 저장만)":"연결 실패: "+(e.code||e.message)); });
+    window.onAnnotSaved=()=>schedulePush(); window.onAnnotDeleted=()=>schedulePush(); window.addEventListener("online",schedulePush); }
+  function stopAnnotSync(){ if(anUnsub){ anUnsub(); anUnsub=null; } window.onAnnotSaved=null; window.onAnnotDeleted=null; window.ANNOT_SYNC_STATE=null; }
+  window.MILAL_ANNOT_SYNC={pushNow:pushDirty};
+
   onAuthStateChanged(auth,async u=>{
-    A.user=u; A.ready=true; if(unsub){ unsub(); unsub=null; }
+    A.user=u; A.ready=true; if(unsub){ unsub(); unsub=null; } stopAnnotSync(); if(u) startAnnotSync(u);
     if(u){
       try{
         const snap=await getDoc(noteRef(u)); const remote=snap.exists()?(snap.data().list||[]):[];

@@ -16,16 +16,20 @@ let AN_FALLBACK_WHY="";
 function anTx(mode,fn){ return anOpen().then(db=>new Promise((res,rej)=>{ let tx; try{ tx=db.transaction(AN_STORE,mode); }catch(e){ rej(e); return; } const st=tx.objectStore(AN_STORE); let out; try{ out=fn(st); }catch(e){ rej(e); return; } tx.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); tx.onerror=()=>rej(tx.error||new Error("저장 실패")); tx.onabort=()=>rej(tx.error||new Error("저장이 취소됨(용량 부족?)")); }))
   .catch(e=>{ if(!AN_FALLBACK) throw e; const M=anFallbackLoad(); const fake={ get:id=>{ const r={result:M.get(id)}; setTimeout(()=>r.onsuccess&&r.onsuccess(),0); return r; }, put:a=>{ M.set(a.id,a); return {result:a.id}; }, getAll:()=>({result:[...M.values()]}) };
     return new Promise((res,rej)=>{ let out; try{ out=fn(fake); }catch(e2){ rej(e2); return; } setTimeout(()=>{ if(mode==="readwrite"&&!anFallbackSave()){ rej(new Error("이 브라우저의 저장 공간이 부족하거나 막혀 있습니다. 기록을 백업(JSON)으로 내려받아 두세요.")); return; } res(out&&out.result!==undefined?out.result:out); },0); }); }); }
+/* 동기화가 기기 기록을 바꿀 때 쓰는 입구(firebase.js): 묶음으로 넣고 목록 새로 고침 */
+function anPutMany(list){ return anTx("readwrite",st=>{ for(const a of list) st.put(a); }).then(()=>anAll()); }
+function anSyncHint(){ const S=window.ANNOT_SYNC_STATE; if(!S) return `<p class="lead" style="margin-top:6px">기록은 이 기기에 저장됩니다. 기기끼리 맞추기(동기화)는 운영 규칙 승인 뒤 켭니다.</p>`;
+  return `<p class="lead" style="margin-top:6px">동기화: ${esc(S.text)}${S.pending?` · 올릴 것 ${S.pending}건`:""}${S.conflicts?` · 충돌 사본 ${S.conflicts}건(메모 안에 ⟪충돌 사본⟫)`:""}</p>`; }
 function anStoreHint(){ return AN_FALLBACK?`<p class="lead warn">⚠ 이 브라우저에서 안전한 저장소(IndexedDB)를 쓸 수 없어(${esc(AN_FALLBACK_WHY)}) 기록을 임시 저장소에 두고 있습니다. 브라우저 자료를 지우면 사라질 수 있으니 <b>JSON 백업</b>을 내려받아 두세요.</p>`:""; }
 const anId=()=>Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
 let AN_CACHE=null; /* 전체 목록(지운 것 제외) — 화면용 */
 function anAll(){ return anTx("readonly",st=>st.getAll()).then(L=>{ AN_CACHE=(L||[]).filter(a=>!a.deleted).sort((x,y)=>y.updated-x.updated); return AN_CACHE; }); }
 const AN_DEVICE=(()=>{ try{ let d=localStorage.getItem("milal-device"); if(!d){ d=Math.random().toString(36).slice(2,10); localStorage.setItem("milal-device",d); } return d; }catch(e){ return "?"; } })();
-function anSave(a){ const before={updated:a.updated,created:a.created,id:a.id,rev:a.rev,device:a.device}; a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.deleted=!!a.deleted;
+function anSave(a){ const before={updated:a.updated,created:a.created,id:a.id,rev:a.rev,device:a.device}; a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.deleted=!!a.deleted; a.dirty=true; /* 동기화용: 서버에 올릴 것 */
   return anTx("readwrite",st=>st.put(a)).then(()=>anAll()).then(()=>{ if(window.onAnnotSaved) try{ onAnnotSaved(a); }catch(e){} return a; })
     .catch(e=>{ Object.assign(a,before); const q=/quota|exceeded|용량/i.test(String(e&&(e.name+" "+e.message))); throw new Error(q?"저장 공간이 부족합니다. 기록을 JSON 백업으로 내려받고 브라우저 저장 공간을 확인하세요.":String(e&&e.message||e)); }); }
 /* 지움은 표시만(동기화에서 되살아나지 않게 묘비 유지) */
-function anDelete(id){ return anTx("readwrite",st=>{ const g=st.get(id); g.onsuccess=()=>{ const a=g.result; if(a){ a.deleted=true; a.updated=Date.now(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; st.put(a); } }; }).then(()=>anAll()).then(()=>{ if(window.onAnnotDeleted) try{ onAnnotDeleted(id); }catch(e){} }); }
+function anDelete(id){ return anTx("readwrite",st=>{ const g=st.get(id); g.onsuccess=()=>{ const a=g.result; if(a){ a.deleted=true; a.updated=Date.now(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.dirty=true; st.put(a); } }; }).then(()=>anAll()).then(()=>{ if(window.onAnnotDeleted) try{ onAnnotDeleted(id); }catch(e){} }); }
 function anList(){ return AN_CACHE||[]; }
 function anFor(kind,key){ return anList().filter(a=>a.kind===kind&&a.key===key); }
 /* 자리(anchor) 만들기 — BHSA 번호 */
@@ -135,7 +139,7 @@ function recordsPage(){ const S=view.st; S.rf ||= {kind:"all",tag:"",q:"",sort:"
     <div class="rfrow"><select id="rfTag"><option value="">태그 전체</option>${tags.map(t=>`<option value="${esc(t)}"${F.tag===t?" selected":""}>#${esc(t)}</option>`).join("")}</select><div class="seg sseg mseg" style="flex:1"><button aria-checked="${F.sort==="recent"}" data-rfs="recent">최근 순</button><button aria-checked="${F.sort==="text"}" data-rfs="text">본문 순</button></div></div>
     <div class="rfrow"><span class="label" style="margin:0">${L.length}건</span><span style="flex:1"></span><button class="btn small ghost" data-export="md">Markdown 내보내기</button><button class="btn small ghost" data-export="csv">CSV</button></div>
     <div class="rfrow"><span class="label" style="margin:0">백업</span><span style="flex:1"></span><button class="btn small ghost" id="bkOut" style="white-space:nowrap">JSON 백업 내려받기</button><button class="btn small ghost" id="bkIn" style="white-space:nowrap">복원</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div>
-    <small class="lead" style="display:block;margin:-2px 0 0">JSON 백업은 기록 전부(지운 표시 포함)를 그대로 담아 다시 불러올 수 있습니다. Markdown·CSV는 읽기용입니다.</small></div>${anStoreHint()}`;
+    <small class="lead" style="display:block;margin:-2px 0 0">JSON 백업은 기록 전부(지운 표시 포함)를 그대로 담아 다시 불러올 수 있습니다. Markdown·CSV는 읽기용입니다.</small></div>${anStoreHint()}${anSyncHint()}`;
   if(!L.length) return h+`<p class="lead">기록이 없습니다. 본문에서 절을 펼쳐 메모·표시를 남기세요.</p></section>`;
   let lastG=""; for(const r of L){ const g=F.sort==="text"?`${PLAN.full[r.book-1]} ${r.ch}장`:""; if(g&&g!==lastG){ h+=`<div class="pkgrp">${esc(g)}</div>`; lastG=g; }
     const where=r.kind==="range"?r.title:`${PLAN.abbr[r.book-1]} ${r.ch}:${r.vs===0?"표제":r.vs}`;
