@@ -210,15 +210,15 @@ function qStepsHTML(){ const S=view.st, steps=Q_STEPS[S.qkey], R=S.qres; if(!ste
   /* 지금 실행된 식이 이 예시의 단계 가운데 하나와 같을 때만(조건을 크게 바꿨거나 다른 식을 실행했으면 안내를 내린다) */
   if(!steps.some(st=>{ if(!st.text) return false; const P=qParse(st.text); return !P.err&&qCanon(P)===R.canon; })) return "";
   return `<div class="qsteps"><span class="label">다음 단계 — 조건을 바꿔 보기 <small>(${cur+1}/${steps.length})</small></span><div class="qstepbar">${steps.map((st,i)=>`<button class="qstep${i===cur?" on":i<cur?" done":""}" data-qstep="${i}">${i+1}. ${esc(st.n)}</button>`).join("")}</div><p class="lead" style="margin:4px 0 0">${esc(steps[cur].say)}${steps[cur].text&&S.qres&&S.qres.prev&&S.qres.prev.n!=null&&S.qres.prev.text!==S.qres.text?` — 결과 ${S.qres.prev.n.toLocaleString()}건 → ${S.qres.n.toLocaleString()}건`:""}</p>${steps[cur].text?`<pre class="qsrc qmini" dir="ltr">${esc(steps[cur].text.trim())}</pre>`:""}</div>`; }
-/* 결과 목록: 절마다 원문(일치 낱말 강조) + '왜 맞았나' + '메모' */
+/* 결과 목록: 절마다 원문(일치 낱말 강조) + '맞은 자리' + '메모' */
 function qHitList(R,more){ const hits=R.hits; const vs=[...hits.keys()].sort((a,b)=>a-b); if(!vs.length) return `<p class="lead">찾은 곳이 없습니다. 조건을 줄이거나 범위를 넓혀 보세요.</p>`;
   const lim=30*(more||1);
   let h=`<div class="shits">`+vs.slice(0,lim).map(vi=>{ const H=sHeb(vi), set=hits.get(vi);
     const heb=H.map((t,j)=>{ const wi=SD.V[vi][5]+j; return set.has(wi)?`<mark>${esc(t.trimEnd())}</mark>${t.endsWith(" ")?" ":""}`:esc(t); }).join("");
     const words=[...set].map(wi=>{ const j=wi-SD.V[vi][5]; return `${esc(sHan(vi)[j])}`; }).join(", ");
-    return `<div class="qhit"><button class="shit" data-svi="${vi}" data-swj="${[...set][0]}"><small>${esc(sRef(vi))}${words?` · ${words}`:""}</small><span class="heb">${heb}</span><span class="kr">${esc(krvText(vi))}</span></button><div class="qhitb"><button class="btn small ghost" data-qwhy="${vi}">왜 맞았나</button><button class="btn small ghost" data-qmemo="${vi}">메모</button></div><div class="qwhy" id="qwhy-${vi}" hidden></div></div>`; }).join("")+`</div>`;
+    return `<div class="qhit"><button class="shit" data-svi="${vi}" data-swj="${[...set][0]}"><small>${esc(sRef(vi))}${words?` · ${words}`:""}</small><span class="heb">${heb}</span><span class="kr">${esc(krvText(vi))}</span></button><div class="qhitb"><button class="btn small ghost" data-qwhy="${vi}">맞은 자리</button><button class="btn small ghost" data-qmemo="${vi}">메모</button></div><div class="qwhy" id="qwhy-${vi}" hidden></div></div>`; }).join("")+`</div>`;
   if(vs.length>lim) h+=`<button class="morebtn" data-smore="1">${vs.length-lim}절 더 보기 ▾</button>`; return h; }
-/* 왜 맞았나: 이 절에 걸린 묶음(튜플)마다 조건 → 실제로 맞은 본문 */
+/* 맞은 자리: 이 절에 걸린 묶음(튜플)마다 조건 → 실제로 맞은 본문 */
 /* 조건 하나를 쉬운 말로: 자료가 판정한 범위만 말한다(조건 없는 단위는 '아무 절'처럼) */
 function qNodeKo(nd){ const b=qFromParse(nd,null); b.ch=[]; const t=qSay(b).replace(/<[^>]+>/g,""); return t; }
 const Q_OPK={"<":"앞의 표현보다 뒤에 나타남","<:":"앞의 표현 바로 뒤에 나타남","=:":"맨 앞에 나타남",":=":"맨 끝에 나타남","::":"같은 자리에서 시작과 끝","==":"같은 범위","&&":"겹침","##":"겹치지 않음","[[":"안에 품음","]]":"안에 있음",">":"앞의 표현보다 앞에 나타남",":>":"앞의 표현 바로 앞에 나타남","=":"같은 것","#":"다른 것"};
@@ -255,7 +255,7 @@ function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render()
   const eo=m.querySelector("#qEditOff"); if(eo) eo.onclick=()=>{ S.qEdit=false; rr(); };
   m.querySelectorAll("[data-qrerun]").forEach(b=>b.onclick=()=>{ const t=document.getElementById("qText"); if(t) S.qt=t.value; qExec(); S.qEdit=false; render(); document.getElementById("qResults")?.scrollIntoView({block:"start"}); });
   m.querySelectorAll("[data-qstep]").forEach(b=>b.onclick=()=>{ const steps=Q_STEPS[S.qkey]; const i=+b.dataset.qstep, st=steps[i]; S.qstep=i; if(st.text){ S.qt=st.text; const P=qParse(st.text); if(!P.err) S.qb=qFromParse(P.root,P); qExec(); render(); document.querySelector(".qsteps")?.scrollIntoView({block:"start"}); } else { rr(); document.querySelector(".shits")?.scrollIntoView({block:"start"}); } });
-  m.querySelectorAll("[data-qwhy]").forEach(b=>b.onclick=()=>{ const vi=+b.dataset.qwhy, box=document.getElementById("qwhy-"+vi); if(!box) return; if(box.hidden){ box.innerHTML=qWhyHTML(S.qres,vi); box.hidden=false; b.textContent="닫기"; } else { box.hidden=true; b.textContent="왜 맞았나"; } });
+  m.querySelectorAll("[data-qwhy]").forEach(b=>b.onclick=()=>{ const vi=+b.dataset.qwhy, box=document.getElementById("qwhy-"+vi); if(!box) return; if(box.hidden){ box.innerHTML=qWhyHTML(S.qres,vi); box.hidden=false; b.textContent="닫기"; } else { box.hidden=true; b.textContent="맞은 자리"; } });
   m.querySelectorAll("[data-qmemo]").forEach(b=>b.onclick=()=>{ if(window.openAnnotEditor) openAnnotEditor("verse",+b.dataset.qmemo); });
   const qn=m.querySelector("#qNote"); if(qn) qn.onclick=qNoteForSearch; const qs2=m.querySelector("#qSave2"); if(qs2) qs2.onclick=()=>qSaveCurrent();
   m.querySelectorAll("[data-smore]").forEach(b=>b.onclick=()=>{ S.more=(S.more||1)+1; rr(); });
