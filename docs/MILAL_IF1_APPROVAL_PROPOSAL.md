@@ -1,4 +1,6 @@
-# MILALWV-IF-1 최종 승인안 (2026-10-20, 2판) — 연구자 최종 승인용 · **현재 상태: DRAFT**(승인 전에는 바뀌지 않음)
+# MILALWV-IF-1 최종 승인안 (2026-10-20, 2판 — 기술 별첨) · **현재 상태: DRAFT**
+
+> 연구자용 요약은 `docs/MILAL_IF1_APPROVAL_SUMMARY.md`(한 장). 이 문서는 그 별첨으로, 항목별 기술 근거를 담는다. 새 기능을 확정의 전제조건으로 추가하지 않는다.
 
 **무엇을 확정하자는 것인가**: MILAL(분석 도구)의 V1 관계망을 MILALWV(보기 도구)로 넘기는 **데이터 구조와 변환 규칙**. 확정해도 MILAL의 어떤 관계도 학문적으로 승인되는 것이 아니다(승인은 `approvals.json`으로 따로, 자동 승인 없음).
 **근거**: 실제 V1(커밋 d7c2eb3, P2_REVIEW.zip 0a96d235…)을 손실 없이 변환했다 — ROUNDTRIP_EXACT, V1~V16 통과, 낱말 번호 불일치 0, 원본 BHSA 관계 대조 불일치 0, 긍정·부정 기준점·NOT_RECORDED 기대대로. 상세: `docs/MILAL_INTERFACE_DRAFT.md`(규격 본문), `docs/REPORT_real_v1_2026-10-20.md`, `docs/REPORT_bhsa_native_compare_2026-10-20.md`.
