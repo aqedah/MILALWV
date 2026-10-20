@@ -2,7 +2,7 @@
 
 - V1 폴더: `/tmp/claude-0/-home-claude/1d3f2531-8771-575f-ba04-5988af430670/scratchpad/v1run/real`
 - MILAL 커밋: `d7c2eb3`
-- 작업 폴더: `build/real_v1_2026-10-20b` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
+- 작업 폴더: `build/real_v1_2026-10-20c` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
 
 ## 1. V1 자체 검증 결과
 - `V1_VALIDATION.md` 있음, PASS 46회, FAIL/ERROR 0회
@@ -100,4 +100,4 @@
 ## 결론
 - 종료 코드 0: 모두 통과 — 명세 확정·첫 승인 기록으로 갈 수 있음
 - 다음: 연구자가 ⚠·❌ 항목을 보고, 괜찮으면 `pipeline/milal_approve.py` 로 승인 범위를 기록한다(자동 승인 없음).
-- 배포: `build/real_v1_2026-10-20b/job.json` → `study/milal/job.json` (sha256 8ea7c659e30af76b3568e2f14a64ed166a648ccd287155bec5e54a60d86a2370)
+- 배포: `build/real_v1_2026-10-20c/job.json` → `study/milal/job.json` (sha256 5aaee3616e8a0807e629a1e6d798f5af0f38ebfd2dec6371cc1c5131c88740b4)

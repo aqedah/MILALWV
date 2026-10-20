@@ -78,7 +78,8 @@ def main():
         n = {k: c[k] for k in ("id", "pos", "ch", "vs", "type", "text", "domain", "word_ids", "native_self_annotations", "ref") if k in c}
         n["id"] = str(n["id"]); n["word_ids"] = [int(x) for x in n["word_ids"]]
         rc = raw_clauses.get(n["id"])
-        if rc and rc.get("atoms"): n["clause_atom_ids"] = [int(x["node"]) for x in rc["atoms"] if "node" in x]
+        ats = (rc or {}).get("atoms") or ((rc or {}).get("CLAUSE") or {}).get("atoms") or []   # 합성 fixture 는 atoms, 실제 P2 는 CLAUSE.atoms
+        if ats: n["clause_atom_ids"] = [int(x["node"]) for x in ats if isinstance(x, dict) and "node" in x]
         extra = {k: v for k, v in c.items() if k not in n}
         if extra: n["meta"] = extra
         out["nodes"].append(n)
