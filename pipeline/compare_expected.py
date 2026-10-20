@@ -35,7 +35,8 @@ def words(vis):
 def form(i):
     vi = vOf[i]; parts = heb[vi].split("\t"); return ACC.sub("", parts[i - V[vi][5]]).strip()
 def compute(A, B, fn=False):
-    keep = lambda i: fn or lex[wl[i]][2] not in FN
+    is_fn = lambda i: lex[wl[i]][2] in FN
+    keep = lambda i: fn or not is_fn(i)
     fa = [i for i in A if keep(i)]; fb = [i for i in B if keep(i)]
     ca, cb = {}, {}
     for i in fa: ca.setdefault(wl[i], []).append(i)
@@ -49,26 +50,38 @@ def compute(A, B, fn=False):
     markA = {slot(i): (form(i) in set(byli[wl[i]]["formsB"])) for i in fa if wl[i] in byli}
     markB = {slot(i): (form(i) in set(byli[wl[i]]["formsA"])) for i in fb if wl[i] in byli}
     LA = [wl[i] for i in fa]; LB = [wl[i] for i in fb]
-    # runs
-    pos = {}
-    for j in range(len(LB) - 1): pos.setdefault((LB[j], LB[j + 1]), []).append(j)
-    runs, seen = [], set()
-    for i in range(len(LA) - 1):
-        for j in pos.get((LA[i], LA[i + 1]), []):
-            if (i, j) in seen: continue
-            ln = 2
-            while i + ln < len(LA) and j + ln < len(LB) and LA[i + ln] == LB[j + ln]: ln += 1
-            for t in range(ln - 1): seen.add((i + t, j + t))
-            runs.append({"len": ln, "a_first": slot(fa[i]), "b_first": slot(fb[j]), "forms": [form(fa[i + t]) for t in range(ln)]})
+    # 공통 연쇄: 양쪽에서 이어진 자리의 최대 확장(겹치는 짧은 것 제외)
+    def runs_of(LA, LB, wa, wb):
+        pos = {}
+        for j in range(len(LB) - 1): pos.setdefault((LB[j], LB[j + 1]), []).append(j)
+        R, seen = [], set()
+        for i in range(len(LA) - 1):
+            for j in pos.get((LA[i], LA[i + 1]), []):
+                if (i, j) in seen: continue
+                ln = 2
+                while i + ln < len(LA) and j + ln < len(LB) and LA[i + ln] == LB[j + ln]: ln += 1
+                for t in range(ln - 1): seen.add((i + t, j + t))
+                R.append({"len": ln, "a_first": slot(wa[i]), "b_first": slot(wb[j]), "forms": [form(wa[i + t]) for t in range(ln)], "a": wa[i:i + ln], "b": wb[j:j + ln]})
+        return R
+    contig = lambda W: all(W[k] == W[k - 1] + 1 for k in range(1, len(W)))
+    # ① 원문 연속 표현: 기능어를 빼지 않은 원래 순서에서 이어짐(기능어 제외 설정이므로 내용어 2개 이상인 것만)
+    runs_text = [r for r in runs_of([wl[i] for i in A], [wl[i] for i in B], A, B) if sum(1 for w in r["a"] if not is_fn(w)) >= 2]
+    # ② 기능어 제외 어순 대응: 기능어를 뺀 배열에서만 이어짐(원문에서 A 쪽이나 B 쪽에 끼어든 낱말이 있음)
+    #   원문 구간(기능어 포함)의 어휘열이 양쪽에서 같으면 이미 ①에 든 것이므로 ②에서 뺀다
+    span_lex = lambda W: [wl[i] for i in range(W[0], W[-1] + 1)]
+    runs_filt = [r for r in runs_of(LA, LB, fa, fb) if not (contig(r["a"]) and contig(r["b"])) and span_lex(r["a"]) != span_lex(r["b"])]
+    for r in runs_filt: r["skipA"] = r["a"][-1] - r["a"][0] + 1 - len(r["a"]); r["skipB"] = r["b"][-1] - r["b"][0] + 1 - len(r["b"])
+    for r in runs_text + runs_filt: del r["a"]; del r["b"]
+    runs = runs_text
     # LCS length
     n, m = len(LA), len(LB); T = [[0] * (m + 1) for _ in range(n + 1)]
     for i in range(n - 1, -1, -1):
         for j in range(m - 1, -1, -1): T[i][j] = T[i + 1][j + 1] + 1 if LA[i] == LB[j] else max(T[i + 1][j], T[i][j + 1])
     return {"nA": len(A), "nB": len(B), "fa": len(fa), "fb": len(fb), "shared": shared, "onlyA": sorted(lex[li][0] for li in ca if li not in cb), "onlyB": sorted(lex[li][0] for li in cb if li not in ca),
-            "markA_same": sum(1 for v in markA.values() if v), "markA_diff": sum(1 for v in markA.values() if not v), "markB_same": sum(1 for v in markB.values() if v), "markB_diff": sum(1 for v in markB.values() if not v), "runs": runs, "lcs": T[0][0]}
+            "markA_same": sum(1 for v in markA.values() if v), "markA_diff": sum(1 for v in markA.values() if not v), "markB_same": sum(1 for v in markB.values() if v), "markB_diff": sum(1 for v in markB.values() if not v), "runs": runs, "runs_text": runs_text, "runs_filt": runs_filt, "lcs": T[0][0]}
 CASES = {"gen22": [(1, 22, 1, 22, 10), (1, 22, 11, 22, 19)], "job1_5_34_5": [(18, 1, 5, 1, 5), (18, 34, 5, 34, 5)], "job32_6_34_1": [(18, 32, 6, 32, 6), (18, 34, 1, 34, 1)]}
 out = {}
 for k, (ra, rb) in CASES.items():
     A = words(verses(*ra)); B = words(verses(*rb)); out[k] = compute(A, B, False); out[k + "_fn"] = {"shared_n": len(compute(A, B, True)["shared"])}
 json.dump(out, open(sys.argv[1], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-for k in CASES: print(k, "A", out[k]["nA"], "B", out[k]["nB"], "shared", len(out[k]["shared"]), "runs", [r["forms"] for r in out[k]["runs"]], "lcs", out[k]["lcs"], "markA same/diff", out[k]["markA_same"], out[k]["markA_diff"], "markB", out[k]["markB_same"], out[k]["markB_diff"])
+for k in CASES: print(k, "A", out[k]["nA"], "B", out[k]["nB"], "shared", len(out[k]["shared"]), "runs_text", [r["forms"] for r in out[k]["runs_text"]], "runs_filt", [(r["forms"], r["skipA"], r["skipB"]) for r in out[k]["runs_filt"]], "lcs", out[k]["lcs"], "markA same/diff", out[k]["markA_same"], out[k]["markA_diff"], "markB", out[k]["markB_same"], out[k]["markB_diff"])

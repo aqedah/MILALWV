@@ -15,7 +15,7 @@ const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n
   await pg.reload({ waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv, .stools'), null, { timeout: 60000 }); await pg.waitForTimeout(500);
   ok('E-1c 정렬 선택이 기억됨', (await pg.evaluate(() => localStorage.getItem('milal-study-repsort'))) === 'salient');
   // E-2
-  await pg.evaluate(() => { localStorage.removeItem('milal-study-queries'); setRange({ b: 1, c1: 22, c2: 22 }); view.st.mode = 'query'; view.st.range = 'chapter'; view.st.qMode = 'text'; view.st.qt = 'clause\n  word sp=verb vt=wayq'; view.st.entered = true; render(); }); await pg.waitForTimeout(400);
+  await pg.evaluate(() => { localStorage.removeItem('milal-study-queries'); setRange({ b: 1, c1: 22, c2: 22 }); view.st.mode = 'query'; view.st.range = 'chapter'; view.st.qMode = 'text'; view.st.qkey = '__custom'; view.st.qt = 'clause\n  word sp=verb vt=wayq'; view.st.entered = true; render(); }); await pg.waitForTimeout(400);
   await pg.click('#qSave'); await pg.waitForTimeout(300); await pg.fill('#qsName', '창 22 와이크톨'); await pg.click('#qsGo'); await pg.waitForTimeout(400);
   const saved = await pg.evaluate(() => JSON.parse(localStorage.getItem('milal-study-queries') || '[]'));
   ok('E-2a 이름·식·범위·작성일 저장', saved.length === 1 && saved[0].name === '창 22 와이크톨' && /wayq/.test(saved[0].text) && saved[0].range === 'chapter' && saved[0].R.b === 1 && saved[0].R.c1 === 22 && saved[0].t > 0, JSON.stringify(saved));
