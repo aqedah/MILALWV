@@ -29,7 +29,8 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 - **실제 V1 연결(2026-10-20 오후)**: 실제 MILAL V1 을 작업 환경에서 실행(커밋 d7c2eb3, P2_REVIEW.zip 0a96d235…, V1 네트워크 sha c6df1724…) → `pipeline/milal_real_v1_check.py` 10단계 모두 통과(ROUNDTRIP_EXACT, V1~V16, 긍정 기준점 500064→500065 CONFIRMED·HUMAN 근거, 부정 기준점 500062↛500065 NO_DIRECT_RELATION, 37:24→38:1 NOT_RECORDED) → `study/milal/job.json`(sha c3541750…, 욥기 1–42장, 절 2,938·관계 446·원 관계 3,350, **UNREVIEWED**)으로 배포, 앱이 이 파일을 읽음. 시험 자료는 `test/`에만. 보고서 `docs/REPORT_real_v1_2026-10-20.md`. 명세 확정·첫 승인 기록은 연구자 확인 뒤.
 - **5단계 준비(2026-10-20 저녁, `docs/REPORT_2026-10-20_stage5prep.md`)**: BHSA 원본 관계 대조(절 원자 복원 2,895·불일치 0, 사본 `study/milal/bhsa_native_job.json`, V13a/b) · IF-1 최종 승인안(`docs/MILAL_IF1_APPROVAL_PROPOSAL.md`, 미확정) · 규칙별 검토표(`docs/MILAL_REVIEW_TABLE_2026-10-20.md`, 승인 기록 없음) · 운영 전환 연구자 체크리스트(`docs/OPS_CHECKLIST_RESEARCHER.md`) + 옛 나눔 글 hidden 이전 스크립트 · 상세 창 쉬운 말 재구성 · HSA3 별도 시각화 설계(`docs/HSA3_DISPLAY_DESIGN.md`) · Android 실기기 점검표·5단계 우선순위(`docs/ANDROID_DEVICE_CHECK.md`).
 - **5단계 착수(2026-10-20 밤, `docs/REPORT_2026-10-20_stage5a.md`)**: V1 보존 상태 네 가지 구별(전수검사 2,977·오류 0), V13b NOT_RUN 분리·사본 필수화, IF-1 승인안 2판(DRAFT), HSA3 차원 일치·노드 등록 20/미해결 3·시제품(읽기 전용), **본문 비교기**(연구 탭 '비교', `app/compare.js`, 시험 13건), 검토표 기술/학문 분리.
-- 남은 일: 연구자 답(IF-1 확정, 규칙별 검토, 운영 전환 착수, HSA3 노드 등록·설계 답, 실기기 점검일) · 목사님 PC 재실행 해시 대조 · Firestore 규칙 승인·게시 뒤 동기화 켜기 · 실기기 측정 · PDF 내보내기 · '정할 것' 2·4·5번 · 개역개정 본문.
+- **5단계 비교기 완성(2026-10-20 저녁, `docs/REPORT_2026-10-20_stage5b.md`)**: 형태 판정을 상대편 본문과 대조(대칭)·모음 유지 정규화, 어휘 선택 강조, LCS 상한(9M)·생략 표시, 범위 검증, 비교 메모 A/B 낱말 번호·설정 보존과 기록에서 복원, 독립 계산 대조 24건(`compare_expected.py`+`compare_c.js`), IF-1 승인 요약(`docs/MILAL_IF1_APPROVAL_SUMMARY.md`, DRAFT), HSA3 시제품 검증 12항목, 인쇄·PDF 시제품(`app/print.js`, `docs/PRINT_PDF_DESIGN.md`).
+- 남은 일: 연구자 답(IF-1 요약본 §6, 규칙별 검토, 운영 전환 착수, HSA3 노드 등록·설계 답, 실기기 점검일) · 목사님 PC 재실행 해시 대조 · Firestore 규칙 승인·게시 뒤 동기화 켜기 · 실기기 측정 · PDF 내보내기 · '정할 것' 2·4·5번 · 개역개정 본문.
 
 ---
 
