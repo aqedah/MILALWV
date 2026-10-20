@@ -298,3 +298,6 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .ulink.u-p i{border-left:2px dashed var(--accent)}.ulink.u-p span{color:var(--accent)}
 .ulink.u-q i{border-left:3px double #B5542D}.ulink.u-q span{color:#B5542D;font-weight:700}
 .ulink.u-nd i{border-left:0;border-top:2px solid #8A1C1C;height:0;min-height:0;width:16px}.ulink.u-nd span{color:#8A1C1C}
+.mb-d{background:var(--accent);color:var(--accent-ink)}
+.mtog.back{background:var(--accent);color:var(--accent-ink);font-weight:700;margin-bottom:4px}
+.srcnote .lead+span{margin-top:4px}

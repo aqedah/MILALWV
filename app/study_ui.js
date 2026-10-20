@@ -300,6 +300,8 @@ function bindStudy(m){
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
   m.querySelectorAll(".umap [data-mgo]").forEach(b=>b.onclick=()=>gotoAtom(S.R.b,+b.dataset.mgo));
+  m.querySelectorAll("[data-mapcand]").forEach(b=>b.onclick=()=>{ S.mapCand=b.dataset.mapcand==="1"; render(); });
+  const sbk=document.getElementById("sBack"); if(sbk) sbk.onclick=goBack;
   const fa=document.getElementById("sFoldAll"); if(fa) fa.onclick=()=>{ S.foldAll=!S.foldAll; S.fold={}; render(); toast(S.foldAll?"인물의 말을 모두 접었습니다. 이야기 뼈대만 보입니다.":"인물의 말을 모두 펼쳤습니다."); };
   const gt=document.getElementById("sGoToday"); if(gt) gt.onclick=()=>{ const m=S.mode; setRange(todayOT()); S.mode=m; render(); scrollTo({top:0}); };
   const ml=document.getElementById("sMulti"); if(ml) ml.onclick=()=>{ S.pick=true; S.pk={b:S.R.b,c1:null,c2:null}; render(); scrollTo({top:0}); };
@@ -332,7 +334,8 @@ function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalL
   else if(!st||st.state==="loading") m=`<span>MILAL 판정 불러오는 중…</span>`;
   else if(st.state==="err") m=`<span>MILAL 자료를 읽지 않음: ${esc(st.msg)}</span> <button class="mtog" data-milal="0">끄기</button>`;
   else m=`<span>MILAL 판정 ${milalBadgeFile(st)} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
-  return `<div class="srcnote"><span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다.</span></div>`; }
+  const bk=S.back?`<button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}으로 돌아가기</button> `:"";
+  return `<div class="srcnote">${bk?`<span>${bk}</span>`:""}<span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다.</span></div>`; }
 /* 장 구조 보기: ETCBC 절 원자(clause atom)를 들여쓰기(tab)대로 */
 const MAINLINE=new Set(["Way0","WayX"]), BACKGR=new Set(["NmCl","AjCl","Ptcp","XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"]);
 /* 이야기 표지 판정 (ETCBC 자료로): 와예히/웨하야 + 때·키·베/케+부정사·곳, MSyn의 보라·이제 */
