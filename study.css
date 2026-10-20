@@ -378,3 +378,5 @@ h3{font-size:14px;margin:14px 0 4px}
 .qfrom{border-left:3px solid var(--line);padding-left:8px}
 .qlook{margin-top:6px}
 .qcode{margin-top:6px;font-size:12px} .qcode summary{cursor:pointer;opacity:.7} .qcode code{font-size:11px}
+.cmprun-f{cursor:pointer} .cmprun-f.on{outline:2px solid var(--ink);outline-offset:2px}
+.qpend{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:8px 0 10px}

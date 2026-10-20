@@ -9,6 +9,8 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   await tap('.bnav [data-nav="research"]'); await tap('[data-smode="query"]');
   const f0 = await pg.evaluate(() => ({ box: !!document.querySelector('.qrange .swide'), label: (document.querySelector('.qrange .label') || {}).textContent || '', editor: !!document.querySelector('#qText, .qblock'), wideBtn: !!document.querySelector('.qrange [data-swide="1"]') }));
   ok('A1 첫 화면에 찾는 범위와 전환 단추(구약 전체/이 범위)가 보이고 편집기는 아직 없음', f0.box && /찾는 범위/.test(f0.label) && f0.wideBtn && !f0.editor, JSON.stringify(f0));
+  await tap('#qPickRange'); const pk = await pg.evaluate(() => ({ pick: !!view.st.pick, ui: !!document.querySelector('#pkGo') })); await tap('[data-pkc="22"]'); await tap('#pkGo'); await pg.waitForFunction(() => document.querySelector('.qrange'), null, { timeout: 10000 }); const pk2 = await pg.evaluate(() => ({ mode: view.st.mode, label: (document.querySelector('.qrange .label') || {}).textContent || '' }));
+  ok('A1b "책·장 범위 고르기" → 장 선택 화면 → 22장 고르면 검색 첫 화면으로 돌아와 "창세기 22장"', pk.pick && pk.ui && pk2.mode === 'query' && /창세기 22장/.test(pk2.label), JSON.stringify({ pk, pk2 })); await pg.evaluate(() => { setRange({ b: 1, c1: 1, c2: 1 }); render(); });
   await pg.screenshot({ path: OUT + 'after_first_range.png' });
   // 구약 전체로 바꾸고 예시 실행(초급 재방문 시나리오 시작)
   taps = 0; await tap('.qrange [data-swide="1"]'); const f1 = await pg.evaluate(() => (document.querySelector('.qrange .label') || {}).textContent || '');
@@ -67,12 +69,14 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   const gradTaps = taps;
   // 다른 데로 갔다가 기록 탭에서 검색 메모 열기
   await pg.evaluate(() => { setRange({ b: 18, c1: 1, c2: 1 }); view.st.wide = true; view.st.qres = null; view.st.qt = ''; }); await tap('.bnav [data-nav="notes"]');
-  const rec = await pg.$('[data-rgo]'); await rec.click(); taps++; await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const e2 = await st();
+  const rec = await pg.$('[data-rgo]'); await rec.click(); taps++; await pg.waitForFunction(() => view.st.mode === 'query' && document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await W(200);
+  const pend = await pg.evaluate(() => ({ txt: (document.querySelector('.qpend') || {}).textContent || '', ran: !!(view.st.qres && view.st.qres.hits) })); ok('E2a 검색 메모를 열면 먼저 기록 당시 정보와 "이 검색 다시 실행" 단추가 보이고 아직 실행하지 않음', /기록 당시/.test(pend.txt) && /\d+건 · 전체 계산/.test(pend.txt) && !pend.ran, pend.txt.slice(0, 120));
+  await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const e2 = await st();
   const e2n = await pg.evaluate(() => (document.querySelector('.qfrom') || {}).textContent || '');
   ok('E2 기록 탭에서 검색 메모를 열면 검색 화면·같은 식·같은 범위(창 22)로 다시 실행되고 "같은 결과입니다" 안내', e2.mode === 'query' && /w1 < w2/.test(e2.text) && !e2.wide && e2.R.b === 1 && e2.R.c1 === 22 && /검색 메모에서 다시 실행/.test(e2n) && /같은 결과입니다/.test(e2n), JSON.stringify({ mode: e2.mode, r: e2.rangeTxt, n: e2.n, note: e2n.slice(0, 140) }));
   await pg.screenshot({ path: OUT + 'h_from_note.png' });
   // 기록 당시 값이 다르면 경고
-  await pg.evaluate(async () => { const a = anList().find(x => x.tags.includes('검색식')); a.anchor.query.n = a.anchor.query.n + 5; a.anchor.query.bhsa = '2017'; await anSave(a); }); await tap('.bnav [data-nav="notes"]'); const rec2 = await pg.$('[data-rgo]'); await rec2.click(); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300);
+  await pg.evaluate(async () => { const a = anList().find(x => x.tags.includes('검색식')); a.anchor.query.n = a.anchor.query.n + 5; a.anchor.query.bhsa = '2017'; await anSave(a); }); await tap('.bnav [data-nav="notes"]'); const rec2 = await pg.$('[data-rgo]'); await rec2.click(); await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300);
   const e3 = await pg.evaluate(() => { const el = document.querySelector('.qfrom'); return { txt: el ? el.textContent : '', warn: !!(el && el.classList.contains('warn')) }; });
   ok('E3 기록 당시 건수·자료판이 지금과 다르면 두 값을 나란히 보이고 "결과가 다릅니다" 경고', e3.warn && /결과가 다릅니다/.test(e3.txt) && /BHSA 2017/.test(e3.txt) && /BHSA 2021/.test(e3.txt), e3.txt.slice(0, 160));
   ok(`시나리오 대학원: 관계식 실행→뒤쪽 절 근거→범위 변경 경고→재실행→검색 메모 저장·복원 (탭 ${gradTaps + 1})`, true, String(gradTaps + 1));
@@ -85,7 +89,7 @@ const { chromium, devices } = require('playwright'); const fs = require('fs'); c
   ok('재방문 1 보관함에서 실행 → 구약 전체·369건 그대로', r1.wide && r1.n === 369 && r1.rangeTxt === '구약 전체');
   await tap('.shit'); await pg.waitForFunction(() => document.querySelector('#sBack'), null, { timeout: 20000 }); await tap('#sBack'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.n === 369, null, { timeout: 20000 }); await W(200);
   await tap('#qNote'); await pg.fill('#anObs', '보라 뒤 분사 — 서술자 설명에 많음(관찰)'); await tap('#anSave');
-  await tap('.bnav [data-nav="notes"]'); const rr = await pg.$$('[data-rgo]'); await rr[0].click(); taps++; await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const r2 = await st(); const r2n = await pg.evaluate(() => (document.querySelector('.qfrom') || {}).textContent || '');
+  await tap('.bnav [data-nav="notes"]'); const rr = await pg.$$('[data-rgo]'); await rr[0].click(); taps++; await pg.waitForFunction(() => document.querySelector('#qRerunNote'), null, { timeout: 60000 }); await tap('#qRerunNote'); await pg.waitForFunction(() => view.st.mode === 'query' && view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); await W(300); const r2 = await st(); const r2n = await pg.evaluate(() => (document.querySelector('.qfrom') || {}).textContent || '');
   ok(`재방문 2 관찰 메모를 다시 열면 구약 전체·369건 복원, 같은 결과 (초급 탭 ${taps})`, r2.mode === 'query' && r2.wide && r2.n === 369 && /같은 결과/.test(r2n), JSON.stringify({ wide: r2.wide, n: r2.n }));
   // 대조 건수
   const cnts = await pg.evaluate(() => Object.fromEntries(Object.keys(Q_RECIPES).map(k => [k, qRun(qParse(Q_RECIPES[k]), null, 100000).out.length])));
