@@ -29,7 +29,7 @@ def run(cmd):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("v1dir"); ap.add_argument("--review-zip"); ap.add_argument("--commit", required=True)
-    ap.add_argument("--work"); ap.add_argument("--deploy"); ap.add_argument("--report"); ap.add_argument("--words", default="study/words.json")
+    ap.add_argument("--work"); ap.add_argument("--deploy"); ap.add_argument("--bhsa-native", default="study/milal/bhsa_native_job.json", help="BHSA 원자료 사본(pipeline/bhsa_native_job.py) — 있으면 V13b·6b 대조"); ap.add_argument("--report"); ap.add_argument("--words", default="study/words.json")
     ap.add_argument("--positive", action="append", help="장:절=모절id>자절id — 연구자가 채택한 모절·자절 (기본 37:20=500064>500065)")
     ap.add_argument("--negative", action="append", help="장:절=모절후보id>자절id — 연구자가 직접 모절로 기각한 쌍 (기본 37:20=500062>500065)")
     ap.add_argument("--not-in-v1", action="append", help="장:절>장:절 — V1 범위 밖 판정(기록 유무만 확인; 기본 37:24>38:1)")
@@ -100,11 +100,24 @@ def main():
     unres_ev = [e for e in Dtmp["evidence"] if e.get("outcome") == "UNRESOLVED"]; failed_ev = [e for e in Dtmp["evidence"] if e.get("outcome") == "FAILED"]
     say(f"- P2 근거 상태: 미결(UNRESOLVED) {len(unres_ev)}개 · 실패(FAILED, 반례·통과 못 한 검사) {len(failed_ev)}개 — 연구자 검토 목록에 포함")
     say("\n## 6. BHSA 낱말·절·절 원자 대조 (V1~V16)")
-    rc, outp = run([sys.executable, os.path.join(HERE, "milal_check.py"), a.out] + ([] if a.words in ("", "none") else ["--words", a.words]))
+    native_p = getattr(a, "bhsa_native", None) or ""
+    rc, outp = run([sys.executable, os.path.join(HERE, "milal_check.py"), a.out] + ([] if a.words in ("", "none") else ["--words", a.words]) + (["--bhsa-native", native_p] if native_p and os.path.exists(native_p) else []))
     if a.words in ("", "none"): flag(1, "--words none: BHSA 낱말 대조(V5)를 건너뜀 — 합성 자료 시험에서만 허용")
     for line in outp.splitlines():
         if line.startswith(("PASS", "FAIL", "WARN")): say("- " + line)
     if rc != 0: flag(2 if rc == 1 else 1, f"검증기 종료 코드 {rc}" + (" (jsonschema 없음)" if rc == 2 else ""))
+    # 6b. 원본 관계 대조 (BHSA 원자료 사본이 있을 때)
+    if native_p and os.path.exists(native_p):
+        say("\n### 6b. BHSA 원본 mother/rela 대조 (native_relations ↔ bhsa_native_job.json)")
+        rcn, outn = run([sys.executable, os.path.join(HERE, "milal_native_compare.py"), a.out, native_p])
+        try:
+            Cn = json.loads(outn[outn.index("{"):outn.rindex("}") + 1]); 
+            for k in ("if1_native_relations", "bhsa_clause_atoms", "bhsa_clauses", "atom_exact", "clause_exact", "clause_mother_phrase_or_word", "phrase_level", "diff", "no_nodes", "bhsa_atom_mothers_not_in_v1"): 
+                if k in Cn: say(f"- {k}: {Cn[k]}")
+            if Cn.get("diff"): flag(2, f"원본과 다른 원 관계 {Cn['diff']}개")
+            if Cn.get("no_nodes"): flag(1, f"절 원자 번호를 복원하지 못한 원 관계 {Cn['no_nodes']}개 (P2_REVIEW.zip 없이 변환했거나 기록 색인이 없음)")
+        except Exception as ex: flag(1, "원본 대조 결과를 읽지 못함: " + str(ex))
+    else: say("- 6b 원본 대조: NOT_RUN (--bhsa-native 없음)")
 
     # 7. 화면
     say("\n## 7. 화면 표시 (수동)\n- `app/milal.js` 의 MILAL_FILES url 을 이 파일로 바꾸고(test → study/milal/job.json) 욥 32–37 계층·발화·지도를 연다. `node pipeline/ui_tests/personas_e.js` 의 대학원 시나리오로 머리띠·상세·지도를 자동 캡처할 수 있다.")

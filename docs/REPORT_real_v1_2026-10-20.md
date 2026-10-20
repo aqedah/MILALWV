@@ -2,7 +2,7 @@
 
 - V1 폴더: `/tmp/claude-0/-home-claude/1d3f2531-8771-575f-ba04-5988af430670/scratchpad/v1run/real`
 - MILAL 커밋: `d7c2eb3`
-- 작업 폴더: `build/real_v1_2026-10-20` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
+- 작업 폴더: `build/real_v1_2026-10-20b` (검사를 모두 통과하고 --deploy 를 준 때만 배포 자리로 복사)
 
 ## 1. V1 자체 검증 결과
 - `V1_VALIDATION.md` 있음, PASS 46회, FAIL/ERROR 0회
@@ -50,10 +50,23 @@
 - PASS V9 근거 존재
 - PASS V10 파일 상태 — MILAL_OUTPUT — 실제 MILAL 출력
 - PASS V12 직접연결없음에 근거
-- PASS V13 원 관계 끝점 존재 — 3350개 (절 원자 번호 있는 것 0)
+- PASS V13a 원 관계 끝점 존재(ID 검사) — 3350개 (절 원자 번호 복원된 것 2895)
+- PASS V13b 원 관계 실제 원본 대조(BHSA mother/rela) — {'atom_match': 2895, 'clause_match': 454, 'other_level(phrase)': 1}
 - PASS V15 원 관계 원본 edge id 중복 없음
 - PASS V16 연구자 검토 상태 — UNREVIEWED — 화면에 '승인 전' 표시
 - PASS V14 실제 출력 출처 — commit·network_sha256·generated_at 필요
+
+### 6b. BHSA 원본 mother/rela 대조 (native_relations ↔ bhsa_native_job.json)
+- if1_native_relations: 3350
+- bhsa_clause_atoms: 2977
+- bhsa_clauses: 2938
+- atom_exact: 2895
+- clause_exact: 359
+- clause_mother_phrase_or_word: 95
+- phrase_level: 1
+- diff: 0
+- no_nodes: 0
+- bhsa_atom_mothers_not_in_v1: 39
 
 ## 7. 화면 표시 (수동)
 - `app/milal.js` 의 MILAL_FILES url 을 이 파일로 바꾸고(test → study/milal/job.json) 욥 32–37 계층·발화·지도를 연다. `node pipeline/ui_tests/personas_e.js` 의 대학원 시나리오로 머리띠·상세·지도를 자동 캡처할 수 있다.
@@ -87,4 +100,4 @@
 ## 결론
 - 종료 코드 0: 모두 통과 — 명세 확정·첫 승인 기록으로 갈 수 있음
 - 다음: 연구자가 ⚠·❌ 항목을 보고, 괜찮으면 `pipeline/milal_approve.py` 로 승인 범위를 기록한다(자동 승인 없음).
-- 배포: `build/real_v1_2026-10-20/job.json` → `study/milal/job.json` (sha256 c3541750b1fa757f2b6cf2744470636d1c001d56f33aad040dc5ee333fa861cc)
+- 배포: `build/real_v1_2026-10-20b/job.json` → `study/milal/job.json` (sha256 8ea7c659e30af76b3568e2f14a64ed166a648ccd287155bec5e54a60d86a2370)

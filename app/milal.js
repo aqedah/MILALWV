@@ -1,7 +1,7 @@
 /* ===== MILAL 판정 읽기·겹쳐 보기 (MILALWV-IF-1, docs/MILAL_INTERFACE_DRAFT.md) =====
    MILAL은 판정하고 여기서는 보여 주기만 한다. 받은 파일을 되쓰지 않는다.
    세 출처를 구별한다: BHSA 원자료(선·tab·typ·domain) / 앱 관찰 후보(색·표지) / MILAL 판정(이 파일) */
-const MILAL_FILES=[{book:18,url:"study/milal/job.json",approvals:"study/milal/approvals.json"}];   /* 책 번호(개역 순) → 분석 파일(실제 MILAL V1 출력, 2026-10-20 검증 통과, 승인 전) + 승인 기록 파일(분리). 시험 자료는 test/milal_test_only_job31-38.json (시험 스크립트 전용) */
+const MILAL_FILES=[{book:18,url:"study/milal/job.json",approvals:"study/milal/approvals.json",native:"study/milal/bhsa_native_job.json"}];   /* 책 번호(개역 순) → 분석 파일(실제 MILAL V1 출력, 2026-10-20 검증 통과, 승인 전) + 승인 기록 파일(분리). 시험 자료는 test/milal_test_only_job31-38.json (시험 스크립트 전용) */
 const MK_KO={SUBORDINATE:"종속",PARALLEL:"병행",FRAME_CONTENT:"틀–내용",CONTINUATION:"이어짐",CLOSURE:"종결",MEMBERSHIP:"포함"};
 const MS_KO={CONFIRMED:"확정",PROVISIONAL:"잠정",COMPETING:"경쟁",UNASSIGNED:"미배정"};
 const MG_KO={LOCAL_SPEECH_UNIT:"발언 단위",CONDITIONAL_RESPONSE_UNIT:"조건부 응답 단위",UNRESOLVED_SCOPE_FRAGMENT:"범위 미결 조각",NARRATIVE_REPORT_SEGMENT_HYPOTHESIS:"서술 보고 구간(가설)",ENCLOSING_SPEECH_HYPOTHESIS:"큰 발언 가설",SURFACE_EVENT_ANCHOR:"표면 사건 표지",UNCOVERED_SOURCE_CONTEXT:"덮이지 않은 출처 문맥",REPORT_INTRODUCTION:"보고 도입(말하기 절)",REPORT_CONTENT:"보고 내용(말한 것)"};
@@ -24,7 +24,10 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
   const sha256=buf=>crypto.subtle?crypto.subtle.digest("SHA-256",buf).then(h=>[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")):Promise.resolve("");
   let fileSha="", approvals=null;
   fetch(f.url+"?v="+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.arrayBuffer(); })
-  .then(async buf=>{ fileSha=await sha256(buf); if(f.approvals){ try{ const r=await fetch(f.approvals+"?v="+(window.STUDY_V||"1")); if(r.ok) approvals=await r.json(); }catch(e){} } return JSON.parse(new TextDecoder().decode(buf)); }).then(D=>{
+  .then(async buf=>{ fileSha=await sha256(buf); if(f.approvals){ try{ const r=await fetch(f.approvals+"?v="+(window.STUDY_V||"1")); if(r.ok) approvals=await r.json(); }catch(e){} }
+    /* BHSA 원자료 사본(절 원자·절의 mother/rela 그대로, 판정 없음) — 있으면 상세 창의 '원 자료' 칸에 쓴다 */
+    if(f.native){ try{ const r=await fetch(f.native+"?v="+(window.STUDY_V||"1")); if(r.ok){ const B=await r.json(); if(B&&B.schema==="MILALWV-BHSA-NATIVE-1"){ st.bhsaNative=new Map(B.atoms.map(x=>[x.clause_atom,x])); st.bhsaNativeMeta={bhsa:B.bhsa,atoms:B.counts.clause_atoms}; } } }catch(e){} }
+    return JSON.parse(new TextDecoder().decode(buf)); }).then(D=>{
     const chk=milalCheck(D); if(chk.fatal.length){ st.state="err"; st.msg=chk.fatal.join(" · "); render(); return; }
     milalIndex();
     const byCid=new Map(), nodeCid=new Map(), unmatched=[];
@@ -48,7 +51,7 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
       (s.options||[]).forEach(o=>{ if(nodeCid.has(o)) cs.add(nodeCid.get(o)); else if(gid.has(o)) gs.add(o); });
       cs.forEach(c=>byCid.has(c)&&byCid.get(c).issues.push(s)); gs.forEach(g=>byGid.has(g)&&byGid.get(g).issues.push(s)); }
     /* BHSA 원 자료(native_relations): 절 원자 번호로 색인 — MILAL 판정과 다른 층 */
-    const natByAtom=new Map(); for(const x of D.native_relations||[]) natByAtom.set(x.clause_atom,x);
+    const natByAtom=new Map(), natByClause=new Map(); for(const x of D.native_relations||[]){ if(x.clause_atom!=null) natByAtom.set(x.clause_atom,x); natByClause.set(x.clause_id,x); }
     /* 확정(CONFIRMED) 계층 관계만으로 깊이 계산. BHSA tab 과 별개. 잠정·경쟁은 깊이에 넣지 않는다 */
     const parent=new Map(); const key=e=>e.type==="group"?"g:"+e.id:"c:"+e.id;
     for(const r of D.relations) if(r.family==="HIERARCHY"&&r.status==="CONFIRMED"&&r.target.type!=="clause_set"&&r.source.type!=="clause_set") parent.set(key(r.target),key(r.source));
@@ -63,7 +66,7 @@ function milalLoad(b){ const f=milalFile(b); if(!f||!SD||!SD.ccn) return null; i
     const relById=new Map(D.relations.map(r=>[r.id,r])); const relCh=new Map(); for(const r of D.relations){ const cs=[...chOfEnd(r.source),...chOfEnd(r.target)]; if(cs.length) relCh.set(r.id,[Math.min(...cs),Math.max(...cs)]); }
     const apr=approvalResolve(recs,{fileSha,fileStatus:D.file_status,relIds:D.relations.map(r=>r.id),chaptersOf:id=>relCh.get(id)||null,ruleOf:id=>(relById.get(id)||{}).rule||null,kindOf:id=>(relById.get(id)||{}).kind||null}); apr.records=recs.filter(r=>r.if1_sha256===fileSha); apr.sha=fileSha;
     if(D.review&&D.review.status==="APPROVED"&&apr.status!=="APPROVED") apr.note="파일 안의 review.status=APPROVED 는 무시함(승인 기록 없음)";
-    Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,cdepth,warn:chk.warn,test:D.file_status==="TEST_ONLY",review:apr.status,apr}); render();
+    Object.assign(st,{state:"ok",data:D,byCid,byGid,gid,ev,nodeCid,unmatched,badN,natByAtom,natByClause,cdepth,warn:chk.warn,test:D.file_status==="TEST_ONLY",review:apr.status,apr}); render();
   }).catch(e=>{ st.state="err"; const m=String(e.message||e); st.msg=/HTTP 404/.test(m)?"분석 파일이 서버에 없습니다(아직 올리지 않았거나 파일 이름이 바뀜) — 본문·구조 화면은 그대로 쓸 수 있습니다":/Failed to fetch|NetworkError|HTTP 5/.test(m)?"분석 파일을 내려받지 못했습니다. 인터넷 연결을 확인하고 '끄기' 뒤 다시 켜 보세요":m; render(); });
   return st; }
 /* 가벼운 검증 (V2·V3·V6·V7·V9; 전체 검사는 pipeline/milal_check.py) */
@@ -134,7 +137,7 @@ function openAtomSheet(b,aid){ const w0=atomFirstWord(aid), cid=SD.wc[w0], vi=SD
     const iss=o.issues; if(iss.length) h+=`<span class="label">미해결·대안</span>`+iss.map(s=>`<div class="mrel"><div><b>${esc(MI_KO[s.kind]||s.kind)}</b>${s.subkind?` · ${esc(s.subkind)}`:""}${s.rule_id?` · 규칙 ${esc(s.rule_id)}`:""}</div>${s.unresolved_checks?`<small>미결 검사: ${esc(s.unresolved_checks.join(", "))}</small>`:""}${s.options?`<small>선택지: ${s.options.map(x=>{ const g=st.gid.get(x); return g?esc((MG_KO[g.kind]||g.kind)+" "+g.first+"–"+g.last):esc(x); }).join(" / ")}</small>`:""}${s.note?`<small>${esc(s.note)}</small>`:""}</div>`).join("");
     h+=`</div>`;
     /* BHSA 원 자료의 mother/rela — 이 절 원자 것만, 판정 아님 */
-    const nx=st.natByAtom.get(SD.can[aid]); if(nx){ const mc=nx.mother_clause_id&&st.nodeCid.get(nx.mother_clause_id); h+=`<div class="src3"><span class="label">BHSA 원 자료의 mother/rela <small>(원 데이터 — MILAL 판정 아님)</small></span><dl class="rdl"><dt>이 절 원자의 mother</dt><dd>clause_atom ${nx.mother_clause_atom}${mc!=null?` · ${esc(sRef(SD.vOf[atomFirstWord(SD.cFirstA[mc])]))} <button class="mgo" data-mgo="${SD.cFirstA[mc]}">가기 ›</button>`:""}</dd><dt>rela</dt><dd>${esc(nx.rela)}${nx.rela_level==="clause"?" (절 수준 값)":""}</dd></dl></div>`; } }
+    h+=bhsaNativeBlock(b,aid,st); }
   if(window.annotListHTML) h+=annotListHTML("atom","a:"+SD.can[aid],aid).replace(/<\/div>$/,`<button class="btn small ghost" data-mkatom="${aid}" style="margin-left:6px">이 절 원자 표시(형광펜·괄호)</button></div>`);
   sheet("절 원자 · "+sRef(vi),`<div class="sdetail sheetd">${h}</div>`); if(window.bindAnnots) bindAnnots(document.getElementById("sheetRoot"));
   document.querySelectorAll("#sheetRoot [data-mkatom]").forEach(x=>x.onclick=()=>{ const a2=+x.dataset.mkatom, w1=atomFirstWord(a2), ws=[]; for(let i=w1;i<SD.wa.length&&SD.wa[i]===a2;i++) ws.push(i); openMarkPicker(ws,"절 원자"); });
@@ -153,6 +156,20 @@ function openUnitSheet(b,gid){ const st=ML[b]; if(!st||st.state!=="ok") return; 
   h+=`<div class="src3"><span class="label">구성 절</span><p class="lead">${g.members.length}절${g.roles&&g.roles.introduction&&g.roles.introduction.length?` · 도입 ${g.roles.introduction.length}절`:""} · ${c0!=null?`<button class="mgo" data-mgo="${SD.cFirstA[c0]}">첫 절 ${esc(g.first)} ›</button>`:""} ${cN!=null?`<button class="mgo" data-mgo="${SD.cFirstA[cN]}">끝 절 ${esc(g.last)} ›</button>`:""}</p></div>`;
   sheet(`${MG_KO[g.kind]||g.kind} · ${g.first}–${g.last}`,`<div class="sdetail sheetd">${h}</div>`);
   document.querySelectorAll("#sheetRoot [data-mgo]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); document.getElementById("sheetRoot").innerHTML=""; gotoAtom(b,+x.dataset.mgo); }); }
+/* BHSA 원 자료(mother/rela) 칸: 원자료 사본(bhsa_native_job.json)을 우선, 없으면 V1 이 보존한 것. 쉬운 말로 먼저, 노드 번호는 뒤에. 판정 아님 */
+const RELA_KO={NA:"종류 미지정(NA)",Coor:"나란히 이어짐(Coor)",Adju:"부사절(Adju)",Attr:"꾸밈절·관계절(Attr)",Objc:"목적절(Objc)",Resu:"결과(Resu)",Subj:"주어절(Subj)",RgRc:"다시 받는 관계절(RgRc)",Cmpl:"보충(Cmpl)",ReVo:"호격 되받음(ReVo)",Spec:"상술(Spec)",PreC:"술어 보충(PreC)"};
+function bhsaNativeBlock(b,aid,st){ const ca=SD.can[aid], cid=SD.wc[atomFirstWord(aid)]; const y=st.bhsaNative&&st.bhsaNative.get(ca); const v1=st.natByAtom.get(ca)||st.natByClause.get(String(SD.ccn[cid]));
+  if(!y&&!v1) return "";
+  const refOf=a2=>a2!=null?`${esc(sRef(SD.vOf[atomFirstWord(a2)]))} <button class="mgo" data-mgo="${a2}">가기 ›</button>`:"";
+  const atomApp=caNode=>{ if(caNode==null) return null; const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let i=a0;i<a1;i++) if(SD.can[i]===caNode) return i; return null; };
+  let rows="";
+  if(y){ const mA=atomApp(y.mother_clause_atom); rows+=`<dt>절 원자의 모절</dt><dd>${y.mother_clause_atom!=null?`${refOf(mA)} · ${esc(RELA_KO[y.rela_atom]||y.rela_atom)}`:"없음(원자료에 mother 없음)"}</dd>`;
+    const mt=y.mother_clause_type; if(!st.bhsaClauseAtom){ st.bhsaClauseAtom=new Map(); for(const z of st.bhsaNative.values()) if(!st.bhsaClauseAtom.has(z.clause)) st.bhsaClauseAtom.set(z.clause,z.clause_atom); } const mC=mt==="clause"?atomApp(st.bhsaClauseAtom.get(y.mother_clause)):null;
+    rows+=`<dt>절의 모절</dt><dd>${y.mother_clause!=null?`${mt==="clause"?refOf(mC):mt==="phrase"?"구(phrase)에 걸림":mt==="word"?"낱말(word)에 걸림":esc(String(mt))} · ${esc(RELA_KO[y.rela_clause]||y.rela_clause)}`:"없음"}</dd>`;
+    rows+=`<dt>V1 보존 여부</dt><dd>${v1?`있음 (${esc(v1.origin_edge_id)})`:"없음 — 절 하나에 절 원자가 여럿일 때 둘째 원자의 mother 는 V1 에 없음(원자료에만)"}</dd>`; }
+  else { const mc=v1.mother_clause_id&&st.nodeCid.get(v1.mother_clause_id); rows+=`<dt>모절(V1 보존, 절 수준)</dt><dd>${mc!=null?refOf(SD.cFirstA[mc]):esc(String(v1.mother_clause_id))} · ${esc(RELA_KO[v1.rela]||v1.rela)}</dd>`; }
+  const ids=`<details class="mdet"><summary>노드 번호</summary><small>clause_atom ${ca} · clause ${SD.ccn[cid]}${y?` · mother_clause_atom ${y.mother_clause_atom??"—"} · mother_clause ${y.mother_clause??"—"}(${y.mother_clause_type??"—"})`:""}${v1?` · V1 ${esc(v1.origin_edge_id)} · 복원 ${esc(v1.atom_resolution||"")}`:""}</small></details>`;
+  return `<div class="src3"><span class="label">BHSA 원 자료의 모절 관계 <small>(원 데이터 ${st.bhsaNativeMeta?"· 사본 "+esc(st.bhsaNativeMeta.bhsa):""} — MILAL 판정 아님)</small></span><dl class="rdl">${rows}</dl>${ids}</div>`; }
 /* 절 원자로 이동: 다른 장이면 범위를 바꾸고 구조 화면에서 그 줄을 비춘다 */
 function gotoAtom(b,aid,noBack){ if(!SD.ccnMap||!SD.cFirstA) milalIndex(); const S=view.st, w0=atomFirstWord(aid), vi=SD.vOf[w0], [bb,c,v]=SD.V[vi];
   if(!noBack) S.back={R:S.R&&{...S.R},vc:S.vc,rd:S.rd,sv:S.sv,aid:S.curAid,y:scrollY,label:S.R?`${PLAN.abbr[S.R.b-1]} ${S.vc}장(${S.sv==="map"?"지도":S.sv==="speech"?"발화":"계층"})`:""};

@@ -349,3 +349,11 @@ MILAL `docs/HUMAN_STRUCTURAL_ADJUDICATION_MFR_H02.csv`(판정 `MFR-H02-JOB-37-20
 - 회귀 시험: `pipeline/milal_real_v1_check_tests.py` 11건(MILAL 자체 시험 fixture 가 H0.2 와 같은 모양 — 114→115 채택, 112→115 기각 — 이라 실제 자료 없이 논리를 검사).
 - TEST_ONLY 시험 파일(`test/milal_test_only_job31-38.json`)의 37:24/38:1 `NO_DIRECT_RELATION`(basis CONTROL)은 '모름'과 '판정됨'의 화면 구분을 보이기 위한 **가상 통제 자료**이며, 실제 파일에는 그런 basis 가 올 수 없다(검증기 ❌).
 
+## 13. BHSA 원본 절 원자 관계의 복원과 대조 (2026-10-20, 후속 지시 2 작업 A)
+
+- V1 의 원 관계(`native_relations`)는 절 수준(clause→clause)만 담고 있어 절 원자 번호가 0건이었다. V1 이 읽은 **P2_REVIEW.zip 의 `raw_clauses.native_annotations`(동결 자료)** 에는 BHSA 노드 번호(`dependent_node`/`head_node`)가 그대로 있으므로, 변환기는 `--review-zip` 이 있을 때 기록 id(`절id#색인`)로 그 노드를 되찾아 `bhsa_nodes{dependent, head, rela, resolution, all[]}` 와 `clause_atom`/`mother_clause_atom` 을 채운다. **새 판정이 아니라 같은 원자료의 노드 번호 복원**이다.
+- `atom_resolution` 값: `FROM_P2_REVIEW_NATIVE_ANNOTATIONS`(절 원자→절 원자) · `DEPENDENT_ATOM_ONLY(…)` · `CLAUSE_OR_PHRASE_LEVEL(…)`(절→절, 절→구/낱말, 구→구) · `NOT_AVAILABLE_IN_V1`(P2_REVIEW.zip 없이 변환). 하위 호환: 칸이 없거나 null 이면 NOT_AVAILABLE 로 본다.
+- 원자료 사본 `study/milal/bhsa_native_job.json`(`MILALWV-BHSA-NATIVE-1`, `pipeline/bhsa_native_job.py`): 책 하나의 절 원자마다 BHSA 2021 `mother`·`rela`(절 원자 수준·절 수준) 그대로. 앱의 `can`(절 원자 번호 2,977개)과 BHSA 가 **순서까지 동일**함을 같은 스크립트가 확인한다. 앱은 상세 창 '원 자료' 칸에 이 사본을 우선 쓴다(쉬운 말 → 노드 번호는 접힘).
+- 검증기 V13 을 둘로 나눔: **V13a** 끝점 ID 존재 검사 · **V13b** 실제 원본 대조(`--bhsa-native`; 노드·rela 까지 같은가). 대조 스크립트 `pipeline/milal_native_compare.py`, 결과 `docs/REPORT_bhsa_native_compare_2026-10-20.md`.
+- 2026-10-20 실제 자료 결과: 원 관계 3,350 = 절 원자→절 원자 정확 일치 **2,895** + 절→절 일치 359 + 원본 mother 가 구·낱말인 것(절로 풀어 적음) 95 + 구 수준 1 · **불일치 0** · 미복원 0. 원본에는 있으나 V1 에 없는 절 원자 mother **39**(절 하나에 원자 여럿인 39절의 둘째 원자) — 앱이 원자료 칸으로만 보여 주고, 관계로 만들지 않는다.
+

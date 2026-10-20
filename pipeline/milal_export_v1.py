@@ -138,6 +138,17 @@ def main():
                   "origin_evidence_clause_ids": [str(x) for x in e.get("evidence_clause_ids", [])],
                   "origin_extra": {k: v for k, v in extra.items() if k not in ("rela", "annotation_indexes")},
                   "source": {"dataset": "BHSA", "version": "2021", "features": ["mother", "rela"]}, "record": e["record"]}
+            # 절 원자 번호 복원: V1 에는 없지만 V1 이 읽은 P2_REVIEW.zip 의 raw_clauses.native_annotations(동결 자료)에는
+            # dependent_node/head_node(BHSA 노드 번호)가 그대로 있다. 기록 id "절id#색인" 으로 되찾는다. 새 판정 아님 — 같은 원자료의 노드 번호.
+            rc = raw_clauses.get(nr["clause_id"]); anns = ((rc or {}).get("CLAUSE") or {}).get("native_annotations") or []
+            picked = [anns[i] for i in nr["annotation_indexes"] if isinstance(i, int) and 0 <= i < len(anns) and isinstance(anns[i], dict)]
+            if picked and "dependent_node" in picked[0]:
+                an = picked[0]; dep, head = an.get("dependent_node"), an.get("head_node")
+                nr["bhsa_nodes"] = {"dependent": dep, "head": head, "rela": an.get("rela"), "resolution": an.get("resolution"), "all": [{"dependent": x.get("dependent_node"), "head": x.get("head_node"), "rela": x.get("rela")} for x in picked]}
+                ca_set = {at["node"] for c in raw_clauses.values() for at in ((c.get("CLAUSE") or {}).get("atoms") or []) if isinstance(at, dict) and "node" in at}
+                if dep in ca_set and head in ca_set: nr["clause_atom"], nr["mother_clause_atom"], nr["atom_resolution"] = dep, head, "FROM_P2_REVIEW_NATIVE_ANNOTATIONS"
+                elif dep in ca_set: nr["clause_atom"], nr["atom_resolution"] = dep, "DEPENDENT_ATOM_ONLY(head is not clause_atom)"
+                else: nr["atom_resolution"] = "CLAUSE_OR_PHRASE_LEVEL(no clause_atom nodes)"
             out["native_relations"].append(nr); continue
         r = {"id": e["edge_id"], "family": KINDS[e["kind"]], "kind": e["kind"], "status": e["status"], "source": e["source"], "target": e["target"],
              "rule": e["rule"], "record": e["record"], "evidence_clause_ids": [str(x) for x in e.get("evidence_clause_ids", [])],

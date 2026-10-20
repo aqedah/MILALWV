@@ -4,7 +4,7 @@
   --words 를 주면 V5(낱말 번호 전체 대조)를 한다.
   종료 코드: 0 모두 통과 · 1 실패 있음 · 2 검사 불가(jsonschema 없음 등 — 통과가 아님)
 """
-import sys, json, base64, argparse
+import os, sys, json, base64, argparse
 from collections import defaultdict, Counter
 
 HERE = __import__("os").path.dirname(__import__("os").path.abspath(__file__))
@@ -43,7 +43,7 @@ def load_words(path):
     return cl_words
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("file"); ap.add_argument("--words"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("file"); ap.add_argument("--words"); ap.add_argument("--bhsa-native", help="bhsa_native_job.json (MILALWV-BHSA-NATIVE-1) — 있으면 V13b 원본 대조를 돈다"); a = ap.parse_args()
     D = json.load(open(a.file, encoding="utf-8"))
     R = []  # (id, ok, msg)
     def res(i, ok, msg=""): R.append((i, ok, msg))
@@ -138,7 +138,24 @@ def main():
     nat = D.get("native_relations", [])
     b13 = [x["id"] for x in nat if (x.get("clause_atom") is not None and atoms and x["clause_atom"] not in atoms) or x.get("clause_id") not in nodes or x.get("mother_clause_id") not in nodes]
     withatom = sum(1 for x in nat if x.get("clause_atom") is not None)
-    res("V13 원 관계 끝점 존재", not b13, f"{len(b13)}개 (절·절 원자 밖)" if b13 else f"{len(nat)}개 (절 원자 번호 있는 것 {withatom})")
+    res("V13a 원 관계 끝점 존재(ID 검사)", not b13, f"{len(b13)}개 (절·절 원자 밖)" if b13 else f"{len(nat)}개 (절 원자 번호 복원된 것 {withatom})")
+    # V13b 실제 원본 관계 대조: BHSA 2021 의 mother/rela 와 노드 수준에서 같은가 (bhsa_native_job.json 이 있을 때만)
+    if getattr(a, "bhsa_native", None) and os.path.exists(a.bhsa_native):
+        B = json.load(open(a.bhsa_native, encoding="utf-8")); byca = {x["clause_atom"]: x for x in B.get("atoms", [])}; bycl = {}
+        for x in B.get("atoms", []): bycl.setdefault(x["clause"], x)
+        c13 = Counter(); bad13b = []
+        for x in nat:
+            bn = x.get("bhsa_nodes")
+            if not bn: c13["no_nodes"] += 1; continue
+            dep, head, rela = bn.get("dependent"), bn.get("head"), bn.get("rela")
+            if dep in byca: y = byca[dep]; ok = y["mother_clause_atom"] == head and y["rela_atom"] == rela; c13["atom_match" if ok else "atom_diff"] += 1
+            elif dep in bycl: y = bycl[dep]; ok = y["mother_clause"] == head and (y["rela_clause"] or "NA") == rela; c13["clause_match" if ok else "clause_diff"] += 1
+            else: c13["other_level(phrase)"] += 1; continue
+            if not ok: bad13b.append(x["id"])
+            if x.get("clause_id") != str((byca.get(dep) or bycl.get(dep))["clause"]): bad13b.append(x["id"] + "(절 불일치)")
+        res("V13b 원 관계 실제 원본 대조(BHSA mother/rela)", not bad13b, f"{dict(c13)}" + (f" — 불일치 {len(bad13b)}: " + ", ".join(bad13b[:4]) if bad13b else ""))
+    else:
+        res("V13b 원 관계 실제 원본 대조", True, "NOT_RUN — --bhsa-native 를 주면 BHSA 2021 원본과 노드 수준으로 대조")
     # V15 원 관계 origin_edge_id 중복 없음
     oe = Counter(x.get("origin_edge_id") for x in nat if x.get("origin_edge_id"))
     res("V15 원 관계 원본 edge id 중복 없음", not [k for k, v in oe.items() if v > 1])
