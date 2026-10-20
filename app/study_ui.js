@@ -295,7 +295,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-sfz]").forEach(x=>x.onclick=()=>{ const v=Math.round(Math.min(1.5,Math.max(0.8,sFs()+(+x.dataset.sfz)*0.1))*10)/10; try{ localStorage.setItem("milal-study-fs",v); }catch(e){} applySfs(); const y=scrollY; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-svm]").forEach(b=>b.onclick=()=>{ S.rd=b.dataset.svm; try{ localStorage.setItem(RD_KEY,S.rd); }catch(e){} render(); });
   if(S.mode==="verse"&&rdMode()==="read") bindRead(m);
-  if(S.mode==="notes") bindStudyNotes();
+  if(S.mode==="notes"){ bindStudyNotes(); if(S.nseg==="annots"&&window.bindAnnotsPage) bindAnnotsPage(m); }
   m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
@@ -391,7 +391,7 @@ function structView(b,c,mini){
     const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]]; return `<span class="sww" data-sw="${j}">${esc(tx)}</span>`; }).join("");
     const canFold=blk[ai]>ai, folded=visible.includes(-ai-1);
     const mon=S.milalOn&&ML[b]&&ML[b].state==="ok"; if(mon) h+=milalGroupHead(b,at.a);
-    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세"><small>${esc(typ)}</small><i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
+    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세"><small>${esc(typ)}</small><i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}${window.annotDot?annotDot(at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
   return h+`</div>`; }
 
 function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi), HN=sHan(vi), li=SD.wl[wi], x=SD.L[li];
@@ -454,12 +454,14 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
    ${strongBlock(x[3])}
    ${lexKo(li)?`<dt>한글 사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>한글 사전 풀이</dt><dd>받는 중…</dd>`}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
-   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button><button class="btn small" data-rnote="${wi}">메모 남기기</button></div>`; }
+   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button><button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
+   ${window.annotListHTML?annotListHTML("verse","v:"+SD.V[vi][0]+"-"+SD.V[vi][1]+"-"+SD.V[vi][2],vi):""}`; }
 function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rpt]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.rw=+b.dataset.rpt; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   d.querySelectorAll("[data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); });
   d.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.wide=true; S.mode="word"; S.lex=+b.dataset.sfindw; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); });
-  d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); }); }
+  d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); });
+  if(window.bindAnnots) bindAnnots(d); }
 function bindRead(m){ const S=view.st;
   m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv, top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; const y=scrollY; render(); scrollTo({top:y});
     /* 누른 절이 화면에서 같은 자리에 머물게: 위쪽 띠가 닫히며 줄어든 만큼 되돌림 */
@@ -483,8 +485,9 @@ function openNoteSheet(wi){ const vi=SD.vOf[wi], [b,c,v]=SD.V[vi], li=SD.wl[wi],
   const root=document.getElementById("sheetRoot");
   root.querySelector("#rnSave").onclick=()=>{ const L=studyNotes(); L.unshift({t:Date.now(),b,c,v,heb:wHeb(wi).trim(),lex:x[0],han:wHan(wi),gl:lexGloss(li),st:x[3]||0,m:root.querySelector("#rnMemo").value.trim()}); saveStudyNotes(L.slice(0,500)); root.innerHTML=""; toast("원어 메모에 넣었습니다."); }; }
 function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L.slice(0,30); S.nseg ||= "mine";
-  let h=`<div class="seg smode rseg" role="tablist">${[["mine","내 메모"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;
+  let h=`<div class="seg smode rseg" role="tablist">${[["mine","낱말 메모"],["annots","절·절 원자 메모"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;
   if(S.nseg==="shared") return h+sharedPage();
+  if(S.nseg==="annots") return h+(window.annotsPage?annotsPage():"");
   h+=`<section class="sec"><span class="label">원어 메모 · ${L.length}</span>`;
   h+=L.length?`<div class="snlist">${show.map(n=>`<div class="snitem"><button class="snjump" data-snj="${n.b}-${n.c}-${n.v}"><span class="heb">${esc(n.heb)}</span><b>${esc(n.gl)}</b><small>${esc(PLAN.abbr[n.b-1])} ${n.c}:${n.v===0?"표제":n.v}${n.st?` · H${n.st}`:""}</small>${n.m?`<span class="snm">${esc(n.m)}</span>`:""}</button>${window.MILAL_SHARE?`<button class="snshare" data-snsh="${n.t}" aria-label="나누기" title="나눔에 올리기">↗</button>`:""}<button class="sndel" data-snd="${n.t}" aria-label="지우기">✕</button></div>`).join("")}</div>${L.length>30?`<button class="morebtn" id="snAll">${view.snAll?"접기 ▴":`${L.length-30}개 더 보기 ▾`}</button>`:""}`
     :`<p class="lead">아직 메모가 없습니다. 본문 화면에서 절을 누르고 낱말을 고른 뒤 '메모 남기기'를 누르세요.</p>`;

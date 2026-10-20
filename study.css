@@ -301,3 +301,10 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .mb-d{background:var(--accent);color:var(--accent-ink)}
 .mtog.back{background:var(--accent);color:var(--accent-ink);font-weight:700;margin-bottom:4px}
 .srcnote .lead+span{margin-top:4px}
+
+/* 연구 기록 */
+.anlab{display:block;margin:8px 0 2px;font-size:13.5px;font-weight:700}.anlab small{font-weight:400;color:var(--muted);margin-left:4px}
+#anObs,#anInt,#anTags{width:100%;font:inherit;font-size:15px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--paper);color:var(--ink);box-sizing:border-box}
+.anchk{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--muted);margin:8px 0}
+.anitem{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.anitem p{margin:0;font-size:14px;line-height:1.5}.anitem small{color:var(--muted)}
+.mb-n{background:#E7B64A;color:#2A1F00}
