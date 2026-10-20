@@ -14,7 +14,8 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 - 머리띠의 MILAL 글자와 주소 단추가 '어디로 갈까요'(책 → 장 + 최근 본 곳) 창을 엽니다.
 - 하단 탭: 본문 · 구조 · 연구 · 기록 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`). 첫 화면은 최근 본 곳, 없으면 창세기 1장.
 - 우상단 ☰ 메뉴(`app/menu.js`): 로그인 · 번역본(개역한글/원문만, 개역개정 자리) · 밝기(기기/밝게/어둡게) · 홈 화면에 추가 · 처음 쓰는 법(첫 방문에 한 번 자동) · MILAL이란(Marker-Informed Linguistic Analysis of Layers) · 자료 출처.
-- 기록 탭: 낱말 메모(옛 방식 그대로) · 절·절 원자 메모(`app/annots.js`, IndexedDB `milal-annots`, 관찰/해석 분리, BHSA 번호로 고정, MILAL 관계는 참조만; 동기화는 규칙 승인 뒤) · 나눔(`shared`, 내 메모의 ↗로 올림).
+- 기록 탭 '내 기록'(`app/annots.js`): 낱말 메모(옛 저장 그대로) + 절·절 원자·구간 메모(관찰/해석) + 표시(형광펜·밑줄·괄호)를 한 목록에서 필터·태그·검색·정렬. Markdown/CSV 내보내기. 저장은 IndexedDB `milal-annots`(rev·device 포함), 동기화는 규칙 승인 뒤. 나눔: 신고(`reports`)·관리자 숨김(`admins/{uid}`).
+- MILAL 승인 기록: `study/milal/approvals.json`(분석 파일과 분리, 해시 대응) — `pipeline/milal_approve.py`. 변환기 `pipeline/milal_export_v1.py`(round-trip 정확, `milal_export_tests.py` 15건), fixture `test/v1_fixture/`(MILAL 자체 시험 산출물).
 - 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦) → `split_study.py`가 `study/bible/krh/<b>.json`으로 쪼갬. 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.
 - 링크 공유 썸네일 `img/og.jpg`(1200×630), 아이콘 `img/`, `manifest.webmanifest`. 썸네일 원본은 대화에서 만든 HTML(글꼴: Noto Serif Hebrew/KR, IBM Plex Mono).
 - 로그인은 **보기에는 필요 없고**, 원어 메모를 기기끼리 맞출 때만 씁니다(Google 로그인, `firebase.js`, 저장 자리 `users/{uid}/study/notes` 문서 하나에 목록으로).
@@ -50,9 +51,9 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 | 단계 | 할 일 | 끝났다는 기준 |
 |---|---|---|
 | **1. 틀 잡기** (끝) | 하단 메뉴 4개 재편 · 첫 화면 창 1장 · 검색 결과 → 해당 절 이동 고치기 · 이론 글 정리 | 휴대폰에서 읽기→구조→연구→기록이 한 범위로 이어짐 |
-| **2. MILAL 연결 기반** (진행 중: 규격 초안·검증기·시험 자료 있음, 연구자 승인 대기) | ~~words.json에 BHSA clause_atom 실제 노드 번호(`can`) 저장~~(끝) · MILAL JSON 규격 확정(노드·관계 유형·판정 상태 확정/조건부/미해결·근거·버전) · 책별 분할 로딩 검토 | MILAL이 내보낸 JSON을 손실 없이 받을 수 있음 |
-| **3. 핵심 시각화** | 구조 탭에 'ETCBC 판정 / MILAL 판정' 전환 · 절 원자를 누르면 모절·근거·상태 · 가까운 2~3단계만 기본 표시, 먼 관계는 이동 단추 · 발화 구조(서술자·발화자·수신자·인용 속 인용) | 다른 원어 성경 앱에 없는 화면 |
-| **4. 연구 생산성** | 본문 하이라이트·괄호·구간 선택 · 절·절 원자·구간 메모 · 관찰/해석 구분 저장 · 반복·인용 비교 · 검색식 보관 · 내보내기 | 과제·발제·설교 준비에 바로 씀 |
+| **2. MILAL 연결 기반** (구현 끝, 실제 V1 파일 대조 대기 — `docs/MILAL_V1_RUN_PROCEDURE.md`) | ~~words.json에 BHSA clause_atom 실제 노드 번호(`can`) 저장~~(끝) · MILAL JSON 규격 확정(노드·관계 유형·판정 상태 확정/조건부/미해결·근거·버전) · 책별 분할 로딩 검토 | MILAL이 내보낸 JSON을 손실 없이 받을 수 있음 |
+| **3. 핵심 시각화** (시험 자료로 구현 끝, 실제 자료 검증 대기) | 구조 탭에 'ETCBC 판정 / MILAL 판정' 전환 · 절 원자를 누르면 모절·근거·상태 · 가까운 2~3단계만 기본 표시, 먼 관계는 이동 단추 · 발화 구조(서술자·발화자·수신자·인용 속 인용) | 다른 원어 성경 앱에 없는 화면 |
+| **4. 연구 생산성** (기기 저장 기준 1차 끝: 표시·구간·기록 탭·내보내기; 동기화·PDF 남음) | 본문 하이라이트·괄호·구간 선택 · 절·절 원자·구간 메모 · 관찰/해석 구분 저장 · 반복·인용 비교 · 검색식 보관 · 내보내기 | 과제·발제·설교 준비에 바로 씀 |
 | **5. 확장** | 오프라인(Service Worker) · 검색을 Web Worker로 · 구조 분석 연습 모드 · 공유 주석 · 태블릿 | 수업에서 함께 씀 |
 
 ### 지키는 원칙
