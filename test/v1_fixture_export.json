@@ -39,7 +39,100 @@
     "zip_bytes": 22808,
     "zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
    },
-   "review_zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+   "review_zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab",
+   "v1_passthrough": {
+    "schema": "MILAL-V1-RELATION-NETWORK-1",
+    "stage": "MFR.0.3-V1",
+    "source": {
+     "manifest_verified": [
+      "90_run_metadata.json",
+      "P2_MACRO_HIERARCHY_REPORT.md",
+      "P2_MOTHER_TABLE.csv",
+      "P2_RELATIONS_AND_ALTERNATIVES.json",
+      "P2_RULE_TRACE.csv",
+      "P2_VALIDATION_AND_COVERAGE.md"
+     ],
+     "member_sha256": {
+      "90_run_metadata.json": "e060b9d781013816c8526867fbc147bc7dba2b92d87cf0be3911f03ef424ec8c",
+      "P2_MACRO_HIERARCHY_REPORT.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196",
+      "P2_MOTHER_TABLE.csv": "cafee2fc66cd0e42c20eb04525b455377213fa00de4ca0d543c9b9b2b489612c",
+      "P2_RELATIONS_AND_ALTERNATIVES.json": "3b2a1bc914b1017eb2e30e16258064ddc0fd434e1707ca3eade6aa689bb01258",
+      "P2_RULE_TRACE.csv": "91531e0b6e37a8850f5e0cb8dd1d4d11e5f87ec83c9ab8b435f46a06a051664a",
+      "P2_VALIDATION_AND_COVERAGE.md": "5728a2d3ee69fa5de54b9776f2f99a090caa67f57c438c5592690efe181a9196"
+     },
+     "p2_code_fingerprint": "synthetic",
+     "p2_scientific_status": "SYNTHETIC",
+     "p2_stage": "MFR.0.3-P2",
+     "p2_status": "SYNTHETIC",
+     "zip_bytes": 22808,
+     "zip_sha256": "fca023ae3cd2c2e714d3ba5563bfc66b6bf820f1b1ce6d58bb153c9db37820ab"
+    },
+    "p2_contract": {
+     "no_synthetic_root": true
+    },
+    "legend": {
+     "kinds": {
+      "CLOSURE": "종결",
+      "CONTINUATION": "계속",
+      "FRAME_CONTENT": "틀–내용",
+      "MEMBERSHIP": "포함",
+      "PARALLEL": "병행",
+      "SUBORDINATE": "종속"
+     },
+     "statuses": {
+      "COMPETING": "경쟁",
+      "CONFIRMED": "확정",
+      "PROVISIONAL": "잠정",
+      "UNASSIGNED": "미배정"
+     }
+    },
+    "counts": {
+     "alternatives": 3,
+     "base_groups": 4,
+     "by_kind": {
+      "CLOSURE": 3,
+      "CONTINUATION": 12,
+      "FRAME_CONTENT": 3,
+      "MEMBERSHIP": 12,
+      "PARALLEL": 5,
+      "SUBORDINATE": 4
+     },
+     "by_kind_status": {
+      "CLOSURE:PROVISIONAL": 1,
+      "CLOSURE:UNASSIGNED": 2,
+      "CONTINUATION:COMPETING": 2,
+      "CONTINUATION:UNASSIGNED": 10,
+      "FRAME_CONTENT:PROVISIONAL": 2,
+      "FRAME_CONTENT:UNASSIGNED": 1,
+      "MEMBERSHIP:COMPETING": 4,
+      "MEMBERSHIP:PROVISIONAL": 8,
+      "PARALLEL:PROVISIONAL": 4,
+      "PARALLEL:UNASSIGNED": 1,
+      "SUBORDINATE:CONFIRMED": 1,
+      "SUBORDINATE:PROVISIONAL": 1,
+      "SUBORDINATE:UNASSIGNED": 2
+     },
+     "by_status": {
+      "COMPETING": 6,
+      "CONFIRMED": 1,
+      "PROVISIONAL": 16,
+      "UNASSIGNED": 16
+     },
+     "clauses": 19,
+     "edges": 39,
+     "groups": 18,
+     "unassigned_clauses": 4
+    },
+    "base_group_ids": [
+     "gA",
+     "gB",
+     "gC",
+     "nN"
+    ],
+    "rule_notes_trace_ids": [
+     "T-F"
+    ]
+   }
   },
   "generated_at": "2026-10-20T00:24:39Z",
   "scope": {
@@ -67,7 +160,8 @@
     1000,
     1001
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "1:1"
   },
   {
    "id": "101",
@@ -81,7 +175,8 @@
     1010,
     1011
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "1:1"
   },
   {
    "id": "102",
@@ -95,7 +190,8 @@
     1020,
     1021
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "1:2"
   },
   {
    "id": "103",
@@ -109,7 +205,8 @@
     1030,
     1031
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "2:1"
   },
   {
    "id": "104",
@@ -123,7 +220,8 @@
     1040,
     1041
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "2:1"
   },
   {
    "id": "105",
@@ -137,7 +235,8 @@
     1050,
     1051
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "2:2"
   },
   {
    "id": "106",
@@ -151,7 +250,8 @@
     1060,
     1061
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "2:2"
   },
   {
    "id": "107",
@@ -167,7 +267,8 @@
    ],
    "native_self_annotations": [
     1
-   ]
+   ],
+   "ref": "2:3"
   },
   {
    "id": "108",
@@ -181,7 +282,8 @@
     1080,
     1081
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "3:1"
   },
   {
    "id": "109",
@@ -195,7 +297,8 @@
     1090,
     1091
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "3:1"
   },
   {
    "id": "110",
@@ -209,7 +312,8 @@
     1100,
     1101
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "3:2"
   },
   {
    "id": "111",
@@ -223,7 +327,8 @@
     1110,
     1111
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "3:2"
   },
   {
    "id": "112",
@@ -237,7 +342,8 @@
     1120,
     1121
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "4:1"
   },
   {
    "id": "113",
@@ -251,7 +357,8 @@
     1130,
     1131
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "4:1"
   },
   {
    "id": "114",
@@ -265,7 +372,8 @@
     1140,
     1141
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "4:2"
   },
   {
    "id": "115",
@@ -279,7 +387,8 @@
     1150,
     1151
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "4:2"
   },
   {
    "id": "116",
@@ -293,7 +402,8 @@
     1160,
     1161
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "5:1"
   },
   {
    "id": "117",
@@ -307,7 +417,8 @@
     1170,
     1171
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "5:1"
   },
   {
    "id": "118",
@@ -321,7 +432,8 @@
     1180,
     1181
    ],
-   "native_self_annotations": []
+   "native_self_annotations": [],
+   "ref": "5:2"
   }
  ],
  "groups": [
@@ -1501,10 +1613,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X9"
@@ -1515,10 +1625,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X1"
@@ -1529,10 +1637,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X4"
@@ -1543,10 +1649,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X5"
@@ -1574,10 +1678,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X6"
@@ -1605,10 +1707,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X12"
@@ -1619,9 +1719,7 @@
    "rule_id": "G1",
    "check": "complete_member_scope",
    "outcome": "UNRESOLVED",
-   "observed": {
-    "clause_ids": []
-   },
+   "observed": {},
    "text": "REPORT_CONTENT_DEPENDENCY: complete_member_scope 미결",
    "record": {
     "table": "P2_RULE_TRACE",
@@ -1633,10 +1731,8 @@
    "rule_id": "G5",
    "check": "LOCAL_SCOPE_ENDPOINT",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "LOCAL_SCOPE_ENDPOINT 통과",
+   "observed": {},
+   "text": "LOCAL_SCOPE_ENDPOINT 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X13"
@@ -1647,10 +1743,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X7"
@@ -1661,10 +1755,8 @@
    "rule_id": "G1",
    "check": "REPORT_CONTENT_DEPENDENCY",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "REPORT_CONTENT_DEPENDENCY 통과",
+   "observed": {},
+   "text": "REPORT_CONTENT_DEPENDENCY 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "P2_RULE_TRACE",
     "id": "T-A"
@@ -1675,10 +1767,8 @@
    "rule_id": "G2",
    "check": "ANCHOR_RELATION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "ANCHOR_RELATION 통과",
+   "observed": {},
+   "text": "ANCHOR_RELATION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "P2_RULE_TRACE",
     "id": "T-N"
@@ -1689,9 +1779,7 @@
    "rule_id": "G5",
    "check": "TERMINATES_ENCLOSING_GROUP",
    "outcome": "UNRESOLVED",
-   "observed": {
-    "clause_ids": []
-   },
+   "observed": {},
    "text": "TERMINATES_ENCLOSING_GROUP 미결 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
@@ -1703,10 +1791,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X10"
@@ -1717,10 +1803,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X2"
@@ -1731,10 +1815,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X11"
@@ -1745,10 +1827,8 @@
    "rule_id": "G3",
    "check": "CONSTRUCTION_PARALLELISM",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "CONSTRUCTION_PARALLELISM 통과",
+   "observed": {},
+   "text": "CONSTRUCTION_PARALLELISM 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "P2_RULE_TRACE",
     "id": "T-K"
@@ -1759,10 +1839,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X3"
@@ -1792,10 +1870,8 @@
    "rule_id": "G3",
    "check": "MACRO_PARATACTIC",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "MACRO_PARATACTIC 통과",
+   "observed": {},
+   "text": "MACRO_PARATACTIC 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "P2_RULE_TRACE",
     "id": "T-P"
@@ -1806,9 +1882,7 @@
    "rule_id": "G5",
    "check": "DIRECT_LOCAL_CLOSURE",
    "outcome": "UNRESOLVED",
-   "observed": {
-    "clause_ids": []
-   },
+   "observed": {},
    "text": "DIRECT_LOCAL_CLOSURE 미결 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
@@ -1820,10 +1894,8 @@
    "rule_id": "G1",
    "check": "REPORT_CONTENT_DEPENDENCY",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "REPORT_CONTENT_DEPENDENCY 통과",
+   "observed": {},
+   "text": "REPORT_CONTENT_DEPENDENCY 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "P2_RULE_TRACE",
     "id": "T-B"
@@ -1834,10 +1906,8 @@
    "rule_id": "G5",
    "check": "EXACT_MEMBER_INCLUSION",
    "outcome": "PASSED",
-   "observed": {
-    "clause_ids": []
-   },
-   "text": "EXACT_MEMBER_INCLUSION 통과",
+   "observed": {},
+   "text": "EXACT_MEMBER_INCLUSION 통과 (검사 항목 이름 없음)",
    "record": {
     "table": "context_relations",
     "id": "X8"
@@ -1962,12 +2032,19 @@
    "mother_clause_id": "100",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "100",
+    "101"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -1990,12 +2067,19 @@
    "mother_clause_id": "108",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "108",
+    "109"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2018,12 +2102,19 @@
    "mother_clause_id": "113",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "113",
+    "114"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2046,12 +2137,19 @@
    "mother_clause_id": "105",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "105",
+    "107"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2074,12 +2172,19 @@
    "mother_clause_id": "103",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "103",
+    "104"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2102,12 +2207,19 @@
    "mother_clause_id": "116",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "PARALLEL",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "origin_rule": "BHSA clause_atom rela=Coor",
+   "origin_evidence_clause_ids": [
+    "116",
+    "117"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2130,12 +2242,19 @@
    "mother_clause_id": "104",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "104",
+    "105"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2158,12 +2277,19 @@
    "mother_clause_id": "114",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     1
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2186,12 +2312,19 @@
    "mother_clause_id": "105",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     1
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "105",
+    "106"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2214,12 +2347,19 @@
    "mother_clause_id": "109",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     1
    ],
    "origin_status": "COMPETING",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "109",
+    "111"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2242,12 +2382,19 @@
    "mother_clause_id": "112",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "112",
+    "113"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2270,12 +2417,19 @@
    "mother_clause_id": "114",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "SUBORDINATE",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "origin_rule": "BHSA clause_atom rela=Adju",
+   "origin_evidence_clause_ids": [
+    "114",
+    "115"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2298,12 +2452,19 @@
    "mother_clause_id": "110",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "COMPETING",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "110",
+    "111"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2326,12 +2487,19 @@
    "mother_clause_id": "105",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "SUBORDINATE",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정)",
+   "origin_rule": "BHSA clause_atom rela=Objc",
+   "origin_evidence_clause_ids": [
+    "105",
+    "106"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",
@@ -2354,12 +2522,19 @@
    "mother_clause_id": "109",
    "clause_atom": null,
    "mother_clause_atom": null,
+   "atom_resolution": "NOT_AVAILABLE_IN_V1",
    "annotation_indexes": [
     0
    ],
    "origin_status": "UNASSIGNED",
    "origin_kind": "CONTINUATION",
    "note": "BHSA 원 데이터 관계(본문 모절 미판정); 종류 미지정(NA)",
+   "origin_rule": "BHSA clause_atom rela=NA",
+   "origin_evidence_clause_ids": [
+    "109",
+    "110"
+   ],
+   "origin_extra": {},
    "source": {
     "dataset": "BHSA",
     "version": "2021",

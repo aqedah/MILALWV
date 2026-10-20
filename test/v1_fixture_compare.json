@@ -72,5 +72,11 @@
   "base_group_ids(그룹 kind 로 복원 가능)",
   "V1_DISPLAY_TREE.json(화면 배치)"
  ],
- "lossless": true
+ "structural_preservation": "STRUCTURAL_PRESERVATION_PASS",
+ "evidence_complete": true,
+ "roundtrip": {
+  "exact": true,
+  "differences": []
+ },
+ "verdict": "ROUNDTRIP_EXACT"
 }

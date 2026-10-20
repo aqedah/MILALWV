@@ -68,14 +68,18 @@ def main():
                       "scientific_status": M.get("scientific_status", ""), "exporter": "pipeline/milal_export_v1.py 1.0"},
            "nodes": [], "groups": [], "relations": [], "evidence": [], "issues": [], "notes": [], "native_relations": []}
     if a.test_only: out["source"]["test_note"] = "MILAL V1 자체 시험(--self-test)의 합성 관계망을 변환한 것. 실제 욥기 판정이 아님."
+    # V1 의 머리 칸들은 그대로 보존 (round-trip 복원용). 화면은 쓰지 않는다
+    out["source"]["milal"]["v1_passthrough"] = {k: N[k] for k in ("schema", "stage", "source", "p2_contract", "legend", "counts", "base_group_ids", "rule_notes_trace_ids") if k in N}
+    # origin_ids 가 절 id 인지 낱말 id 인지: P2 raw_clauses 로 판별 (숫자라는 이유로 절이라 하지 않음)
+    clause_ids_set = {str(c["id"]) for c in clauses}; word_ids_set = {int(w) for c in clauses for w in c["word_ids"]}
 
     # ---- nodes ----
     for c in clauses:
-        n = {k: c[k] for k in ("id", "pos", "ch", "vs", "type", "text", "domain", "word_ids", "native_self_annotations") if k in c}
+        n = {k: c[k] for k in ("id", "pos", "ch", "vs", "type", "text", "domain", "word_ids", "native_self_annotations", "ref") if k in c}
         n["id"] = str(n["id"]); n["word_ids"] = [int(x) for x in n["word_ids"]]
         rc = raw_clauses.get(n["id"])
         if rc and rc.get("atoms"): n["clause_atom_ids"] = [int(x["node"]) for x in rc["atoms"] if "node" in x]
-        extra = {k: v for k, v in c.items() if k not in n and k != "ref"}
+        extra = {k: v for k, v in c.items() if k not in n}
         if extra: n["meta"] = extra
         out["nodes"].append(n)
     # ---- groups (칸 그대로) ----
@@ -85,11 +89,19 @@ def main():
     ev_index = {}
     def evidence_for(edge):
         rec = edge["record"]; ids = []
-        def add(rule, check, outcome, text, cl, trace_rec):
+        def classify(origin):
+            obs = {"clause_ids": [], "word_ids": [], "other_ids": []}
+            for x in origin or []:
+                s = str(x)
+                if s in clause_ids_set: obs["clause_ids"].append(s)
+                elif s.isdigit() and int(s) in word_ids_set: obs["word_ids"].append(int(s))
+                else: obs["other_ids"].append(s)
+            return {k: v for k, v in obs.items() if v}
+        def add(rule, check, outcome, text, origin, trace_rec):
             eid = "EV-" + hashlib.sha256(("|".join([rule, check, outcome, trace_rec["table"], trace_rec["id"]])).encode()).hexdigest()[:16]
             if eid not in ev_index:
                 ev_index[eid] = {"id": eid, "rule_id": rule, "check": check, "outcome": outcome,
-                                 "observed": {"clause_ids": [str(x) for x in cl]}, "text": text, "record": trace_rec}
+                                 "observed": classify(origin), "text": text, "record": trace_rec}
                 out["evidence"].append(ev_index[eid])
             ids.append(eid)
         tids = []
@@ -99,12 +111,13 @@ def main():
             t = traces.get(tid)
             if not t: continue
             trec = {"table": "P2_RULE_TRACE" if rec["table"] != "context_relations" else "context_relations", "id": tid}
-            cl = [x for x in t.get("origin_ids", []) if str(x).isdigit()]
+            cl = t.get("origin_ids", [])
             name = t.get("relation", t.get("rule_id", ""))
-            if t.get("status") == "PASSED" and not t.get("failed_checks") and not t.get("unresolved_checks"):
-                add(t.get("rule_id", ""), name, "PASSED", f"{name} 통과", cl, trec)
-            elif t.get("status") in ("UNRESOLVED", "FAILED") and not t.get("failed_checks") and not t.get("unresolved_checks"):
-                add(t.get("rule_id", ""), name, t["status"], f"{name} {'미결' if t['status'] == 'UNRESOLVED' else '실패'} (검사 항목 이름 없음)", cl, trec)
+            lists = [t.get("passed_checks", []), t.get("failed_checks", []), t.get("unresolved_checks", [])]
+            if not any(lists):   # 검사 항목 이름이 없으면 trace 의 status 그대로 한 항목
+                st_ = t.get("status", "UNRESOLVED"); oc = st_ if st_ in ("PASSED", "FAILED", "UNRESOLVED") else "UNRESOLVED"
+                add(t.get("rule_id", ""), name, oc, f"{name} {dict(PASSED='통과', FAILED='실패', UNRESOLVED='미결')[oc]} (검사 항목 이름 없음)", cl, trec)
+            for ch in t.get("passed_checks", []): add(t.get("rule_id", ""), ch, "PASSED", f"{name}: {ch} 통과", cl, trec)
             for ch in t.get("failed_checks", []): add(t.get("rule_id", ""), ch, "FAILED", f"{name}: {ch} 실패", cl, trec)
             for ch in t.get("unresolved_checks", []): add(t.get("rule_id", ""), ch, "UNRESOLVED", f"{name}: {ch} 미결", cl, trec)
         if rec["table"] == "frozen_typed_relations":
@@ -119,8 +132,11 @@ def main():
         if e["rule"].startswith(NATIVE_PREFIX):
             nr = {"id": "NAT-" + e["edge_id"], "origin_edge_id": e["edge_id"], "rela": extra.get("rela", e["rule"][len(NATIVE_PREFIX):]),
                   "rela_level": "clause", "clause_id": str(e["target"]["id"]), "mother_clause_id": str(e["source"]["id"]),
-                  "clause_atom": None, "mother_clause_atom": None, "annotation_indexes": extra.get("annotation_indexes", []),
-                  "origin_status": e["status"], "origin_kind": e["kind"], "note": e.get("note", ""),
+                  "clause_atom": None, "mother_clause_atom": None, "atom_resolution": "NOT_AVAILABLE_IN_V1",   # 절 원자 번호는 복원한 것이 아님
+                  "annotation_indexes": extra.get("annotation_indexes", []),
+                  "origin_status": e["status"], "origin_kind": e["kind"], "note": e.get("note", ""), "origin_rule": e["rule"],
+                  "origin_evidence_clause_ids": [str(x) for x in e.get("evidence_clause_ids", [])],
+                  "origin_extra": {k: v for k, v in extra.items() if k not in ("rela", "annotation_indexes")},
                   "source": {"dataset": "BHSA", "version": "2021", "features": ["mother", "rela"]}, "record": e["record"]}
             out["native_relations"].append(nr); continue
         r = {"id": e["edge_id"], "family": KINDS[e["kind"]], "kind": e["kind"], "status": e["status"], "source": e["source"], "target": e["target"],
@@ -177,9 +193,21 @@ def main():
            "created_only": ["family", "evidence[] (trace 를 펼친 것)", "issues.NO_DIRECT_RELATION (human_notes 의 직접 모절 기각에서)", "issues.UNRESOLVED (groups.rule_notes 의 미결에서)", "native_relations[].id (원본 edge_id 는 origin_edge_id 에)"],
            "dropped": ["legend", "counts", "base_group_ids(그룹 kind 로 복원 가능)", "V1_DISPLAY_TREE.json(화면 배치)"]}
     ok = cmp["counts"]["relations+native == edges"] and cmp["ids"]["edge_ids_preserved"] and cmp["status_distribution_equal"] and dir_ok and ev_ok and cmp["counts"]["clauses"][0] == cmp["counts"]["clauses"][1] and cmp["counts"]["groups"][0] == cmp["counts"]["groups"][1] and cmp["counts"]["human_notes"][0] == cmp["counts"]["human_notes"][1]
-    cmp["lossless"] = ok
+    cmp["structural_preservation"] = "STRUCTURAL_PRESERVATION_PASS" if ok else "STRUCTURAL_PRESERVATION_FAIL"
+    ev_complete = (not a.review_zip) or not rel_no_ev
+    cmp["evidence_complete"] = ev_complete
+    # round-trip: IF-1 에서 V1 을 되살려 원본과 정준 JSON 으로 비교
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from milal_roundtrip import rebuild_v1, diff_paths
+        R = rebuild_v1(out); dp = diff_paths(N, R)
+        cmp["roundtrip"] = {"exact": not dp, "differences": dp[:20]}
+    except Exception as ex:
+        cmp["roundtrip"] = {"exact": False, "error": str(ex)}
+    cmp["verdict"] = ("ROUNDTRIP_EXACT" if cmp["roundtrip"]["exact"] else "STRUCTURAL_PRESERVATION_PASS") if ok else "STRUCTURAL_PRESERVATION_FAIL"
+    if a.review_zip and not ev_complete: cmp["verdict"] += "; EVIDENCE_INCOMPLETE"
     if a.compare: json.dump(cmp, open(a.compare, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(json.dumps(cmp, ensure_ascii=False, indent=1)); print("LOSSLESS" if ok else "LOSS OR CREATION DETECTED"); sys.exit(0 if ok else 1)
+    print(json.dumps(cmp, ensure_ascii=False, indent=1)); print(cmp["verdict"]); sys.exit(0 if (ok and ev_complete) else 1)
 
 if __name__ == "__main__":
     main()
