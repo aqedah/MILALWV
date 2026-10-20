@@ -300,6 +300,8 @@ function bindStudy(m){
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
   m.querySelectorAll(".umap [data-mgo]").forEach(b=>b.onclick=()=>gotoAtom(S.R.b,+b.dataset.mgo));
+  const sg=document.getElementById("stGloss"); if(sg) sg.onclick=()=>openStructGlossary(S.R.b);
+  m.querySelectorAll("[data-mgh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(window.openUnitSheet) openUnitSheet(S.R.b,b.dataset.mgh); });
   m.querySelectorAll("[data-mapcand]").forEach(b=>b.onclick=()=>{ S.mapCand=b.dataset.mapcand==="1"; render(); });
   const sbk=document.getElementById("sBack"); if(sbk) sbk.onclick=goBack;
   const fa=document.getElementById("sFoldAll"); if(fa) fa.onclick=()=>{ S.foldAll=!S.foldAll; S.fold={}; render(); toast(S.foldAll?"인물의 말을 모두 접었습니다. 이야기 뼈대만 보입니다.":"인물의 말을 모두 펼쳤습니다."); };
@@ -335,7 +337,14 @@ function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalL
   else if(st.state==="err") m=`<span>MILAL 자료를 읽지 않음: ${esc(st.msg)}</span> <button class="mtog" data-milal="0">끄기</button>`;
   else m=`<span>MILAL 판정 ${milalBadgeFile(st)} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
   const bk=S.back?`<button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}으로 돌아가기</button> `:"";
-  return `<div class="srcnote">${bk?`<span>${bk}</span>`:""}<span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다.</span></div>`; }
+  return `<div class="srcnote">${bk?`<span>${bk}</span>`:""}<span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다. <button class="mtog" id="stGloss">용어 풀이 ⓘ</button></span></div>`; }
+/* 구조 화면 용어 풀이: 색(앱 관찰 후보)과 줄 종류 코드(BHSA) — 초급 신학생이 코드만 보고 막히지 않게 */
+const TY_HELP={Way0:"와이크톨(그리고 ~했다)로 시작하는 절 — 이야기의 주된 줄기",WayX:"와이크톨 뒤에 주어 등이 오는 절",WXQt:"'와'+다른 말+완료형 — 흐름을 멈추고 배경·대조를 넣는 절",xQtX:"앞에 다른 말+완료형+뒤에 다른 말",xQt0:"앞에 다른 말+완료형",XQtl:"주어 등 다른 말+완료형",ZQt0:"완료형으로 시작",ZQtX:"완료형으로 시작, 뒤에 다른 말",WQt0:"'와'+완료형(웨카탈) — 지시·습관·미래의 연쇄",WQtX:"'와'+완료형+다른 말",WYq0:"'와'+미완료형",WYqX:"'와'+미완료형+다른 말",xYq0:"앞에 다른 말+미완료형",xYqX:"앞에 다른 말+미완료형+뒤에 다른 말",ZYq0:"미완료형으로 시작",ZYqX:"미완료형으로 시작, 뒤에 다른 말",NmCl:"명사문(동사 없음) — 상태·설명",AjCl:"형용사문",Ptcp:"분사문 — 진행·상태",InfC:"부정사 연계형(~하기 위해 등)",InfA:"부정사 절대형",Voct:"부름말(호격)",Ellp:"생략된 절",CPen:"앞세운 말(casus pendens)",MSyn:"이야기 표지(와예히 등)",Reop:"다시 받는 말",XPos:"뒤로 뺀 말",ZIm0:"명령형",ZImX:"명령형+다른 말",xIm0:"앞에 다른 말+명령형",WIm0:"'와'+명령형",Defc:"불완전한 절",Unkn:"분류 안 됨"};
+function openStructGlossary(b){ const S=view.st, c=S.vc; const codes=new Map(); if(SD.loaded.has(b)){ const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let a=a0;a<a1;a++){ const w=atomFirstWord(a); if(w==null) continue; const v=SD.V[SD.vOf[w]]; if(v[1]!==c) continue; const t=SD.TY[SD.ay[a]]; codes.set(t,(codes.get(t)||0)+1); } }
+  const rows=[...codes.entries()].sort((x,y)=>y[1]-x[1]).map(([t,n])=>`<dt><code>${esc(t)}</code> <small>${n}줄</small></dt><dd>${esc(TY_HELP[t]||(typeof TY_FAM==="function"?TY_FAM(t):"")||"")}</dd>`).join("");
+  sheet("구조 화면 용어 풀이",`<div class="sdetail"><span class="label">색·표지 — 앱의 관찰 후보(자동 분류, 판정 아님)</span><dl class="rdl"><dt><i class="k-main mkdot" style="background:var(--accent)"></i> 이야기 줄기</dt><dd>와이크톨 절(Way0·WayX). 사건이 이어지는 주된 흐름</dd><dt><i class="mkdot" style="background:#C46A2B"></i> 배경·멈춤</dt><dd>명사문·분사문·'와+다른 말+완료형' 등. 흐름을 멈추고 상태·배경·대조를 넣는 자리</dd><dt><i class="mkdot" style="background:#7A6BB0"></i> 이야기 표지</dt><dd>'그리고 ~일이 있었다(와예히)', 때를 앞세운 문장 등 장면이 열리는 표지</dd><dt><i class="mkdot" style="background:#9AA5A0"></i> 인물의 말</dt><dd>BHSA가 따옴표 안(Q)으로 표시한 절. 겹친 인용은 '2단'처럼 표시</dd></dl>
+    <span class="label">줄 종류 코드 — BHSA 원자료 (이 장에 나온 것)</span><p class="lead" style="margin:0 0 4px">코드 읽는 법: 앞의 W='와(그리고)', x/X='앞·뒤에 다른 말', Z='동사로 시작'; 가운데 Qt=완료형, Yq=미완료형, Im=명령형, Way=와이크톨.</p><dl class="rdl">${rows||"<dd>자료를 아직 받지 못했습니다.</dd>"}</dl>
+    <span class="label">세 출처</span><p class="lead"><b>BHSA 원자료</b>는 네덜란드 ETCBC가 만든 문법 자료, <b>앱의 관찰 후보</b>는 이 앱이 코드만 보고 칠한 색(판정 아님), <b>MILAL 판정</b>은 연구 도구 MILAL의 규칙·연구자 판정입니다. 셋을 섞지 않고 따로 보여 드립니다.</p></div>`); }
 /* 장 구조 보기: ETCBC 절 원자(clause atom)를 들여쓰기(tab)대로 */
 const MAINLINE=new Set(["Way0","WayX"]), BACKGR=new Set(["NmCl","AjCl","Ptcp","XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"]);
 /* 이야기 표지 판정 (ETCBC 자료로): 와예히/웨하야 + 때·키·베/케+부정사·곳, MSyn의 보라·이제 */

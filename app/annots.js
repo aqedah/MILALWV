@@ -42,7 +42,7 @@ const anKey=(kind,anchor)=>kind==="atom"?"a:"+anchor.clause_atom_ids[0]:"v:"+anc
 
 /* --- 편집 창 --- */
 function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._new; const anchor=existing?existing.anchor:(kind==="atom"?anchorAtom(ref):anchorVerse(ref)); const key=existing?existing.key:anKey(kind,anchor); if(existing&&existing._new) existing={anchor:existing.anchor,key:existing.key};
-  const b=anchor.book, st=window.ML&&ML[b]; let milal=null;
+  const b=anchor.book, st=(typeof ML!=="undefined")&&ML[b]; let milal=null; /* ML 은 const 라 window.ML 로는 안 보임(결함 고침) */
   if(!existing&&st&&st.state==="ok"&&kind==="atom"){ const m=milalForAtom(b,ref); if(m){ const ids=[...m.o.inRel,...m.o.outRel].map(r=>r.id); if(ids.length) milal={stage:st.data.source.milal.stage,file_status:st.data.file_status,network_sha256:st.data.source.milal.network_sha256||"",relation_ids:ids}; } }
   const ex=existing||{}; const where=kind==="range"?rangeLabel({anchor}):PLAN.abbr[b-1]+" "+anchor.ch+":"+anchor.vs;
   sheet((isNew?"메모 쓰기":"메모 고치기")+" · "+where,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":kind==="range"?`구간 · 절 원자 ${anchor.clause_atom_count||anchor.clause_atom_ids.length}개 · 낱말 ${anchor.span?anchor.span.words:""}개`:"절"} · BHSA clause_atom ${kind==="range"?anchor.clause_atom_ids[0]+" … "+anchor.clause_atom_ids[anchor.clause_atom_ids.length-1]:anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
