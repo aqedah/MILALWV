@@ -119,3 +119,36 @@ match /shared/{id} {
 - 신고: 로그인한 사람이 `reports/{id}`(이유 300자). 읽기는 관리자만.
 - 관리자: `admins/{uid}` 문서(콘솔에서만 만듦). 관리자는 `shared/{id}.hidden`만 고칠 수 있고(내용 수정 불가), 삭제도 할 수 있다. 앱은 `hidden` 글을 거른다(관리자에게는 흐리게 보임).
 - 기존 글의 사진 칸: 규칙 게시 전이라 글이 없을 것. 있으면 콘솔에서 `photo` 필드 삭제.
+
+---
+
+## 5. 백업·복원 (2026-10-20, 작업 B) — `MILALWV-BACKUP-1`
+
+Markdown·CSV는 읽기용이고, **JSON 백업**은 기록을 그대로 다시 넣기 위한 것이다(기록 탭 → 'JSON 백업 내려받기' / '복원').
+
+```jsonc
+{ "schema":"MILALWV-BACKUP-1", "exported_at":"…", "app_data_version":"<STUDY_V>", "bhsa":"2021", "device":"<기기 ID>",
+  "counts":{"annots":n,"annots_deleted":k,"word_notes":m},
+  "annots":[ …주석 전부, 묘비(deleted:true) 포함, 칸 그대로(id·rev·anchor·observation·interpretation·tags·style·color·milal_ref·created·updated·device)… ],
+  "word_notes":[ …낱말 메모 목록 그대로… ] }
+```
+
+복원 규칙(`restorePlan` → 미리 보기 → `restoreApply`): 들어온 기록마다
+| 상황 | 처리 |
+|---|---|
+| 기기에 없는 id | 넣음 |
+| 기기에 있고 **기기 쪽이 지운 것**(묘비) | 되살리지 않음(건너뜀) |
+| 들어온 rev > 기기 rev | 고침 |
+| 들어온 rev < 기기 rev | 건너뜀(기기 것이 더 새것) |
+| rev 같고 내용 같음 | 아무것도 안 함(재복원은 멱등) |
+| rev 같고 내용 다름 | 기존 것 그대로 두고, 들어온 것을 **충돌 사본**(새 id, 태그 `복원충돌`, 관찰 머리에 ⟪복원 충돌 사본 · 원본 id · 때⟫)으로 보존 — 사람이 고른다 |
+| 형식 이상·백업 안 id 중복 | 건너뛰고 미리 보기에 사유 |
+낱말 메모는 `t`로 맞춰 없는 것만 넣는다. 복원은 기존 기록을 지우거나 덮어써 없애지 않는다.
+
+### 저장소가 안 될 때
+- IndexedDB를 못 열면(사생활 모드·차단) 메모리 + `localStorage["milal-annots-fallback"]`로 버티고, 기록 탭에 경고와 백업 권유를 띄운다.
+- 쓰기에서 용량 초과(QuotaExceededError)가 나면 "저장 공간이 부족합니다 … JSON 백업" 안내로 실패시키고, 화면 목록에는 넣지 않는다(조용한 유실 없음). 저장 실패 때 기록 객체의 rev·updated는 원래대로 되돌린다.
+
+### 시험 (에뮬레이션, Playwright) — 18건 통과
+새로고침 / 다른 책 다녀오기 / 브라우저 재시작(같은 프로필) / 자료판(STUDY_V) 바뀜 / 낱말 메모·주석 공존 / 백업 내용 / 지우고 복원 / 재복원 멱등 / 옛 판 건너뜀 / 새 판 반영 / 충돌 사본 / 묘비 유지 / 깨진 항목·중복·다른 규격 / id 중복 없음 / IndexedDB 없음 / 용량 부족. (네트워크 끊김·기기 간 충돌·오프라인 삭제·낡은 기록 재업로드는 동기화(6절) 시험에서.)
+

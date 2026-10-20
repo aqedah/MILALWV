@@ -3,16 +3,27 @@
    - 본문 자리는 BHSA 번호로 못 박는다. MILAL 관계는 참조만 저장하고 절대 고치지 않는다.
    - 낱말 메모(milal-study-notes)는 그대로 둔다. 여기로 옮기지 않는다. ===== */
 const AN_DB="milal-annots", AN_STORE="annots";
-let anDB=null;
-function anOpen(){ if(anDB) return Promise.resolve(anDB); return new Promise((res,rej)=>{ if(!window.indexedDB){ rej(new Error("IndexedDB 없음")); return; }
-  const rq=indexedDB.open(AN_DB,1); rq.onupgradeneeded=()=>{ const db=rq.result; if(!db.objectStoreNames.contains(AN_STORE)){ const st=db.createObjectStore(AN_STORE,{keyPath:"id"}); st.createIndex("book","anchor.book",{unique:false}); st.createIndex("updated","updated",{unique:false}); } };
-  rq.onsuccess=()=>{ anDB=rq.result; res(anDB); }; rq.onerror=()=>rej(rq.error); }); }
-function anTx(mode,fn){ return anOpen().then(db=>new Promise((res,rej)=>{ const tx=db.transaction(AN_STORE,mode), st=tx.objectStore(AN_STORE); let out; try{ out=fn(st); }catch(e){ rej(e); return; } tx.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); tx.onerror=()=>rej(tx.error); })); }
+let anDB=null, AN_FALLBACK=false, AN_MEM=null; /* IndexedDB 를 못 쓰면(사생활 모드·차단·오류) 메모리+localStorage 로 버틴다 — 화면에 경고하고 백업을 권한다 */
+const AN_FB_KEY="milal-annots-fallback";
+function anFallbackLoad(){ if(AN_MEM) return AN_MEM; AN_MEM=new Map(); try{ const L=JSON.parse(localStorage.getItem(AN_FB_KEY)||"[]"); for(const a of L) if(a&&a.id) AN_MEM.set(a.id,a); }catch(e){} return AN_MEM; }
+function anFallbackSave(){ try{ localStorage.setItem(AN_FB_KEY,JSON.stringify([...anFallbackLoad().values()])); return true; }catch(e){ return false; } }
+function anOpen(){ if(anDB) return Promise.resolve(anDB); if(AN_FALLBACK) return Promise.reject(new Error("fallback")); return new Promise((res,rej)=>{ if(!window.indexedDB){ rej(new Error("IndexedDB 없음")); return; }
+  let rq; try{ rq=indexedDB.open(AN_DB,1); }catch(e){ rej(e); return; }
+  rq.onupgradeneeded=()=>{ const db=rq.result; if(!db.objectStoreNames.contains(AN_STORE)){ const st=db.createObjectStore(AN_STORE,{keyPath:"id"}); st.createIndex("book","anchor.book",{unique:false}); st.createIndex("updated","updated",{unique:false}); } };
+  rq.onsuccess=()=>{ anDB=rq.result; res(anDB); }; rq.onerror=()=>rej(rq.error||new Error("IndexedDB 열기 실패")); rq.onblocked=()=>rej(new Error("IndexedDB 막힘")); }).catch(e=>{ AN_FALLBACK=true; AN_FALLBACK_WHY=String(e&&e.message||e); anFallbackLoad(); throw e; }); }
+let AN_FALLBACK_WHY="";
+/* 저장소 한 번 거치기: IndexedDB 가 되면 트랜잭션, 안 되면 메모리 Map(+localStorage). fn(st) 는 IDB 저장소 흉내(get/put/getAll)를 받는다 */
+function anTx(mode,fn){ return anOpen().then(db=>new Promise((res,rej)=>{ let tx; try{ tx=db.transaction(AN_STORE,mode); }catch(e){ rej(e); return; } const st=tx.objectStore(AN_STORE); let out; try{ out=fn(st); }catch(e){ rej(e); return; } tx.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); tx.onerror=()=>rej(tx.error||new Error("저장 실패")); tx.onabort=()=>rej(tx.error||new Error("저장이 취소됨(용량 부족?)")); }))
+  .catch(e=>{ if(!AN_FALLBACK) throw e; const M=anFallbackLoad(); const fake={ get:id=>{ const r={result:M.get(id)}; setTimeout(()=>r.onsuccess&&r.onsuccess(),0); return r; }, put:a=>{ M.set(a.id,a); return {result:a.id}; }, getAll:()=>({result:[...M.values()]}) };
+    return new Promise((res,rej)=>{ let out; try{ out=fn(fake); }catch(e2){ rej(e2); return; } setTimeout(()=>{ if(mode==="readwrite"&&!anFallbackSave()){ rej(new Error("이 브라우저의 저장 공간이 부족하거나 막혀 있습니다. 기록을 백업(JSON)으로 내려받아 두세요.")); return; } res(out&&out.result!==undefined?out.result:out); },0); }); }); }
+function anStoreHint(){ return AN_FALLBACK?`<p class="lead warn">⚠ 이 브라우저에서 안전한 저장소(IndexedDB)를 쓸 수 없어(${esc(AN_FALLBACK_WHY)}) 기록을 임시 저장소에 두고 있습니다. 브라우저 자료를 지우면 사라질 수 있으니 <b>JSON 백업</b>을 내려받아 두세요.</p>`:""; }
 const anId=()=>Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
 let AN_CACHE=null; /* 전체 목록(지운 것 제외) — 화면용 */
 function anAll(){ return anTx("readonly",st=>st.getAll()).then(L=>{ AN_CACHE=(L||[]).filter(a=>!a.deleted).sort((x,y)=>y.updated-x.updated); return AN_CACHE; }); }
 const AN_DEVICE=(()=>{ try{ let d=localStorage.getItem("milal-device"); if(!d){ d=Math.random().toString(36).slice(2,10); localStorage.setItem("milal-device",d); } return d; }catch(e){ return "?"; } })();
-function anSave(a){ a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.deleted=!!a.deleted; return anTx("readwrite",st=>st.put(a)).then(()=>anAll()).then(()=>{ if(window.onAnnotSaved) try{ onAnnotSaved(a); }catch(e){} return a; }); }
+function anSave(a){ const before={updated:a.updated,created:a.created,id:a.id,rev:a.rev,device:a.device}; a.updated=Date.now(); if(!a.created) a.created=a.updated; if(!a.id) a.id=anId(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; a.deleted=!!a.deleted;
+  return anTx("readwrite",st=>st.put(a)).then(()=>anAll()).then(()=>{ if(window.onAnnotSaved) try{ onAnnotSaved(a); }catch(e){} return a; })
+    .catch(e=>{ Object.assign(a,before); const q=/quota|exceeded|용량/i.test(String(e&&(e.name+" "+e.message))); throw new Error(q?"저장 공간이 부족합니다. 기록을 JSON 백업으로 내려받고 브라우저 저장 공간을 확인하세요.":String(e&&e.message||e)); }); }
 /* 지움은 표시만(동기화에서 되살아나지 않게 묘비 유지) */
 function anDelete(id){ return anTx("readwrite",st=>{ const g=st.get(id); g.onsuccess=()=>{ const a=g.result; if(a){ a.deleted=true; a.updated=Date.now(); a.rev=(a.rev||0)+1; a.device=AN_DEVICE; st.put(a); } }; }).then(()=>anAll()).then(()=>{ if(window.onAnnotDeleted) try{ onAnnotDeleted(id); }catch(e){} }); }
 function anList(){ return AN_CACHE||[]; }
@@ -41,7 +52,7 @@ function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._ne
     const a=Object.assign({},ex,{kind,key,anchor,observation:obs,interpretation:it,tags:root.querySelector("#anTags").value.split(",").map(s=>s.trim()).filter(Boolean)});
     if(milal&&root.querySelector("#anRef")&&root.querySelector("#anRef").checked) a.milal_ref=milal;
     anSave(a).then(()=>{ root.innerHTML=""; toast(isNew?"메모를 저장했습니다.":"메모를 고쳤습니다."); render(); }).catch(e=>toast("저장하지 못했습니다: "+e.message)); };
-  const d=root.querySelector("#anDel"); if(d) d.onclick=()=>{ if(!confirm("이 메모를 지울까요?")) return; anDelete(ex.id).then(()=>{ root.innerHTML=""; toast("지웠습니다."); render(); }); }; }
+  const d=root.querySelector("#anDel"); if(d) d.onclick=()=>{ if(!confirm("이 메모를 지울까요?")) return; anDelete(ex.id).then(()=>{ root.innerHTML=""; toast("지웠습니다."); render(); }).catch(e=>toast("지우지 못했습니다: "+e.message)); }; }
 /* 상세 창·읽기 화면에 끼우는 목록 */
 function annotListHTML(kind,key,ref){ const L=anFor(kind,key);
   return `<div class="src3"><span class="label">내 메모 <small>(내 기록 — MILAL 판정과 별개)</small></span>${L.map(a=>`<div class="anitem"><div>${a.observation?`<p><b>관찰</b> ${esc(a.observation)}</p>`:""}${a.interpretation?`<p><b>해석</b> ${esc(a.interpretation)}</p>`:""}${a.tags&&a.tags.length?`<small>${a.tags.map(t=>"#"+esc(t)).join(" ")}</small>`:""}</div><button class="btn small ghost" data-anedit="${a.id}">고치기</button></div>`).join("")}<button class="btn small" data-annew="${kind}:${ref}">${kind==="atom"?"이 절 원자에":"이 절에"} 관찰·해석 쓰기</button></div>`; }
@@ -59,7 +70,7 @@ function bindAnnotsPage(root){ bindAnnots(root); root.querySelectorAll("[data-an
 /* 메모의 BHSA 절 원자 번호 → 앱 번호 (책이 아직 안 받아졌으면 받고 나서) */
 function anAtomOf(a){ const b=a.anchor.book; if(!SD.loaded.has(b)){ loadBook(b).then(()=>{ const aid=anAtomOf(a); if(aid!=null) gotoAtom(b,aid); }); return null; }
   const want=a.anchor.clause_atom_ids[0]; const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let i=a0;i<a1;i++) if(SD.can[i]===want) return i; return null; }
-anOpen().then(()=>anAll()).catch(()=>{});
+anOpen().catch(()=>{}).then(()=>anAll()).catch(()=>{}); /* IndexedDB 가 안 되면 임시 저장소에서라도 읽는다 */
 
 /* ===================== D-1 본문 표시(형광펜·밑줄·괄호) =====================
    kind:"mark" — anchor.word_ids(BHSA 낱말 번호)에 style(hl|ul|br)·color 를 입힌다. 원문은 바꾸지 않는다. */
@@ -89,11 +100,11 @@ function openMarkPicker(wordIdx,label){ if(!wordIdx.length){ toast("먼저 낱�
     <div class="mgrp">그 밖</div><div class="mkrow"><button class="btn small" data-mk="ul:">밑줄</button><button class="btn small" data-mk="br:">괄호로 묶기 ⟦ ⟧</button></div>
     <input id="mkLabel" type="text" placeholder="이 표시의 뜻 (예: 반복되는 말) — 비워도 됨" style="width:100%;margin-top:10px;font:inherit;font-size:14px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box">`);
   const root=document.getElementById("sheetRoot"); const save=(style,color)=>{ const a={kind:"mark",key:"m:"+anId(),anchor:{book:b,ch:c,vs:v,bhsa:SD.bhsa||"2021",word_ids:wordIdx.map(slotOf),clause_atom_ids:[...new Set(wordIdx.map(j=>SD.can[SD.wa[j]]))],clause_ids:[...new Set(wordIdx.map(j=>String(SD.ccn[SD.wc[j]])))],heb},style,color,observation:"",interpretation:"",tags:(root.querySelector("#mkLabel").value.trim()?[root.querySelector("#mkLabel").value.trim()]:[])};
-    anSave(a).then(()=>{ root.innerHTML=""; view.st.mkSel=null; toast("표시했습니다."); render(); }); };
+    anSave(a).then(()=>{ root.innerHTML=""; view.st.mkSel=null; toast("표시했습니다."); render(); }).catch(e=>toast("표시를 저장하지 못했습니다: "+e.message)); };
   root.querySelectorAll("[data-mk]").forEach(x=>x.onclick=()=>{ const [st,co]=x.dataset.mk.split(":"); save(st,co); });
   root.querySelector("#mkCustom").onchange=e=>save("hl",e.target.value); }
 function openMarkEdit(id){ const a=anList().find(x=>x.id===id); if(!a) return; sheet("표시",`<p class="heb svheb" style="margin:0 0 6px">${esc(a.anchor.heb)}</p><p class="lead">${esc(PLAN.abbr[a.anchor.book-1])} ${a.anchor.ch}:${a.anchor.vs} · ${a.style==="hl"?"형광펜":a.style==="ul"?"밑줄":"괄호"}${a.tags&&a.tags[0]?" · "+esc(a.tags[0]):""}</p><div class="row" style="justify-content:space-between"><button class="btn small ghost" id="mkDel">표시 지우기</button><button class="btn small" id="mkNote">이 자리에 메모 쓰기</button></div>`);
-  const root=document.getElementById("sheetRoot"); root.querySelector("#mkDel").onclick=()=>anDelete(id).then(()=>{ root.innerHTML=""; render(); });
+  const root=document.getElementById("sheetRoot"); root.querySelector("#mkDel").onclick=()=>anDelete(id).then(()=>{ root.innerHTML=""; render(); }).catch(e=>toast("지우지 못했습니다: "+e.message));
   root.querySelector("#mkNote").onclick=()=>{ root.innerHTML=""; const vi=SD.ref.get(a.anchor.book+"-"+a.anchor.ch+"-"+a.anchor.vs)?.[0]; if(vi!=null) openAnnotEditor("verse",vi); }; }
 
 /* ===================== D-2 구간 메모 =====================
@@ -122,7 +133,9 @@ function recordsPage(){ const S=view.st; S.rf ||= {kind:"all",tag:"",q:"",sort:"
   L.sort(F.sort==="recent"?(x,y)=>y.updated-x.updated:(x,y)=>x.book-y.book||x.ch-y.ch||x.vs-y.vs||x.updated-y.updated);
   let h=`<section class="sec"><div class="rfbar"><input id="rfQ" type="search" placeholder="기록 찾기 (관찰·해석·원문·태그)" value="${esc(F.q)}"><div class="seg sseg mseg rfkind">${[["all","전체"],["word","낱말"],["verse","절"],["atom","절 원자"],["range","구간"],["mark","표시"]].map(([k,n])=>`<button aria-checked="${F.kind===k}" data-rfk="${k}">${n}</button>`).join("")}</div>
     <div class="rfrow"><select id="rfTag"><option value="">태그 전체</option>${tags.map(t=>`<option value="${esc(t)}"${F.tag===t?" selected":""}>#${esc(t)}</option>`).join("")}</select><div class="seg sseg mseg" style="flex:1"><button aria-checked="${F.sort==="recent"}" data-rfs="recent">최근 순</button><button aria-checked="${F.sort==="text"}" data-rfs="text">본문 순</button></div></div>
-    <div class="rfrow"><span class="label" style="margin:0">${L.length}건</span><span style="flex:1"></span><button class="btn small ghost" data-export="md">Markdown 내보내기</button><button class="btn small ghost" data-export="csv">CSV</button></div></div>`;
+    <div class="rfrow"><span class="label" style="margin:0">${L.length}건</span><span style="flex:1"></span><button class="btn small ghost" data-export="md">Markdown 내보내기</button><button class="btn small ghost" data-export="csv">CSV</button></div>
+    <div class="rfrow"><span class="label" style="margin:0">백업</span><span style="flex:1"></span><button class="btn small ghost" id="bkOut" style="white-space:nowrap">JSON 백업 내려받기</button><button class="btn small ghost" id="bkIn" style="white-space:nowrap">복원</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div>
+    <small class="lead" style="display:block;margin:-2px 0 0">JSON 백업은 기록 전부(지운 표시 포함)를 그대로 담아 다시 불러올 수 있습니다. Markdown·CSV는 읽기용입니다.</small></div>${anStoreHint()}`;
   if(!L.length) return h+`<p class="lead">기록이 없습니다. 본문에서 절을 펼쳐 메모·표시를 남기세요.</p></section>`;
   let lastG=""; for(const r of L){ const g=F.sort==="text"?`${PLAN.full[r.book-1]} ${r.ch}장`:""; if(g&&g!==lastG){ h+=`<div class="pkgrp">${esc(g)}</div>`; lastG=g; }
     const where=r.kind==="range"?r.title:`${PLAN.abbr[r.book-1]} ${r.ch}:${r.vs===0?"표제":r.vs}`;
@@ -137,7 +150,9 @@ function bindRecordsPage(root){ const S=view.st, F=S.rf; bindAnnots(root);
     if(r.kind==="word"){ view.st.rd="read"; studyOpenVerse(r.book,r.ch,r.vs); return; }
     if(r.kind==="atom"){ const aid=anAtomOf(r.a); if(aid!=null) gotoAtom(r.book,aid); return; }
     view.st.rd="read"; view.st.rangeStart=null; studyOpenVerse(r.book,r.ch,r.vs); });
-  root.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportRecords(b.dataset.export)); }
+  root.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportRecords(b.dataset.export));
+  const bo=root.querySelector("#bkOut"); if(bo) bo.onclick=()=>exportBackup().catch(e=>toast("백업하지 못했습니다: "+e.message));
+  const bi=root.querySelector("#bkIn"), bf=root.querySelector("#bkFile"); if(bi&&bf){ bi.onclick=()=>bf.click(); bf.onchange=()=>{ const f=bf.files&&bf.files[0]; if(f) f.text().then(t=>restoreBackupText(t)).catch(e=>toast("복원하지 못했습니다: "+e.message)); bf.value=""; }; } }
 
 /* ===================== D-4 내보내기 (Markdown / CSV) ===================== */
 function exportRecords(fmt){ const S=view.st, F=S.rf||{kind:"all",tag:"",q:"",sort:"text"}; let L=allRecords();
@@ -159,3 +174,42 @@ function exportRecords(fmt){ const S=view.st, F=S.rf||{kind:"all",tag:"",q:"",so
   const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500);
   if(navigator.clipboard&&fmt==="md") navigator.clipboard.writeText(txt).then(()=>toast("Markdown 파일을 내려받고 클립보드에도 복사했습니다."),()=>toast("파일을 내려받았습니다.")); else toast("파일을 내려받았습니다.");
   window.__lastExport={name,txt}; }
+
+/* ===================== B 백업·복원 (JSON) — docs/NOTES_STORAGE_DESIGN.md §5 =====================
+   백업: 주석 전부(묘비 포함, 칸 그대로) + 낱말 메모 목록. 규격 MILALWV-BACKUP-1.
+   복원: id 로 맞춰 본다. 없는 것은 넣고, 있는 것은 rev 가 큰 쪽을 두되 묘비는 되살리지 않고,
+         rev 가 같은데 내용이 다르면 기존 것을 두고 들어온 것을 '복원 충돌 사본'으로 따로 보존한다(아무것도 잃지 않음). */
+function anAllRaw(){ return anTx("readonly",st=>st.getAll()).then(L=>L||[]); }
+function backupObject(){ return anAllRaw().then(L=>({schema:"MILALWV-BACKUP-1",exported_at:new Date().toISOString(),app_data_version:window.STUDY_V||"",bhsa:(window.SD&&SD.bhsa)||"2021",device:AN_DEVICE,
+  counts:{annots:L.length,annots_deleted:L.filter(a=>a.deleted).length,word_notes:studyNotes().length},annots:L,word_notes:studyNotes()})); }
+function exportBackup(){ return backupObject().then(B=>{ const txt=JSON.stringify(B,null,1), name=`milal-백업-${B.exported_at.slice(0,10)}.json`; const url=URL.createObjectURL(new Blob([txt],{type:"application/json"}));
+  const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500); window.__lastBackup={name,txt}; toast(`백업을 내려받았습니다 (기록 ${B.counts.annots}건, 낱말 메모 ${B.counts.word_notes}건).`); return B; }); }
+const AN_KINDS=["word","verse","atom","range","note","mark"];
+function annotValid(a){ if(!a||typeof a!=="object") return "형식 아님"; if(typeof a.id!=="string"||!a.id) return "id 없음"; if(!AN_KINDS.includes(a.kind)) return "종류 모름"; const A=a.anchor; if(!A||typeof A!=="object") return "자리 없음";
+  if(!(Number.isInteger(A.book)&&A.book>=1&&A.book<=39&&Number.isInteger(A.ch)&&Number.isInteger(A.vs))) return "자리(책·장·절) 이상"; if(!Array.isArray(A.word_ids)||!Array.isArray(A.clause_atom_ids)) return "낱말·절 원자 번호 없음";
+  if(!Number.isInteger(a.rev)||a.rev<1) return "rev 이상"; if(!Number.isInteger(a.updated)) return "updated 이상"; if(a.kind==="mark"&&!["hl","ul","br"].includes(a.style)) return "표시 종류 모름"; return ""; }
+const anBody=a=>JSON.stringify({o:a.observation||"",i:a.interpretation||"",t:a.tags||[],s:a.style||"",c:a.color||"",d:!!a.deleted,m:a.milal_ref||null});
+/* 복원 계획 세우기(아직 저장 안 함): 들어온 기록마다 add / update / skip_older / skip_deleted / same / conflict / invalid */
+function restorePlan(B){ if(!B||B.schema!=="MILALWV-BACKUP-1"||!Array.isArray(B.annots)) throw new Error("MILALWV 백업 파일(JSON)이 아닙니다");
+  return anAllRaw().then(L=>{ const cur=new Map(L.map(a=>[a.id,a])); const plan={add:[],update:[],same:[],skip_older:[],skip_deleted:[],conflict:[],invalid:[],word_add:[]}; const seen=new Set();
+    for(const a of B.annots){ const why=annotValid(a); if(why){ plan.invalid.push({a,why}); continue; } if(seen.has(a.id)){ plan.invalid.push({a,why:"백업 안에 같은 id 가 둘"}); continue; } seen.add(a.id);
+      const c=cur.get(a.id); if(!c){ plan.add.push(a); continue; }
+      if(c.deleted&&!a.deleted){ plan.skip_deleted.push(a); continue; }
+      if(a.rev>c.rev){ plan.update.push(a); continue; } if(a.rev<c.rev){ plan.skip_older.push(a); continue; }
+      if(anBody(a)===anBody(c)) plan.same.push(a); else plan.conflict.push({a,c}); }
+    const have=new Set(studyNotes().map(n=>n.t)); for(const n of (B.word_notes||[])){ if(n&&Number.isInteger(n.t)&&n.b&&!have.has(n.t)) plan.word_add.push(n); }
+    return plan; }); }
+function restoreApply(plan){ const now=Date.now(); const writes=[...plan.add,...plan.update].map(a=>Object.assign({},a));
+  for(const {a,c} of plan.conflict){ const cp=Object.assign({},a,{id:a.id+"~r"+now.toString(36),key:a.key,rev:1,device:AN_DEVICE,created:a.created||now,updated:now,deleted:false,tags:[...(a.tags||[]),"복원충돌"],
+      observation:`⟪복원 충돌 사본 · 원본 id ${a.id} · rev ${a.rev} 같음, 내용 다름 · ${new Date(now).toLocaleString("ko-KR")}⟫\n`+(a.observation||"")}); writes.push(cp); }
+  return anTx("readwrite",st=>{ for(const w of writes) st.put(w); }).then(()=>{ if(plan.word_add.length) saveStudyNotes(studyNotes().concat(plan.word_add)); return anAll(); }).then(()=>({written:writes.length,word_added:plan.word_add.length})); }
+function restoreBackupText(txt){ let B; try{ B=JSON.parse(txt); }catch(e){ toast("JSON 을 읽지 못했습니다."); return Promise.resolve(); }
+  return restorePlan(B).then(plan=>new Promise(res=>{ const n=k=>plan[k].length;
+    sheet("백업 복원 — 미리 보기",`<p class="lead">백업한 때: ${esc(B.exported_at?new Date(B.exported_at).toLocaleString("ko-KR"):"?")} · 기록 ${B.annots.length}건 · 낱말 메모 ${(B.word_notes||[]).length}건${B.device&&B.device!==AN_DEVICE?" · 다른 기기에서 만든 백업":""}</p>
+      <ul class="bklist"><li>새로 들어올 기록: <b>${n("add")}</b></li><li>더 새 판(rev 큼)으로 고쳐질 기록: <b>${n("update")}</b></li><li>이미 같음: ${n("same")}</li><li>기기 쪽이 더 새 것이라 건너뜀: ${n("skip_older")}</li><li>기기에서 지운 것은 되살리지 않음: ${n("skip_deleted")}</li>
+      <li>rev 같은데 내용 다름 → 기존 것 두고 <b>충돌 사본 ${n("conflict")}</b>건 따로 보존</li><li>형식이 맞지 않아 건너뜀: ${n("invalid")}${n("invalid")?" ("+esc(plan.invalid.slice(0,3).map(x=>x.why).join(", "))+")":""}</li><li>낱말 메모 새로 들어올 것: ${n("word_add")}</li></ul>
+      <p class="lead">기존 기록은 지워지거나 덮어써서 사라지지 않습니다(더 새 판으로 바뀌는 것만). 복원 전에 지금 상태를 백업해 두면 되돌릴 수 있습니다.</p>
+      <div class="row" style="justify-content:flex-end;gap:8px"><button class="btn small ghost" id="bkNow">지금 상태 먼저 백업</button><button class="sbtn" id="bkGo" style="width:auto;margin:0;padding:10px 18px">복원하기</button></div>`);
+    const root=document.getElementById("sheetRoot"); root.querySelector("#bkNow").onclick=()=>exportBackup();
+    root.querySelector("#bkGo").onclick=()=>restoreApply(plan).then(r=>{ root.innerHTML=""; toast(`복원했습니다: 기록 ${r.written}건 (충돌 사본 ${n("conflict")}), 낱말 메모 ${r.word_added}건.`); window.__lastRestore={plan:Object.fromEntries(Object.keys(plan).map(k=>[k,plan[k].length])),r}; render(); res(r); }).catch(e=>{ toast("복원하지 못했습니다: "+e.message); res(null); }); }));
+}

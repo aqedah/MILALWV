@@ -322,3 +322,7 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .rfrow{display:flex;gap:8px;align-items:center}.rfrow select{font:inherit;font-size:13.5px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
 .seg.sseg.mseg.rfkind button{font-size:12.5px;padding:7px 2px}
 .snitem.hiddenpost{opacity:.55}
+/* 작업 B: 저장소 경고·복원 미리 보기 */
+.lead.warn{background:#FFF4D6;border:1px solid #E8C870;border-radius:8px;padding:8px 10px;color:#5A4300}
+:root[data-theme="dark"] .lead.warn{background:#3A3010;border-color:#8A7230;color:#F2DFA0}
+.bklist{margin:6px 0 10px;padding-left:18px;font-size:14px;line-height:1.7}
