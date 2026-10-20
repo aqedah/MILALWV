@@ -5,4 +5,4 @@ set -e
 D="$(cd "$(dirname "$0")" && pwd)"; cd "$D"
 [ -d node_modules ] || npm i --no-audit --no-fund
 printf '{"firestore":{"rules":"../../firestore.rules"},"emulators":{"firestore":{"port":8080,"host":"127.0.0.1"}}}' > firebase.json
-npx firebase emulators:exec --only firestore --project milalwv-test "node rules.test.mjs ../../firestore.rules && node sync.test.mjs ../../firestore.rules"
+npx firebase emulators:exec --only firestore --project milalwv-test "node rules.test.mjs ../../firestore.rules && node sync.test.mjs ../../firestore.rules && node migrate.test.mjs ../../firestore.rules"
