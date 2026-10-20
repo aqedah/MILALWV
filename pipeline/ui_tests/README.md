@@ -9,3 +9,4 @@
 - `node pipeline/ui_tests/research_e.js <폴더>` — 반복 정렬 전환·검색식 보관함 9건
 - `node pipeline/ui_tests/native_audit.js` — 작업 A-1 전수검사: 욥기 절 원자 2,977개의 V1 보존 상태(직접 2,895 · 원자료에만 39 · mother 없음 43), 잘못된 보존 표시 0
 - `node pipeline/ui_tests/compare_d.js` — 5단계 본문 비교기 13건 + 초급(탭 7)·대학원(탭 5) 시나리오
+- `node pipeline/ui_tests/compare_c.js <cmp_expected.json>` — 비교기 정확성(Python 독립 계산과 낱말 번호·형태·횟수·연쇄·LCS 대조 3사례)·대칭·어휘 선택·성능(창22/욥32–37/욥 전체)·범위 검증·비교 메모 복원 24건. 기대값: `python3 pipeline/compare_expected.py <출력>`

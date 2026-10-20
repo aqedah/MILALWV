@@ -21,7 +21,7 @@ const { chromium, devices } = require('playwright'); const R = []; const ok = (n
   ok('D7 재진술 후보: 차이 보기(공통/A에만/B에만) 표시', diff.s > 0 && diff.A > 0, JSON.stringify(diff));
   await tap('#cmpNote'); await pg.fill('#anInt', '도입 공식이 동사+이름으로 되풀이됨(관찰); 인용 여부는 미정'); await tap('#anSave');
   const md = await pg.evaluate(() => { exportCompare(); return window.__lastExport.txt; }); taps++;
-  ok('D8 Markdown 에 공통 어휘 표·공통 연쇄·차이 보기·판정 안 함 문구', /공통 어휘/.test(md) && /공통 연쇄/.test(md) && /차이 보기/.test(md) && /판정하지 않습니다/.test(md), String(md.length));
+  ok('D8 Markdown 에 동일 어휘 표·공통 연쇄·정렬·사용자 관찰/해석·판정 안 함 문구', /동일 어휘/.test(md) && /공통 연쇄/.test(md) && /정렬\(LCS\)/.test(md) && /사용자 관찰·해석/.test(md) && /판정하지 않습니다/.test(md), String(md.length));
   const gradTaps = taps; ok('D9 대학원: 비교 → 연쇄 확인 → 차이 보기 → 해석 메모 → Markdown (탭 ' + gradTaps + ')', gradTaps <= 8, String(gradTaps));
   await tap('.bnav [data-nav="notes"]'); const rec = await pg.evaluate(() => allRecords().filter(r => r.tags.includes('비교')).map(r => ({ kind: r.kind, title: r.title, cmp: r.a.anchor.compare && r.a.anchor.compare.label, obs: r.observation.slice(0, 20), int: r.interpretation.slice(0, 20) })));
   ok('D10 기록 탭에 비교 메모 2건(구간 메모, B 범위 기록, 태그 #비교)', rec.length === 2 && rec.every(r => r.kind === 'range' && r.cmp), JSON.stringify(rec));

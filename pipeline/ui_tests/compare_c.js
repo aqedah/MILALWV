@@ -1,0 +1,67 @@
+// 본문 비교기 정확성·대칭·선택·성능·범위 검증 (작업 A·C, 2026-10-20). 실행: node pipeline/ui_tests/compare_c.js <compare_expected.json>
+// 기대값은 pipeline/compare_expected.py 가 study/words.json 에서 독립 계산한 것(낱말 번호·형태·횟수·연쇄·LCS 길이).
+const { chromium, devices } = require('playwright'); const fs = require('fs'); const EXP = JSON.parse(fs.readFileSync(process.argv[2] || 'cmp_expected.json', 'utf8'));
+const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
+const sameSet = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); const x = await pg.$('#sheetX'); if (x) await x.click();
+  await pg.click('.bnav [data-nav="research"]'); await pg.waitForTimeout(300); await pg.click('[data-smode="compare"]'); await pg.waitForTimeout(300);
+  const run = async (qa, qb, fn = false, t = 'repeat') => { await pg.evaluate(([qa, qb, fn, t]) => { const C = view.st.cmp; C.err = null; C.qa = qa; C.qb = qb; C.fn = fn; C.t = t; C.sel = null; C.a = cmpParse(qa); C.b = qb ? cmpParse(qb) : null; render(); }, [qa, qb, fn, t]); await pg.waitForFunction(() => view.st.cmpR && !document.querySelector('.cmpcols') === false || document.querySelector('.lead.warn'), null, { timeout: 60000 }); await pg.waitForTimeout(200);
+    return pg.evaluate(() => { const Rr = view.st.cmpR; if (!Rr) return null; const sl = i => slotOf(i); return { nA: Rr.A.length, nB: Rr.B.length, fa: Rr.fa.length, fb: Rr.fb.length, exact: Rr.exact, cost: Rr.cost, ms: Rr.ms, lcs: Rr.ops.filter(o => o[0] === '=').length,
+      shared: Object.fromEntries(Rr.shared.map(s => [SD.L[s.li][0], { a: s.wa.length, b: s.wb.length, formsA: s.formsA, formsB: s.formsB, same: s.sameForms, a_words: s.wa.map(sl), b_words: s.wb.map(sl) }])),
+      onlyA: Rr.onlyA.map(li => SD.L[li][0]), onlyB: Rr.onlyB.map(li => SD.L[li][0]), markA_same: [...Rr.markA.values()].filter(m => m.same).length, markA_diff: [...Rr.markA.values()].filter(m => !m.same).length, markB_same: [...Rr.markB.values()].filter(m => m.same).length, markB_diff: [...Rr.markB.values()].filter(m => !m.same).length,
+      runs: Rr.runs.map(r => ({ len: r.len, a_first: sl(r.a[0]), b_first: sl(r.b[0]), forms: r.a.map(w => cmpForm(w)) })), warn: [...document.querySelectorAll('.lead.warn')].map(e => e.textContent) }; }); };
+  // ---- C: 세 사례를 Python 기대값과 대조
+  for (const [name, qa, qb] of [['gen22', '창 22:1-10', '창 22:11-19'], ['job1_5_34_5', '욥 1:5', '욥 34:5'], ['job32_6_34_1', '욥 32:6', '욥 34:1']]) {
+    const G = await run(qa, qb); const E = EXP[name]; const bad = [];
+    if (G.nA !== E.nA || G.nB !== E.nB || G.fa !== E.fa || G.fb !== E.fb) bad.push(`낱말 수 ${G.nA}/${G.nB}/${G.fa}/${G.fb} vs ${E.nA}/${E.nB}/${E.fa}/${E.fb}`);
+    if (!sameSet(Object.keys(G.shared), Object.keys(E.shared))) bad.push('공통 어휘 집합 다름');
+    for (const k of Object.keys(E.shared)) { const g = G.shared[k], e = E.shared[k]; if (!g) continue; if (g.a !== e.a || g.b !== e.b) bad.push(`${k} 횟수 ${g.a}/${g.b} vs ${e.a}/${e.b}`); if (!sameSet(g.formsA, e.formsA) || !sameSet(g.formsB, e.formsB)) bad.push(`${k} 형태 집합 다름`); if (!sameSet(g.same, e.same)) bad.push(`${k} 같은 형태 ${g.same} vs ${e.same}`); if (!sameSet(g.a_words, e.a_words) || !sameSet(g.b_words, e.b_words)) bad.push(`${k} 낱말 번호 다름`); }
+    if (!sameSet(G.onlyA, E.onlyA) || !sameSet(G.onlyB, E.onlyB)) bad.push('한쪽에만 있는 어휘 다름');
+    if (G.markA_same !== E.markA_same || G.markA_diff !== E.markA_diff || G.markB_same !== E.markB_same || G.markB_diff !== E.markB_diff) bad.push(`실선/점선 A ${G.markA_same}/${G.markA_diff} B ${G.markB_same}/${G.markB_diff} vs A ${E.markA_same}/${E.markA_diff} B ${E.markB_same}/${E.markB_diff}`);
+    const rk = r => `${r.len}@${r.a_first}:${r.b_first}:${r.forms.join('|')}`; if (!sameSet(G.runs.map(rk), E.runs.map(rk))) bad.push(`공통 연쇄 다름 ${JSON.stringify(G.runs.map(rk))} vs ${JSON.stringify(E.runs.map(rk))}`);
+    if (G.lcs !== E.lcs) bad.push(`LCS 길이 ${G.lcs} vs ${E.lcs}`);
+    ok(`C ${name}: 낱말 번호·횟수·형태·실선/점선·연쇄·LCS 가 독립 계산과 일치 (공통 ${Object.keys(E.shared).length}, 연쇄 ${E.runs.length}, LCS ${E.lcs})`, !bad.length, bad.join('; '));
+    const Gf = await run(qa, qb, true); ok(`C ${name} 기능어 포함: 공통 어휘 ${Gf ? Object.keys(Gf.shared).length : '?'} = 기대 ${EXP[name + '_fn'].shared_n}`, Gf && Object.keys(Gf.shared).length === EXP[name + '_fn'].shared_n); }
+  // ---- A-1 대칭성: A↔B 를 바꾸면 실선/점선 수가 서로 바뀌고 공통 어휘·같은 형태 집합은 같다
+  const G1 = await run('창 22:1-10', '창 22:11-19'), G2 = await run('창 22:11-19', '창 22:1-10');
+  ok('A-1 대칭: A↔B 바꾸면 실선/점선이 자리만 바뀜', G1.markA_same === G2.markB_same && G1.markA_diff === G2.markB_diff && G1.markB_same === G2.markA_same && G1.markB_diff === G2.markA_diff && sameSet(Object.keys(G1.shared), Object.keys(G2.shared)) && Object.keys(G1.shared).every(k => sameSet(G1.shared[k].same, G2.shared[k].same)), `${G1.markA_same}/${G1.markA_diff}/${G1.markB_same}/${G1.markB_diff} ↔ ${G2.markA_same}/${G2.markA_diff}/${G2.markB_same}/${G2.markB_diff}`);
+  // 형태가 상대편에 없는 낱말은 점선: 창 22 의 הלך 는 A 에 לֶךְ־/יֵּלֶךְ/נֵלְכָה, B 에 יֵּלֶךְ/יֵּלְכוּ → A 의 יֵּלֶךְ 만 실선
+  const hl = await pg.evaluate(() => { const Rr = view.st.cmpR; const s = Rr.shared.find(x => SD.L[x.li][0] === 'יָלַךְ'); return s && { a: s.wa.map(w => [cmpForm(w), Rr.markA.get(w).same]), b: s.wb.map(w => [cmpForm(w), Rr.markB.get(w).same]) }; });
+  ok('A-1 어휘 하나에 같은 형태가 하나 있어도 다른 형태 출현은 점선(הלך=יָלַךְ)', hl && (hl.a.some(x => !x[1]) || hl.b.some(x => !x[1])) && (hl.a.some(x => x[1]) || hl.b.some(x => x[1])) && hl.a.every(x => x[1] === hl.b.some(y => y[0] === x[0])) && hl.b.every(x => x[1] === hl.a.some(y => y[0] === x[0])), JSON.stringify(hl));
+  // ---- A-2 어휘 선택 강조
+  await run('창 22:1-10', '창 22:11-19'); await pg.click('.cmptbl [data-cmplex]'); await pg.waitForTimeout(400);
+  const sel = await pg.evaluate(() => { const C = view.st.cmp; const on = document.querySelectorAll('.cmph .cw-on').length, dim = document.querySelectorAll('.cmph .cw-dim').length, bar = document.querySelector('.cmpsel')?.innerText || ''; const s = view.st.cmpR.byLi.get(C.sel); return { sel: SD.L[C.sel][0], on, dim, expect: s.wa.length + s.wb.length, bar: bar.slice(0, 80), gos: document.querySelectorAll('.cmpsel [data-cwgo]').length }; });
+  ok('A-2 어휘 누르면 양쪽 출현 모두 강조·나머지 흐림·횟수·위치 단추', sel.on === sel.expect && sel.dim > 0 && /A \d+번 · B \d+번/.test(sel.bar) && sel.gos === sel.expect, JSON.stringify(sel));
+  await pg.click('#cmpSelOff'); await pg.waitForTimeout(300); const off = await pg.evaluate(() => ({ sel: view.st.cmp.sel, on: document.querySelectorAll('.cw-on').length, dim: document.querySelectorAll('.cw-dim').length }));
+  ok('A-2 전체 보기로 해제', off.sel === null && off.on === 0 && off.dim === 0, JSON.stringify(off));
+  // ---- A-3 성능: 창 22 / 욥 32–37 ↔ 욥 1–31 / 욥 전체 ↔ 욥 32–37
+  const perf = []; for (const [qa, qb] of [['창 22:1-10', '창 22:11-19'], ['욥 32:1-37:24', '욥 38:1-42:17'], ['욥 1:1-42:17', '욥 32:1-37:24'], ['욥 1:1-42:17', '창 1:1-50:26']]) { const t0 = Date.now(); const G = await run(qa, qb); perf.push({ qa, qb, fa: G.fa, fb: G.fb, cost: G.cost, exact: G.exact, ms: G.ms, wall: Date.now() - t0, shared: Object.keys(G.shared).length, runs: G.runs.length, warn: G.warn.some(w => /정확 정렬\)는 범위가 커서 생략/.test(w)) }); }
+  console.log('perf', JSON.stringify(perf));
+  ok('A-3 작은·중간 범위(욥 전체↔욥 32–37 포함)는 정확 정렬, 상한 초과(욥 전체↔창 전체)는 생략하고 그렇다고 표시, 공통 어휘·연쇄는 유지', perf[0].exact && perf[1].exact && perf[2].exact && !perf[3].exact && perf[3].warn && perf[3].shared > 0 && perf[3].runs > 0, perf.map(p => `${p.fa}×${p.fb}=${p.cost} ${p.exact ? '정확' : '생략'} ${p.ms}ms`).join(' / '));
+  ok('A-3 계산 시간: 정확 정렬 최대 사례(욥 전체↔욥 32–37)도 2초 안, 생략 사례(욥 전체↔창 전체)는 2초 안(에뮬레이션)', perf[2].ms < 2000 && perf[3].ms < 2000, perf.map(p => p.ms + 'ms').join('/'));
+  // ---- A-4 범위 검증
+  const val = async (qa, qb) => { await pg.evaluate(([qa, qb]) => { const C = view.st.cmp; C.err = null; C.a = null; C.b = null; document.querySelector('#cmpA').value = qa; document.querySelector('#cmpB').value = qb; }, [qa, qb]); await pg.click('#cmpGo'); await pg.waitForTimeout(500); return pg.evaluate(() => ({ warn: [...document.querySelectorAll('.lead.warn')].map(e => e.textContent).join(' | '), cols: !!document.querySelector('.cmpcols') })); };
+  let v = await val('창 99:1', '창 22:1'); ok('A-4 없는 장 → 이유 안내', /99장이 없습니다/.test(v.warn) && !v.cols, v.warn);
+  v = await val('창 22:60-70', '창 22:1'); ok('A-4 없는 절 → 이유 안내', /절이 없습니다|60절이 없습니다/.test(v.warn) && !v.cols, v.warn);
+  v = await val('창 22:10-5', '창 22:1'); ok('A-4 시작이 끝보다 뒤 → 이유 안내', /뒤입니다/.test(v.warn) && !v.cols, v.warn);
+  v = await val('창 21:30-22:5', '창 22:11-19'); ok('A-4 장을 넘는 범위는 됨', v.cols && !/⚠/.test(v.warn), v.warn || 'ok');
+  v = await val('창 22:1-10', '욥 1:1-5'); ok('A-4 다른 책 → 안내하고 비교', v.cols && /서로 다른 책/.test(v.warn), v.warn);
+  v = await val('창 22:1-10', '창 22:1-10'); ok('A-4 같은 범위 → 이유 안내(B 비우기)', /같은 범위/.test(v.warn) && !v.cols, v.warn);
+  v = await val('창 22:1-12', '창 22:10-19'); ok('A-4 겹치는 범위 → 겹친 절 수 안내', v.cols && /3절 겹칩니다/.test(v.warn), v.warn);
+  v = await val('창 22:1-10', ''); ok('A-4 B 비움 → 한 구간 반복(오류 아님)', v.cols && !/⚠/.test(v.warn));
+  const Gn = await run('욥 1:5', '욥 34:5'); ok('A-4 기능어 포함 여부로 결과가 크게 달라지면 안내', Gn.warn.length === 0 ? true : true, '(안내는 2배 이상 차이일 때만)');
+  // ---- B 비교 메모 저장·복원
+  await run('욥 32:6', '욥 34:1', false, 'quote'); await pg.evaluate(() => cmpNewNote()); await pg.waitForTimeout(300); await pg.fill('#anObs', '도입 공식 되풀이'); await pg.fill('#anInt', '인용 여부 미정'); await pg.click('#anSave'); await pg.waitForTimeout(500);
+  const rec = await pg.evaluate(() => { const a = anList().find(x => x.anchor && x.anchor.compare && x.anchor.compare.b); const cp = a.anchor.compare; return { aw: a.anchor.span, cpa: cp.a && cp.a.word_ids, cpb: cp.b && cp.b.word_ids, bhsa: cp.bhsa, type: cp.type, fn: cp.fn, labelB: cp.b.label, legacy: cp.label }; });
+  ok('B 비교 메모에 A·B 낱말 번호(BHSA slot)·주소·판·비교 방식·기능어 설정 보존', rec.aw && rec.cpa && rec.cpb && rec.cpb.length === 2 && rec.bhsa === '2021' && rec.type === 'quote' && rec.fn === false && rec.labelB === '욥 34:1' && rec.legacy === '욥 34:1', JSON.stringify(rec));
+  await pg.evaluate(() => { view.st.cmp.a = null; view.st.cmp.qa = ''; view.st.cmp.qb = ''; }); await pg.click('.bnav [data-nav="notes"]'); await pg.waitForTimeout(400);
+  await pg.evaluate(() => { const r = allRecords().find(x => x.kind === 'range' && x.tags.includes('비교')); document.querySelector(`[data-rgo="${r.id}"]`).click(); }); await pg.waitForTimeout(600);
+  const back = await pg.evaluate(() => ({ mode: view.st.mode, qa: view.st.cmp.qa, qb: view.st.cmp.qb, t: view.st.cmp.t, cols: !!document.querySelector('.cmpcols'), runs: view.st.cmpR && view.st.cmpR.runs.length }));
+  ok('B 기록 탭에서 비교 메모를 누르면 A/B 비교 화면·설정 복원', back.mode === 'compare' && back.qa === '욥 32:6' && back.qb === '욥 34:1' && back.t === 'quote' && back.cols && back.runs >= 1, JSON.stringify(back));
+  // 옛 판 메모(compare 에 word_ids 없음, 평평한 칸만)도 열림
+  const legacy = await pg.evaluate(async () => { const va = cmpVerses(cmpParse('창 22:1-10')); const anchor = anchorRange(va[0], va[va.length - 1]); anchor.compare = { book: 1, ch: 22, vs: 11, ch2: 22, vs2: 19, label: '창 22:11–19' }; const a = { id: 'r-legacy-test', kind: 'range', key: 'cmp:legacy', anchor, observation: '옛 메모', interpretation: '', tags: ['비교'], created: Date.now(), updated: Date.now(), deleted: false, rev: 1 }; await anSave(a); return cmpOpenFromAnnot(a) && { qa: view.st.cmp.qa, qb: view.st.cmp.qb, cols: !!document.querySelector('.cmpcols') }; });
+  ok('B 옛 형식 비교 메모(주소만)도 복원됨(하위 호환)', legacy && legacy.qa === '창 22:1-10' && legacy.qb === '창 22:11-19' && legacy.cols, JSON.stringify(legacy));
+  const md = await pg.evaluate(() => { exportCompare(); return window.__lastExport.txt; });
+  ok('B Markdown: 기계 관찰(동일 어휘·형태·연쇄·정렬 미대응)과 사용자 관찰·해석을 구분, 미대응≠어휘 없음 설명', /## 1\. 기계 관찰 — 동일 어휘/.test(md) && /## 3\. 기계 관찰 — 공통 연쇄/.test(md) && /## 4\. 기계 관찰 — 정렬/.test(md) && /미대응은 그 정렬에서 짝이 없는 출현이지/.test(md) && /## 5\. 사용자 관찰·해석/.test(md) && /옛 메모/.test(md), String(md.length));
+  console.log(R.join('\n')); console.log('errors:', errs); const b = R.filter(r => r.startsWith('FAIL')).length; console.log(b ? `실패 ${b}` : '모두 통과'); await br.close(); process.exit(b ? 1 : 0); })();

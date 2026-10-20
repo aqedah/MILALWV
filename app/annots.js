@@ -161,6 +161,7 @@ function bindRecordsPage(root){ const S=view.st, F=S.rf; bindAnnots(root);
   root.querySelectorAll("[data-rgo]").forEach(b=>b.onclick=()=>{ const r=allRecords().find(x=>x.id===b.dataset.rgo); if(!r) return;
     if(r.kind==="word"){ view.st.rd="read"; studyOpenVerse(r.book,r.ch,r.vs); return; }
     if(r.kind==="atom"){ const aid=anAtomOf(r.a); if(aid!=null) gotoAtom(r.book,aid); return; }
+    if(r.kind==="range"&&r.a&&r.a.anchor&&r.a.anchor.compare&&window.cmpOpenFromAnnot&&cmpOpenFromAnnot(r.a)) return;   /* 비교 메모 → A/B 비교 화면 복원 */
     view.st.rd="read"; view.st.rangeStart=null; studyOpenVerse(r.book,r.ch,r.vs); });
   root.querySelectorAll("[data-export]").forEach(b=>b.onclick=()=>exportRecords(b.dataset.export));
   const bo=root.querySelector("#bkOut"); if(bo) bo.onclick=()=>exportBackup().catch(e=>toast("백업하지 못했습니다: "+e.message));

@@ -340,3 +340,7 @@ button.stmeta{border:0;background:none;padding:0;font:inherit;text-align:inherit
 .cmpdiff{font-family:var(--f-heb,serif);font-size:19px;line-height:2;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}.cd{border-radius:4px;padding:0 3px}.cd-s{background:#E6EEF9}.cd-A{background:#FFE2C4;text-decoration:line-through}.cd-B{background:#D9F2D0}
 :root[data-theme="dark"] .cd-s{background:#2C3A52}:root[data-theme="dark"] .cd-A{background:#5A3A1F}:root[data-theme="dark"] .cd-B{background:#2D4A2A}
 .seg.smode.rseg{display:grid;grid-template-columns:repeat(5,1fr);gap:0}.seg.smode.rseg button{min-width:0;padding:8px 2px;font-size:13.5px;white-space:nowrap}
+/* 비교기 2판: 어휘 선택 강조 */
+.cw-dim{opacity:.35}.cw-on{outline:2px solid var(--accent);outline-offset:1px;opacity:1}.cmpsel{background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:8px;margin:6px 0;font-size:13.5px;line-height:1.9}.cmpsel .heb{font-size:19px}.cmpsel .mgo .heb{font-size:16px}
+.cmprow.on{outline:2px solid var(--accent)}.cmplex.on b{color:var(--accent)}.cmprow{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}.cmprow .cmpforms{flex-basis:100%}.cmpinfo{margin-left:auto}
+.cmph .flash{background:var(--accent)!important;color:#fff;transition:background .6s}
