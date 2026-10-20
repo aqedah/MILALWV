@@ -1,0 +1,66 @@
+rules_version = '2';
+// MILALWV Firestore 규칙 (제안 — 연구자 승인 뒤 콘솔에 붙여 넣음). 시험: pipeline/firestore_rules_test/
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // ---- 낱말 메모 동기화 (지금 쓰는 것, 그대로) : users/{uid}/study/notes 문서 하나 ----
+    match /users/{uid}/study/notes {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+                   && request.resource.data.keys().hasOnly(['list', 'at'])
+                   && request.resource.data.list is list
+                   && request.resource.data.list.size() <= 500;
+    }
+
+    // ---- 연구 기록(주석): users/{uid}/annots/{id} 문서 하나 = 메모 하나 ----
+    // 와일드카드 /users/{uid}/{doc=**} 는 쓰지 않는다 — 아래 제한을 우회하기 때문
+    match /users/{uid}/annots/{id} {
+      function isOwner() { return request.auth != null && request.auth.uid == uid; }
+      function d() { return request.resource.data; }
+      function validAnnot() {
+        return d().keys().hasOnly(['id', 'kind', 'key', 'anchor', 'observation', 'interpretation', 'tags', 'mark', 'milal_ref', 'created', 'updated', 'deleted', 'shared_id'])
+          && d().id == id
+          && d().kind in ['word', 'verse', 'atom', 'range', 'note']
+          && d().anchor is map
+          && d().anchor.book is int && d().anchor.book >= 1 && d().anchor.book <= 39
+          && d().anchor.ch is int && d().anchor.vs is int
+          && d().anchor.bhsa == '2021'
+          && d().observation is string && d().observation.size() <= 2000
+          && d().interpretation is string && d().interpretation.size() <= 2000
+          && d().tags is list && d().tags.size() <= 20
+          && d().created is int && d().updated is int
+          && d().deleted is bool;
+      }
+      allow read: if isOwner();
+      allow create: if isOwner() && validAnnot() && d().deleted == false;
+      // 고치기: 자리(anchor)·만든 때·종류는 바꾸지 못함. updated 는 커져야 함
+      allow update: if isOwner() && validAnnot()
+                    && d().anchor == resource.data.anchor
+                    && d().created == resource.data.created
+                    && d().kind == resource.data.kind
+                    && d().updated >= resource.data.updated;
+      // 지우기: 문서를 지우지 않고 deleted=true 로 표시(위 update 로). 진짜 삭제는 본인만
+      allow delete: if isOwner();
+    }
+
+    // ---- 나눔: 읽기는 누구나, 올리기는 로그인한 본인 이름으로만, 내리기는 본인만, 고치기 없음 ----
+    match /shared/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'b', 'c', 'v', 'heb', 'gl', 'st', 'm', 'lex', 'han', 't'])
+        && request.resource.data.b is int && request.resource.data.b >= 1 && request.resource.data.b <= 39
+        && request.resource.data.c is int && request.resource.data.v is int
+        && request.resource.data.m is string && request.resource.data.m.size() <= 500
+        && request.resource.data.heb is string && request.resource.data.heb.size() <= 200
+        && request.resource.data.gl is string && request.resource.data.gl.size() <= 200
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.t is int;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // 그 밖은 모두 막음
+    match /{path=**} { allow read, write: if false; }
+  }
+}
