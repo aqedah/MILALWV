@@ -27,9 +27,9 @@ cd C:\MILAL
 한 번에 10단계(검증 결과·해시·변환·round-trip·근거·BHSA 대조·관계 대조·차이 보고·연구자 판단 항목·욥 37:20 / 37:24→38:1 기준점):
 
 ```powershell
-python pipeline\milal_real_v1_check.py C:\MILAL\results\mfr03_v1_<날짜시각>\real --review-zip C:\MILAL\results\mfr03_p2_20261002\release_a_v2\P2_REVIEW.zip --commit <MILAL 커밋 해시>
+python pipeline\milal_real_v1_check.py C:\MILAL\results\mfr03_v1_<날짜시각>\real --review-zip C:\MILAL\results\mfr03_p2_20261002\release_a_v2\P2_REVIEW.zip --commit <MILAL 커밋 해시> --deploy study\milal\job.json
 ```
-보고서 `docs/REPORT_real_v1_<날짜>.md` 가 생기고, 종료 코드 0(모두 통과) / 1(⚠ 사람이 볼 것) / 2(❌ 실패)로 끝난다. 아래는 그 안에서 도는 개별 명령.
+결과는 작업 폴더 `build\real_v1_<날짜>\job.json` 에 먼저 생기고, 보고서 `docs/REPORT_real_v1_<날짜>.md` 가 나온다. 종료 코드 0(모두 통과 — 이때만 `--deploy` 자리로 복사) / 1(⚠ 사람이 볼 것 — 배포 안 함) / 2(❌ 실패 — 배포 안 함). 기준점: 긍정 500064→500065(연구자 채택, CONFIRMED), 부정 500062→500065(직접 모절 기각 → NO_DIRECT_RELATION), 37:24→38:1 은 기록 유무만(V1 범위 밖이면 NOT_RECORDED). 규격 §12. 아래는 그 안에서 도는 개별 명령.
 
 ```powershell
 cd C:\Users\yisaa\MILALWV

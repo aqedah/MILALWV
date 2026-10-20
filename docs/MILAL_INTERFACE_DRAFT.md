@@ -332,3 +332,19 @@ MILAL의 규칙·판정·동결 파일은 바꾸지 않는다. 내보내기는 �
 5. **승인자 이름은 입력 문자열**이다. 앱은 "기록된 이름(입력값, 신원 확인 아님)"으로만 표시하고, 암호학적 서명·계정 확인으로 표현하지 않는다.
 6. 자동 승인은 없다. 시험: `python3 pipeline/milal_approve_tests.py`(Python·JS 19건 동일 답).
 
+## 12. 실제 V1 검증 기준점 정정 (2026-10-20, 후속 지시 작업 A)
+
+MILAL `docs/HUMAN_STRUCTURAL_ADJUDICATION_MFR_H02.csv`(판정 `MFR-H02-JOB-37-20`, 2026-09-26)를 다시 읽은 결과:
+
+| 쌍 | 연구자 판정 | V1 에서의 모습 | MILALWV 기준점 |
+|---|---|---|---|
+| **500064 → 500065** (אִם־אָמַר אִישׁ → כִּי יְבֻלָּע) | `ACCEPTED_AS_LOCAL_MOTHER`, HYPOTACTIC, STRICTLY_BELOW | `CONFIRMED SUBORDINATE` 간선, rule `HUMAN MFR-H02-JOB-37-20`, record `frozen_human` | **긍정 기준점** — 실제로 확정된 모절·자절 |
+| **500062 → 500065** (הַיְסֻפַּר־לֹו → כִּי יְבֻלָּע) | `REJECTED_AS_DIRECT_MOTHER`, `NO_DIRECT_STRICT_MOTHER_RELATION`(첫째 콜론 vs 둘째 콜론; SB03 큰 단위 매개는 기계 증거로 보존) | `human_notes` 항목 → IF-1 `issues.NO_DIRECT_RELATION`(basis HUMAN_DECISION) | **부정 기준점** — 직접 모절 후보를 명시적으로 기각한 기록 |
+| 37:24 → 38:1 | HSA3 D/E 이음매 판정의 `NO_DIRECT_PARENTAGE`·`NO_DIRECT_RESPONSE_ANTECEDENT`(`src/milal_hsa3_de_seam_adjudication.py`) | V1 입력 `frozen_human` 은 위 2건뿐이라 **V1 에 없음** | 기록 유무만 확인 → **NOT_RECORDED** 가 정상. 가상 판정을 만들지 않음 |
+
+- 처음 판의 `milal_real_v1_check.py`(커밋 24fe694)는 500062→500065 에 CONFIRMED 를 기대했다. **잘못**이었다(이 쌍은 기각 기록). 본 절 §5 의 방향 근거(source=모절 후보, target=자절)는 그대로 맞다 — 기록의 source 가 '후보'라는 뜻이지 '채택'이라는 뜻이 아니다.
+- 고친 검증기: `--positive 37:20=500064>500065`(CONFIRMED·HUMAN 규칙·HUMAN 근거), `--negative 37:20=500062>500065`(CONFIRMED 없음 + human_notes 기각 기록 + NO_DIRECT_RELATION 일치; 기록이 없으면 '기각됨'이 아니라 NOT_RECORDED), `--not-in-v1 37:24>38:1`(기록 유무만). 실제 파일의 NO_DIRECT_RELATION 은 모두 `frozen_human` 에서 와야 하고, 아니면 ❌.
+- 안전장치: V1 게이트 FAIL → 변환 안 함 · manifest 불일치 → 즉시 중단 · 이전 compare.json 재사용 없음 · ROUNDTRIP_EXACT 필수 · 근거 미결/실패 수 따로 보고 · `file_status == MILAL_OUTPUT` 확인 · 작업 폴더(`build/real_v1_<날짜>/`)에 만들고 **모든 검사가 0일 때만** `--deploy` 자리로 복사.
+- 회귀 시험: `pipeline/milal_real_v1_check_tests.py` 11건(MILAL 자체 시험 fixture 가 H0.2 와 같은 모양 — 114→115 채택, 112→115 기각 — 이라 실제 자료 없이 논리를 검사).
+- TEST_ONLY 시험 파일(`test/milal_test_only_job31-38.json`)의 37:24/38:1 `NO_DIRECT_RELATION`(basis CONTROL)은 '모름'과 '판정됨'의 화면 구분을 보이기 위한 **가상 통제 자료**이며, 실제 파일에는 그런 basis 가 올 수 없다(검증기 ❌).
+
