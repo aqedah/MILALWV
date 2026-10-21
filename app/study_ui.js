@@ -1,6 +1,23 @@
 /* ===== MILALWV 화면: 구약 히브리어 원문 · BHSA (CBSR 성경연구 탭에서 떼어 냄) ===== */
 const STUDY_ON=()=>true;
 const STUDY_V=window.STUDY_V||"1";
+/* ===== UX 시안 스위치(지시 10): preview.html 이 window.UX2=true 를 켠다. 운영 index.html 에서는 늘 꺼져 있어 아래 ux2() 가지는 타지 않는다 ===== */
+const ux2=()=>!!window.UX2;
+const expertOn=()=>{ try{ return localStorage.getItem("milal-expert")==="1"; }catch(e){ return false; } };
+function expertSet(v){ try{ localStorage.setItem("milal-expert",v?"1":"0"); }catch(e){} if(!v){ view.st.milalOn=false; if(view.st.sv==="map") view.st.sv="tree"; } render(); }
+/* 연구 시작 화면(시안): 다섯 메뉴 대신 '무엇을 하려는가'로 고른다. 기존 도구·낱말·검색식·비교·이론은 그대로 연결 */
+const R_START=[
+  {k:"repeat",t:"반복되는 낱말 찾기",d:"이 장(또는 묶은 장들)에서 유난히 자주 나오는 낱말",go:{mode:"tool",tool:"반복"}},
+  {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 다른 곳에서 어떻게 쓰였는지",go:{mode:"word"}},
+  {k:"compare",t:"두 본문 비교하기",d:"같은 말·같은 어순이 어디서 되풀이되는지(인용·재진술 관찰)",go:{mode:"compare"}},
+  {k:"query",t:"더 자세한 문법·문장 검색",d:"문장 종류·구의 역할·낱말 형태를 묶어 찾기 (고급 검색)",go:{mode:"query"}}];
+const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
+function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
+  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">지금 범위 <b>${esc(rg)}</b> — 범위는 위의 장 이름에서 바꿉니다.</p>
+    <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
+    <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
+    <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
+function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
 const SP_K={verb:"동사",subs:"명사",nmpr:"고유명사",adjv:"형용사",advb:"부사",prep:"전치사",conj:"접속사",prps:"인칭대명사",prde:"지시대명사",prin:"의문대명사",intj:"감탄사",nega:"부정어",inrg:"의문사",art:"관사"};
@@ -231,12 +248,13 @@ function renderStudy(){
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
-  if(RESEARCH_MODES.includes(S.mode)) h+=`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
+  if(ux2()&&S.mode==="start") return h+renderResearchStart();
+  if(RESEARCH_MODES.includes(S.mode)) h+=ux2()?`<div class="rback"><button class="mtog back" id="rStart">← 연구 시작</button> <b>${esc(S.mode==="tool"&&S.tool?S.tool+" · "+(ST_TOOLS.find(x=>x[0]===S.tool)||[])[1]:rModeName(S.mode))}</b></div>`:`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
   if(S.mode==="theory") return h+renderTheory();
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
     h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
-      <div class="svrow">${rd==="struct"?`<div class="seg svm sv3">${[["tree","계층"],["speech","발화"],["map","지도"]].map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
+      <div class="svrow">${rd==="struct"?`<div class="seg svm sv3">${[["tree","계층"],["speech","발화"],["map","지도"]].filter(([x])=>x!=="map"||!ux2()||expertOn()).map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
       ${rd==="read"?readView(S.R.b,vc):((S.sv||"tree")==="map"?unitMapView(S.R.b):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true)))}
       ${multi&&k<chs.length-1?`<button class="sbtn snextch" id="sVcN2">${chs[k+1]}${u} 이어서 보기 ›</button>`:""}</section>`; }
   else if(S.mode==="query") h+=renderQuery();
@@ -306,6 +324,10 @@ function bindStudy(m){
   if(S.mode==="notes"){ bindStudyNotes(); if(S.nseg!=="shared"&&window.bindRecordsPage) bindRecordsPage(m); }
   m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
+  const ex1=m.querySelector("#stExpert"); if(ex1) ex1.onclick=()=>expertSet(true); const ex0=m.querySelector("#stExpertOff"); if(ex0) ex0.onclick=()=>expertSet(false);
+  const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
+  m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });
+  const rsv=m.querySelector("#rSaved"); if(rsv) rsv.onclick=()=>{ S.mode="query"; S.rmode="query"; render(); if(window.qOpenSaved) qOpenSaved(); };
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
   m.querySelectorAll(".umap [data-mgo]").forEach(b=>b.onclick=()=>gotoAtom(S.R.b,+b.dataset.mgo));
   const sg=document.getElementById("stGloss"); if(sg) sg.onclick=()=>openStructGlossary(S.R.b);
@@ -341,6 +363,10 @@ function studyOpenVerse(b,c,v){ const S=view.st; view.tab="study";
 
 /* 구조 화면 머리: 세 출처(BHSA 원자료 / 앱 관찰 후보 / MILAL 판정)와 MILAL 자료 상태 */
 function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalLoad(b):ML[b]);
+  if(ux2()){ const bk=S.back?`<button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}으로 돌아가기</button> `:""; const ex=expertOn();
+    if(!ex){ if(S.milalOn) S.milalOn=false; return `<div class="srcnote">${bk?`<span>${bk}</span>`:""}<span>문장의 짜임(BHSA)을 줄과 들여쓰기로, 이야기의 흐름(앱의 관찰 후보 — 판정 아님)을 색으로 보입니다. <button class="mtog" id="stGloss">색과 표지 ⓘ</button></span><span class="lead"><button class="mtog" id="stExpert">전문 보기 — 분석 코드·MILAL 관계망 ▸</button></span></div>`; }
+    let m=""; if(!f) m=`<span>MILAL 판정: 이 책의 자료 없음</span>`; else if(!S.milalOn) m=`<button class="mtog" data-milal="1">MILAL 판정 겹쳐 보기 ▸</button>`; else if(!st||st.state==="loading") m=`<span>MILAL 판정 불러오는 중…</span>`; else if(st.state==="err") m=`<span>MILAL 자료를 읽지 않음: ${esc(st.msg)}</span> <button class="mtog" data-milal="0">끄기</button>`; else m=`<span>MILAL 판정 ${milalBadgeFile(st)} · ${esc(st.data.source.milal.stage)}${st.unmatched.length?` · 대조 실패 ${st.unmatched.length}절`:""}</span> <button class="mtog" data-milal="0">끄기</button>`;
+    return `<div class="srcnote expert">${bk?`<span>${bk}</span>`:""}<span><b>전문 보기</b> · <b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다. <button class="mtog" id="stGloss">용어 풀이 ⓘ</button> <button class="mtog" id="stExpertOff">전문 보기 끄기</button></span></div>`; }
   let m=""; if(!f) m=`<span>MILAL 판정: 이 책의 자료 없음</span>`;
   else if(!S.milalOn) m=`<button class="mtog" data-milal="1">MILAL 판정 겹쳐 보기 ▸</button>`;
   else if(!st||st.state==="loading") m=`<span>MILAL 판정 불러오는 중…</span>`;
@@ -410,7 +436,7 @@ function structView(b,c,mini){
     const words=at.w.map(j=>{ const vj=SD.vOf[j], tx=sHeb(vj)[j-SD.V[vj][5]], p=MK&&MK.get(j); return `<span class="sww${p&&p.ul?" mk-ul":""}" data-sw="${j}"${p&&p.hl?` style="background:${p.hl}"`:""}>${esc(tx)}</span>`; }).join("");
     const canFold=blk[ai]>ai, folded=visible.includes(-ai-1);
     const mon=S.milalOn&&ML[b]&&ML[b].state==="ok"; if(mon) h+=milalGroupHead(b,at.a);
-    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세"><small>${esc(typ)}</small><i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}${window.annotDot?annotDot(at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
+    h+=`<div class="stl k-${k}"${vfirst?` id="stv-${at.vi}"`:""}><span class="heb">${words}</span><span class="tree">${cells}</span><button class="stmeta" data-sat="${at.a}" aria-label="절 원자 상세">${ux2()&&!expertOn()?"":`<small>${esc(typ)}</small>`}<i>${esc(lab)}</i>${mon?milalBadge(b,at.a):""}${window.annotDot?annotDot(at.a):""}</button><span class="stvn">${vnum}${canFold&&!folded?`<button class="stfb" data-sfold="${at.a}" aria-label="말 접기">접기</button>`:""}</span></div>`; }
   return h+`</div>`; }
 
 function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi), HN=sHan(vi), li=SD.wl[wi], x=SD.L[li];

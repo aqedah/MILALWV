@@ -23,7 +23,7 @@ function render(){ const m=document.getElementById("main"); m.innerHTML=renderSt
 /* ===== 하단 탭 4개: 본문 · 구조 · 연구 · 기록 =====
    본문·구조 = mode "verse"(rd read/struct) · 연구 = mode tool/word/query/theory · 기록 = mode "notes"
    탭을 바꿔도 보고 있던 책·장(view.st.R, vc)은 그대로입니다. */
-const RESEARCH_MODES=["tool","word","query","compare","theory"];
+const RESEARCH_MODES=["tool","word","query","compare","theory","start"];   /* start: UX 시안(preview.html)의 연구 시작 화면 — 운영에서는 쓰이지 않음 */
 function navOf(){ const S=view.st; if(S.pick||!S.entered||!S.R) return "";
   if(S.mode==="notes") return "notes"; if(RESEARCH_MODES.includes(S.mode)) return "research";
   return (typeof rdMode==="function"?rdMode():"read")==="struct"?"struct":"text"; }
@@ -33,7 +33,7 @@ function bindNav(){ document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.o
   if(!S.R) setRange(lastRange()||{b:1,c1:1,c2:1});
   S.home=false; S.entered=true; S.pick=false; S.more=1;
   if(k==="text"||k==="struct"){ S.mode="verse"; S.rd=k==="text"?"read":"struct"; try{ localStorage.setItem("milal-study-vm",S.rd); }catch(e){} }
-  else if(k==="research"){ S.mode=RESEARCH_MODES.includes(S.rmode)?S.rmode:"tool"; if(S.mode==="tool"&&S.range==="all") S.range="book"; }
+  else if(k==="research"){ S.mode=RESEARCH_MODES.includes(S.rmode)?S.rmode:(window.UX2?"start":"tool"); if(S.mode==="tool"&&S.range==="all") S.range="book"; }
   else if(k==="notes") S.mode="notes";
   render(); scrollTo({top:0}); }); }
 function sheet(title,body){
