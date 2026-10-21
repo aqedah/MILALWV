@@ -10,10 +10,10 @@ const R_START=[
   {k:"repeat",t:"반복되는 낱말 찾기",d:"이 장(또는 묶은 장들)에서 유난히 자주 나오는 낱말",go:{mode:"tool",tool:"반복"}},
   {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 전체에서 어디에(책별로) 쓰였는지",go:{mode:"word"}},
   {k:"compare",t:"두 본문 비교하기",d:"관계가 있다고 보는 두 본문의 언어 근거 — 같은 순서로 이어진 말·드물게 함께 쓰인 낱말",go:{mode:"compare"}},
-  {k:"query",t:"더 자세한 문법·문장 검색",d:"문장 종류·구의 역할·낱말 형태를 묶어 찾기 (고급 검색)",go:{mode:"query"}}];
+  {k:"query",t:"문법·문장 모양으로 찾기",d:"낱말의 형태, 절의 종류, 한 절 안의 여러 낱말을 조건 카드로 묶어 찾기 · 고급 검색(TF 검색식)도 여기서",go:{mode:"query"}}];
 const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
 function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
-  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 위의 <b>${esc(rScopeLabel())}</b> 단추에서 바꿉니다.</p>
+  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 <b>현재 ${esc(rScopeLabel())}</b>입니다.</p>
     <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
     <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
     <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
@@ -53,7 +53,8 @@ function rBookLast(b){ const B=SD.book[b]; return B?Math.max(...B.chs):1; }
 function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||S.mode==="start")) return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
 function rScopeHTML(){ return ""; /* 2026-10-21: 범위는 위 주소 단추에서(연구 탭에서는 '이 장/이 책 전체/구약 전체' 고르기) */ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
 function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)?S.vc:R.c1, last=rBookLast(b), u=b===19?"편":"장"; const tool=S.mode==="tool";
-  sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>`);
+  sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>${window.qcJobHTML?qcJobHTML():""}`);
+  document.querySelectorAll("#sheetRoot [data-rjob]").forEach(x=>x.onclick=()=>{ document.getElementById("sheetRoot").innerHTML=""; const [a,z]=x.dataset.rjob.split("-").map(Number); qcJob(a,z); });
   document.querySelectorAll("#sheetRoot [data-rsc]").forEach(x=>x.onclick=()=>{ const k=x.dataset.rsc; document.getElementById("sheetRoot").innerHTML="";
     if(k==="pick"){ S.pick=true; S.pk={b,c1:null,c2:null}; render(); scrollTo({top:0}); return; }
     if(k==="all"){ S.wide=true; } else { S.wide=false; setRange(k==="ch"?{b,c1:c,c2:c}:{b,c1:1,c2:last}); } render(); }); }
@@ -62,8 +63,8 @@ function wordFromText(li){ const S=view.st; if(S.mode==="verse") S.fromText={R:{
   S.wide=true; S.mode="word"; S.lex=li; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; S.wbook=null; if(S.fromText){ try{ history.pushState({milal:"word"},""); }catch(e){} } render(); scrollTo({top:0}); }
 function returnToText(){ const S=view.st, F=S.fromText; if(!F) return false; S.fromText=null; setRange(F.R); S.mode="verse"; S.rd=F.rd; S.vc=F.vc; S.rv=F.rv; S.rw=F.rw; render(); scrollTo({top:F.y}); requestAnimationFrame(()=>scrollTo({top:F.y})); return true; }
 function leaveWordToText(){ try{ if(history.state&&history.state.milal==="word"){ history.back(); return; } }catch(e){} returnToText(); }
-if(!window.__wordPop){ window.__wordPop=true; addEventListener("popstate",()=>{ const S=view.st; if(S.fromText&&S.mode==="word") returnToText(); }); }
-function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
+if(!window.__wordPop){ window.__wordPop=true; addEventListener("popstate",()=>{ const S=view.st; if(S.fromText&&(S.mode==="word"||S.mode==="query")) returnToText(); }); }
+function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 모양으로 찾기",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
 const SP_K={verb:"동사",subs:"명사",nmpr:"고유명사",adjv:"형용사",advb:"부사",prep:"전치사",conj:"접속사",prps:"인칭대명사",prde:"지시대명사",prin:"의문대명사",intj:"감탄사",nega:"부정어",inrg:"의문사",art:"관사"};
@@ -226,13 +227,13 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
     const hn=SD.lexByKey["HNH"]||[]; const hits=new Map(); forWords(sp,i=>{ if(hn.includes(SD.wl[i])&&SD.domW[i]===SD.dN){ const vi=SD.vOf[i]; if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); } });
     h+=`<span class="label" style="margin-top:14px">서술 속 '보라(힌네)': 인물의 눈으로 보는 곳</span><p class="lead">서술자가 '보라'를 쓰면, 독자는 그 순간 인물이 본 것을 함께 봅니다. 따옴표 밖의 '힌네'만 모았습니다. (${hits.size}곳)</p>`+hitList(hits,S.more,"이 범위의 서술에는 '보라'가 없습니다.");
     return h; }
-  if(t==="장면"){ const hits=new Map(), add=i=>{ const vi=SD.vOf[i]; if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); };
+  if(t==="장면"){ const ex=[]; const hits=new Map(), add=i=>{ const vi=SD.vOf[i]; if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); };
     const hy=new Set(SD.lexByKey["HJH["]||[]), tm=SD.FN.indexOf("Time");
     forWords(sp,i=>{ if(!(SD.wg[i]&1)) return; if(SD.domW[i]===SD.dQ) return; const vt=SD.M[SD.wm[i]][2];
-      const j=SD.L[SD.wl[i]][1]==="W"?i+1:i; if(hy.has(SD.wl[j])&&SD.M[SD.wm[j]][2]==="wayq"){ const a=SD.wa[i], W=[]; for(let x=i;x<i+12&&x<SD.wl.length&&SD.wa[x]===a;x++) W.push(x); const N=[]; for(let x=W[W.length-1]+1;x<W[W.length-1]+6&&x<SD.wl.length&&SD.wa[x]===SD.wa[W[W.length-1]+1];x++) N.push(x); if(markerKind(W,N,SD.TY[SD.ay[a]])) add(j); return; }
+      const j=SD.L[SD.wl[i]][1]==="W"?i+1:i; if(hy.has(SD.wl[j])&&SD.M[SD.wm[j]][2]==="wayq"){ const a=SD.wa[i], W=[]; for(let x=i;x<i+12&&x<SD.wl.length&&SD.wa[x]===a;x++) W.push(x); const N=[]; for(let x=W[W.length-1]+1;x<W[W.length-1]+6&&x<SD.wl.length&&SD.wa[x]===SD.wa[W[W.length-1]+1];x++) N.push(x); if(markerKind(W,N,SD.TY[SD.ay[a]])) add(j); else { const fns=new Set(W.map(fnk)); ex.push([j,["Subj","PreC","Cmpl","Modi","Objc"].some(f=>fns.has(f))?"주어·보어가 붙어 실제로 무엇이 '있었다'는 문장 — 이야기 줄기로 봄":"뒤에 때·'키'·곳을 알리는 말이 이어지지 않음"]); } return; }
       if(SD.wf[i]===tm&&SD.domW[i]===SD.dN) add(i);
       else if(SD.TY[SD.ct[SD.wc[i]]]==="MSyn") add(i); });
-    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(봐예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(봐예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 봐예히는 뺐습니다. (${hits.size}곳)</p>`+hitList(hits,S.more); }
+    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(봐예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(봐예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 봐예히는 뺐습니다. (${hits.size}곳)</p><p class="lead"><b>이 도구가 세는 봐예히</b>: 주어가 따로 없이 뒤에 <b>때</b>(그때, 베/케+부정사)나 <b>'키'</b>나 <b>곳</b>이 이어져 새 장면을 여는 것만 셉니다. '여호와의 말씀이 <i>있었다</i>'처럼 주어가 붙은 봐예히는 실제로 일이 생긴 문장이라 이야기 줄기로 봅니다.</p>${ex.length?`<details class="mdet"><summary>봐예히가 있지만 세지 않은 곳 ${new Set(ex.map(e=>SD.vOf[e[0]])).size}곳 — 왜 뺐는지</summary><ul class="sexl">${ex.map(([j,why])=>`<li><button class="qlink" data-svi="${SD.vOf[j]}" data-swj="${j}">${esc(sRef(SD.vOf[j]))}</button> ${esc(why)}</li>`).join("")}</ul></details>`:""}`+hitList(hits,S.more); }
   if(t==="전환"){ const G={a:["상태·설명",["NmCl","AjCl","WXNm"],"동사 없이 상태나 정체를 말하는 문장"],b:["앞선 일·대조",["XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"],"주어나 다른 말이 앞에 나오고 완료형이 따르는 문장. 이야기 진행을 멈추고 배경·이전 일·대조를 알립니다"],c:["진행 중인 일",["Ptcp"],"분사로 그때 벌어지고 있던 일을 보여 주는 문장"]};
     const hits={a:new Map(),b:new Map(),c:new Map()}; const T2G={}; for(const k in G) G[k][1].forEach(t=>T2G[SD.TY.indexOf(t)]=k);
     forWords(sp,i=>{ if(SD.domW[i]!==SD.dN) return; const g=T2G[SD.ct[SD.wc[i]]]; if(!g) return; const vi=SD.vOf[i]; const H=hits[g]; if(!H.has(vi)) H.set(vi,new Set()); H.get(vi).add(i); });
@@ -322,7 +323,7 @@ function renderStudy(){
         ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}${ux2()?wordByBookHTML(H,cnt):`<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`}`; }
     h+=`</section>`; }
   else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
-    if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`${ux2()&&S.tool==="반복"?`<div class="cmppreg" style="margin:0 0 8px"><small>예시 — 한 본문 안에서 이야기를 끌고 가는 말</small><button class="achip" data-rpex="룻 1:6-22">예시 · 룻 1:6–22 — '돌아가다(슈브)'</button></div>`:""}<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
+    if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`${ux2()&&S.tool==="반복"?`<div class="cmppreg" style="margin:0 0 8px"><small>예시 — 한 본문 안에서 이야기를 끌고 가는 말</small><button class="achip" data-rpex="룻 1:6-22">예시 · 룻 1:6–22 — '돌아가다(슈브)'</button></div>`:""}<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">검색식으로 비슷하게 찾아보기 ›</button>${S.tool==="장면"?`<small class="qlinknote">검색식은 봐예히를 조건 없이 모두 찾으므로 이 도구보다 결과가 많습니다.</small>`:""}`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
   h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
   return h; }
@@ -380,6 +381,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   const ex1=m.querySelector("#stExpert"); if(ex1) ex1.onclick=()=>expertSet(true); const ex0=m.querySelector("#stExpertOff"); if(ex0) ex0.onclick=()=>expertSet(false);
   const rsc=m.querySelector("#rScope"); if(rsc) rsc.onclick=()=>rScopeOpen();
+  m.querySelectorAll("[data-rjob]").forEach(b=>b.onclick=()=>{ const [a,z]=b.dataset.rjob.split("-").map(Number); qcJob(a,z); });
   m.querySelectorAll("[data-rpex]").forEach(b=>b.onclick=()=>{ const r=window.cmpParse&&cmpParse(b.dataset.rpex); if(!r||r.err) return; const go=()=>{ setRange({b:r.b,c1:r.c1,c2:r.c2}); S.mode="tool"; S.tool="반복"; render(); scrollTo({top:0}); }; if(SD.loaded.has(r.b)) go(); else loadBook(r.b).then(go); });
   m.querySelectorAll("[data-wbk]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.wbk; S.wbook=S.wbook===k?null:k; S.more=1; const y=scrollY; render(); scrollTo({top:y}); });
   const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
@@ -558,12 +560,13 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
    ${strongBlock(x[3])}
    ${lexKo(li)?`<dt>한글 사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>한글 사전 풀이</dt><dd>받는 중…</dd>`}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
-   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button>${ux2()?"":`<button class="btn small ghost" data-mkstart="${vi}">표시(형광펜·괄호)</button>`}<button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
+   <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button>${ux2()?`<button class="btn small ghost" data-sfindq="${wi}">이 낱말 모양으로 찾기</button>`:""}${ux2()?"":`<button class="btn small ghost" data-mkstart="${vi}">표시(형광펜·괄호)</button>`}<button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
    ${window.annotListHTML?annotListHTML("verse","v:"+SD.V[vi][0]+"-"+SD.V[vi][1]+"-"+SD.V[vi][2],vi):""}`; }
 function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rpt]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.rw=+b.dataset.rpt; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   d.querySelectorAll("[data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); });
   d.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); wordFromText(+b.dataset.sfindw); });
+  d.querySelectorAll("[data-sfindq]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(window.qcFromWord) qcFromWord(+b.dataset.sfindq); });
   d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); });
   if(window.bindAnnots) bindAnnots(d);
   d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }

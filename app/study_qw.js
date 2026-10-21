@@ -8,7 +8,8 @@ self.onmessage=ev=>{ const m=ev.data; if(!m) return;
   if(m.type==="run"){ if(!SD){ self.postMessage({type:"error",seq:m.seq,message:"워커에 자료가 없습니다."}); return; } if(m.key&&m.key!==DATA_KEY){ self.postMessage({type:"error",seq:m.seq,stale:true,message:"워커 자료가 최신이 아닙니다."}); return; }
     try{ const P=qParse(m.text); if(P.err){ self.postMessage({type:"result",seq:m.seq,err:P.err}); return; }
       const r=qRun(P,m.sp,m.limit); const H=qHits(r), W=qWhyIndex(r), fp=qFingerprint(r);
+      const nw=[]; r.order.forEach((n,k)=>{ if(n.t!=="word") return; const s=new Set(); for(const t of r.out) s.add(t[k][1]); nw.push([k,[...s]]); });
       /* 묶음([단위,번호] 배열)은 그대로 복제 가능. Map/Set 은 배열로 바꿔 보낸다 */
-      self.postMessage({type:"result",seq:m.seq,n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,steps:r.steps,ms:r.ms,fp,
+      self.postMessage({type:"result",seq:m.seq,nw,n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,steps:r.steps,ms:r.ms,fp,
         hits:[...H].map(([vi,set])=>[vi,[...set]]),why:[...W].map(([vi,e])=>[vi,{n:e.n,t:e.t}])}); }
     catch(e){ self.postMessage({type:"error",seq:m.seq,message:e&&e.message||String(e)}); } } };

@@ -403,3 +403,26 @@ h3{font-size:14px;margin:14px 0 4px}
 .cmpsum{border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;background:var(--card)}.cmpsum p{margin:2px 0}.cmpsum.lv-strong{border-left-color:#3f7d3a}.cmpsum.lv-weak{border-left-color:#c9a227}.cmpsum.lv-none{border-left-color:#9aa0a6}.cmpsum.lv-short{border-left-color:#5b7fb3}.cmpnums{font-size:14px}
 .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:2px}.achip.on{background:var(--ink);color:var(--paper)}
 .cmpgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:6px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}.cmpgrid .cmphd{padding:6px 8px;border-bottom:1px solid var(--line)}.cmpcell{padding:6px 8px;border-bottom:1px solid var(--line);min-width:0}.cmpcell:nth-child(odd){border-right:1px solid var(--line)}.cmpcell.empty{background:var(--paper);opacity:.75}.cmpcell.empty small{opacity:.6}
+/* ===== 쉬운 검색(조건 카드) · 고급 검색 · 낱말 모아 보기 (2026-10-21) ===== */
+.qctgt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 10px}
+.qctgt button{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit}
+.qctgt button b{font-size:16px;color:var(--accent)}.qctgt button small{color:var(--muted);font-size:12px;line-height:1.35}
+.qctgt button[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:var(--accent-soft)}
+.qcard,.qcbox{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;margin:0 0 6px}
+.qcard{border-left:4px solid var(--accent)}
+.qcbox summary{cursor:pointer;font-weight:600;color:var(--accent)}.qcbox summary small{color:var(--muted);font-weight:400}
+.qch{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.qch b{color:var(--accent)}
+.qcnote{margin:6px 0 0;color:var(--muted);font-size:12.5px}
+.qcjoin{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0 6px 4px;font-size:13.5px;color:var(--ink)}
+.qcjoin select{font:inherit;font-size:13.5px;border:1px solid var(--accent);border-radius:8px;padding:4px 6px;background:var(--card);color:var(--accent)}
+.qcjob{margin:12px 0 4px}
+.qadv{margin:16px 0 0;border:2px dashed var(--accent);border-radius:12px;padding:12px;background:var(--card)}
+.qadv b{font-size:15px}.qadv p{margin:4px 0 8px;color:var(--muted);font-size:13px}
+.qadvb{display:inline-block;margin:0 8px 4px 0;padding:2px 9px;border-radius:999px;background:#7A2E2E;color:#fff;font-size:12px;font-weight:700;letter-spacing:.05em;vertical-align:middle}
+.qadvhd{border-top:4px solid #7A2E2E;padding-top:10px}
+.qlinknote{display:block;color:var(--muted);font-size:12px;margin:-2px 0 6px}
+.sexl{margin:6px 0;padding-left:18px;font-size:13px}.sexl li{margin:3px 0}
+.qtally{margin:8px 0 12px}.qtrows{display:grid;gap:4px;margin-top:4px}
+.qtrow{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:7px 10px;font:inherit}
+.qtrow .heb{font-size:19px}.qtrow i{font-style:normal;font-weight:700;color:var(--accent)}.qtrow small{grid-column:1/-1;color:var(--muted);font-size:12px}
+.qcaddw{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:6px 0}.qcaddw small{color:var(--muted);font-size:12px}

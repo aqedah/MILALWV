@@ -42,13 +42,21 @@ function cmpAlignRows(R,va,vb){ const cnt=new Map(); for(const [op,i,j] of R.ops
     if(!r.a.length&&!r.b.length){ if(i<va.length) r.a.push(va[i++]); else r.b.push(vb[j++]); } rows.push(r); }
   return rows; }
 /* 신호 계산: 엔진(cmpCompute)은 그대로 쓰고, 그 결과에서 '같은 순서로 이어진 말'과 '드문 낱말'만 고른다 */
+function cmpRefs(vs){ const L=vs.slice().sort((a,b)=>a-b).map(sRef); return L.map((x,i)=>i&&x.split(" ")[0]===L[i-1].split(" ")[0]?x.split(" ").slice(1).join(" "):x).join(", "); }
 function cmpSignals(C){ const R=cmpCompute(C); const isFn=wi=>CMP_FN.has(SD.L[SD.wl[wi]][2]); const short=Math.min(R.fa.length,R.fb.length)<CMP_SHORT;
   let RR=R; if(short&&!C.fn) RR=cmpCompute(Object.assign({},C,{fn:true}));   /* 짧은 본문은 기능어까지(מָה … כִּי 같은 연결은 기능어에 있다) */
-  const runs=RR.runsText.filter(r=>short?r.len>=2:r.a.filter(w=>!isFn(w)).length>=CMP_RUN_MIN);
+  const runsAll=RR.runsText.filter(r=>short?r.len>=2:r.a.filter(w=>!isFn(w)).length>=CMP_RUN_MIN);
+  /* 같은 말이 한쪽이나 양쪽에 여러 번 나오면(예: '바사 왕 고레스') 짝마다 한 줄씩 생겨 같은 말이 되풀이돼 보인다 →
+     같은 낱말 순서는 한 줄로 묶고 나온 자리를 함께 적는다. 더 긴 연쇄 안에 양쪽 모두 이미 들어 있는 조각은 뺀다 */
+  const grp=new Map(), cA=new Set(), cB=new Set(); for(const r of runsAll){ const k=r.a.map(w=>SD.wl[w]).join(","); let g=grp.get(k);
+    if(!g){ if(r.a.every(w=>cA.has(w))&&r.b.every(w=>cB.has(w))) continue; g=Object.assign({},r,{pa:[],pb:[],wa:new Set(),wb:new Set(),pairs:0}); grp.set(k,g); }
+    else if(r.a.every(w=>cA.has(w))&&r.b.every(w=>cB.has(w))) continue;
+    r.a.forEach(w=>cA.add(w)); r.b.forEach(w=>cB.add(w)); const va=SD.vOf[r.a[0]], vb=SD.vOf[r.b[0]]; if(!g.pa.includes(va)) g.pa.push(va); if(!g.pb.includes(vb)) g.pb.push(vb); g.wa.add(r.a[0]); g.wb.add(r.b[0]); g.pairs++; }
+  const runs=[...grp.values()];
   const rare=R.shared.filter(x=>SD.L[x.li][7]<CMP_RARE_MAX).sort((x,y)=>SD.L[x.li][7]-SD.L[y.li][7]);
   const common=(short?RR:R).shared.filter(x=>!rare.includes(x)&&!(short?false:SD.L[x.li][7]<CMP_RARE_MAX));
   const maxRun=Math.max(0,...runs.map(r=>r.len)); const level=short?"short":(maxRun>=5||(runs.length&&rare.length>=2))?"strong":(runs.length||rare.length>=2)?"weak":"none";
-  return {R,RR,short,runs,rare,common,maxRun,level}; }
+  return {R,RR,short,runs,runsAll,rare,common,maxRun,level}; }
 function renderCompare2(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp; C.fn=false;
   let h=`<section class="sec"><h2 class="qtitle">두 본문 비교</h2><p class="lead" style="margin:0 0 8px">관계가 있다고 보는 두 본문을 나란히 놓고, 그 관계를 받쳐 줄 <b>언어 근거</b>(같은 순서로 이어진 말 · 드물게 함께 쓰인 낱말)를 확인합니다. 인용인지·암시인지는 앱이 정하지 않습니다.</p>
     <div class="cmpin"><label>A <input id="cmpA" type="text" placeholder="예: 사 2:2-4" value="${esc(C.qa)}"></label><label>B <input id="cmpB" type="text" placeholder="예: 미 4:1-3 · 욥 13:24,27" value="${esc(C.qb)}"></label><button class="btn small" id="cmpGo">비교</button></div>
@@ -64,7 +72,7 @@ function renderCompare2(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:
   const verdict=G.level==="strong"?`<b>뚜렷한 언어 신호가 있습니다.</b>`:G.level==="weak"?`<b>약한 언어 신호가 있습니다</b> — 아래 근거를 직접 보세요.`:G.level==="short"?`<b>본문이 짧아(내용어 ${Math.min(nA,nB)}개) 신호의 세기를 말하기 어렵습니다</b> — 겹친 말을 직접 보세요(기능어까지 보입니다).`:`<b>두 본문을 잇는 뚜렷한 언어 신호는 없습니다.</b> 주제·사상의 연결은 이 방법으로 잡히지 않습니다.`;
   h+=`<div class="cmpsum lv-${G.level}"><p>${verdict}</p><p class="cmpnums">같은 순서로 이어진 말 <b>${G.runs.length}곳</b>${G.maxRun?` (가장 긴 것 ${G.maxRun}낱말)`:""} · 드물게 함께 쓰인 낱말 <b>${G.rare.length}개</b></p><p class="lead" style="margin:2px 0 0">기준: ${G.short?"짧은 본문이라 2낱말 이상":`내용어 ${CMP_RUN_MIN}개 이상`}이 같은 순서 · 구약 전체에서 ${CMP_RARE_MAX}번 미만 나오는 낱말. 판정이 아니라 관찰 근거입니다.</p></div>`;
   /* 본문: 신호가 된 낱말만 칠한다(이어진 말 = 노랑 · 드문 낱말 = 파랑 · 고른 낱말 = 테두리) */
-  const runW=new Set(G.runs.flatMap(r=>[...r.a,...r.b])), rareL=new Set(G.rare.map(x=>x.li)); const markOf=src=>{ const M=new Map(); for(const [wi,m] of src){ if(runW.has(wi)) M.set(wi,Object.assign({},m,{bg:"#F6E27A"})); else if(rareL.has(m.li)) M.set(wi,Object.assign({},m,{bg:"#BBD6F3"})); else if(sel!=null&&m.li===sel) M.set(wi,Object.assign({},m,{bg:"transparent"})); } return M; };
+  const runW=new Set(G.runsAll.flatMap(r=>[...r.a,...r.b])), rareL=new Set(G.rare.map(x=>x.li)); const markOf=src=>{ const M=new Map(); for(const [wi,m] of src){ if(runW.has(wi)) M.set(wi,Object.assign({},m,{bg:"#F6E27A"})); else if(rareL.has(m.li)) M.set(wi,Object.assign({},m,{bg:"#BBD6F3"})); else if(sel!=null&&m.li===sel) M.set(wi,Object.assign({},m,{bg:"transparent"})); } return M; };
   const SR=G.short?G.RR:R; const MA=markOf(SR.markA), MB=markOf(SR.markB);
   const selS=sel!=null?SR.byLi.get(sel):null;
   if(selS) h+=`<div class="cmpsel"><span class="heb">${esc(SD.L[sel][0])}</span> <b>${esc(lexGloss(sel))}</b> — A ${selS.wa.length}번 · B ${selS.wb.length}번 <button class="btn small ghost" id="cmpSelOff">표시 끄기</button></div>`;
@@ -73,7 +81,7 @@ function renderCompare2(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:
   if(rows){ const nPair=rows.filter(r=>r.a.length&&r.b.length).length; h+=`<p class="lead" style="margin:4px 0">같은 줄 ${nPair}쌍 · A에만 ${rows.filter(r=>!r.b.length).reduce((n,r)=>n+r.a.length,0)}절 · B에만 ${rows.filter(r=>!r.a.length).reduce((n,r)=>n+r.b.length,0)}절 — 같은 말이 같은 순서로 나오는 절끼리 맞췄습니다</p><div class="cmpgrid"><div class="cmphd">A · ${esc(C.a.label)}</div><div class="cmphd">B · ${esc(C.b.label)}</div>${rows.map(r=>`<div class="cmpcell${r.a.length?"":" empty"}">${r.a.length?r.a.map(vi=>cmpVerseHTML(vi,MA,sel)).join(""):"<small>— B에만</small>"}</div><div class="cmpcell${r.b.length?"":" empty"}">${r.b.length?r.b.map(vi=>cmpVerseHTML(vi,MB,sel)).join(""):"<small>— A에만</small>"}</div>`).join("")}</div>`; }
   else h+=`<div class="cmpcols${C.stack?" stack":""}"><div class="cmpcol"><div class="cmphd">A · ${esc(C.a.label)}</div>${va.map(vi=>cmpVerseHTML(vi,MA,sel)).join("")}</div><div class="cmpcol"><div class="cmphd">B · ${esc(C.b.label)}</div>${vb.map(vi=>cmpVerseHTML(vi,MB,sel)).join("")}</div></div><p class="lead" style="margin:4px 0"><span class="sw" style="background:#F6E27A"></span> 같은 순서로 이어진 말 · <span class="sw" style="background:#BBD6F3"></span> 드물게 함께 쓰인 낱말 · 낱말을 누르면 뜻·문법</p></section>`;
   const lexBtn=(x,extra)=>`<button class="cmplex${sel===x.li?" on":""}" data-cmplex="${x.li}"><span class="heb">${esc(SD.L[x.li][0])}</span><b>${esc(lexGloss(x.li))}</b><small>${extra}</small></button>`;
-  h+=`<section class="sec"><span class="label">같은 순서로 이어진 말 ${G.runs.length}</span>${G.runs.length?G.runs.slice(0,40).map(r=>`<div class="cmprun"><span class="heb" dir="rtl">${esc(cmpJoin(r.a))}</span><small>A ${esc(sRef(SD.vOf[r.a[0]]))} ‖ B ${esc(sRef(SD.vOf[r.b[0]]))} · ${r.len}낱말${r.cross?" · 절 경계를 넘음":""}</small></div>`).join(""):`<p class="lead">없음 — ${G.short?"2":CMP_RUN_MIN}낱말 이상이 같은 순서로 이어지는 곳이 없습니다.</p>`}</section>`;
+  h+=`<section class="sec"><span class="label">같은 순서로 이어진 말 ${G.runs.length}</span>${G.runs.length?G.runs.slice(0,40).map(r=>`<div class="cmprun"><span class="heb" dir="rtl">${esc(cmpJoin(r.a))}</span><small>A ${esc(cmpRefs(r.pa))} ‖ B ${esc(cmpRefs(r.pb))} · ${r.len}낱말${r.wa.size>1||r.wb.size>1?` · 같은 말이 A에 ${r.wa.size}번, B에 ${r.wb.size}번 나옴`:""}${r.cross?" · 절 경계를 넘음":""}</small></div>`).join(""):`<p class="lead">없음 — ${G.short?"2":CMP_RUN_MIN}낱말 이상이 같은 순서로 이어지는 곳이 없습니다.</p>`}</section>`;
   h+=`<section class="sec"><span class="label">드물게 함께 쓰인 낱말 ${G.rare.length} <small>— 누르면 본문에서 그 낱말만 강조</small></span>${G.rare.length?`<div class="cmptbl">${G.rare.map(x=>lexBtn(x,`구약 ${SD.L[x.li][7]}번 · A ${x.wa.length} · B ${x.wb.length}`)).join("")}</div>`:`<p class="lead">없음 — 구약에서 ${CMP_RARE_MAX}번 미만 나오는 낱말을 두 본문이 함께 쓰지 않습니다.</p>`}</section>`;
   h+=`<section class="sec"><details class="mdet"><summary>흔한 낱말까지 보기 (${G.common.length}개) — '말하다·하나님·모든' 같은 말은 관계없는 본문끼리도 겹칩니다</summary><div class="cmptbl">${G.common.map(x=>lexBtn(x,`구약 ${SD.L[x.li][7]}번 · A ${x.wa.length} · B ${x.wb.length}`)).join("")}</div></details>`;
   if(R.exact) h+=`<details class="mdet"><summary>차이 보기 (같은 순서로 맞춰 본 A·B — 같은 말 / A에만 / B에만)</summary><div class="cmpdiff" dir="rtl">${R.ops.map(([op,i,j])=>{ const wi=op==="B"?R.fb[j]:R.fa[i]; return `<span class="${op==="="?"cd-s":op==="A"?"cd-A":"cd-B"}">${esc(wHeb(wi).trim())}</span>`; }).join(" ")}</div></details>`;
