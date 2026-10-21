@@ -8,20 +8,20 @@ function expertSet(v){ try{ localStorage.setItem("milal-expert",v?"1":"0"); }cat
 /* 연구 시작 화면(시안): 다섯 메뉴 대신 '무엇을 하려는가'로 고른다. 기존 도구·낱말·검색식·비교·이론은 그대로 연결 */
 const R_START=[
   {k:"repeat",t:"반복되는 낱말 찾기",d:"이 장(또는 묶은 장들)에서 유난히 자주 나오는 낱말",go:{mode:"tool",tool:"반복"}},
-  {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 다른 곳에서 어떻게 쓰였는지",go:{mode:"word"}},
+  {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 전체에서 어디에(책별로) 쓰였는지",go:{mode:"word"}},
   {k:"compare",t:"두 본문 비교하기",d:"같은 말·같은 어순이 어디서 되풀이되는지(인용·재진술 관찰)",go:{mode:"compare"}},
   {k:"query",t:"더 자세한 문법·문장 검색",d:"문장 종류·구의 역할·낱말 형태를 묶어 찾기 (고급 검색)",go:{mode:"query"}}];
 const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
 function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
-  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2>${rScopeHTML()}
+  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 위의 <b>${esc(rScopeLabel())}</b> 단추에서 바꿉니다.</p>
     <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
     <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
     <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
 /* UX 시안: 낱말 찾기 첫 화면에 이 범위에서 자주 나오는 낱말 5개를 보기로 — 누르면 바로 그 낱말의 용례 */
 const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);
-function topWordsHTML(){ const S=view.st, sp=stSpans(); const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
+function topWordsHTML(){ const S=view.st, sp=S.R?[[S.R.b,S.R.c1,S.R.c2]]:null; const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
   const top=[...M].sort((a,b)=>b[1]-a[1]).slice(0,5); if(!top.length) return "";
-  return `<div class="topw"><span class="label">${esc(rLabel(S.R))}에서 자주 나오는 낱말 — 눌러서 다른 곳의 쓰임을 보세요</span><div class="qqs">${top.map(([li,n])=>`<button class="qq" data-slex="${li}"><b><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}</b><small>이 범위에서 ${n}번 · ${esc(SP_K[SD.L[li][2]]||SD.L[li][2])}</small></button>`).join("")}</div><p class="lead" style="margin-top:6px">다른 낱말은 위 칸에 뜻·히브리어·음역으로 찾습니다.</p></div>`; }
+  return `<div class="topw"><span class="label">${esc(rLabel(S.R))}에서 자주 나오는 낱말 — 누르면 구약 전체에서의 쓰임을 책별로 봅니다</span><div class="qqs">${top.map(([li,n])=>`<button class="qq" data-slex="${li}"><b><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}</b><small>이 범위에서 ${n}번 · ${esc(SP_K[SD.L[li][2]]||SD.L[li][2])}</small></button>`).join("")}</div><p class="lead" style="margin-top:6px">다른 낱말은 위 칸에 뜻·히브리어·음역으로 찾습니다.</p></div>`; }
 /* ===== UX 시안: 본문에서 낱말을 긁어 고르면 뜨는 작은 창(형광펜 색 4·밑줄·괄호·복사·메모). 한 절 안의 낱말만 받는다 ===== */
 function selPopBind(m){ if(window.__selPopOn) return; window.__selPopOn=true; let tm=null;
   document.addEventListener("selectionchange",()=>{ clearTimeout(tm); tm=setTimeout(selPopShow,180); });
@@ -49,8 +49,8 @@ function selPopAct(k){ const S=view.st, W=S.selW; if(!W) return; const [st,co]=k
 const sfzHTML=()=>`<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div>`;
 /* ===== 연구 탭의 '찾는 곳' — 범위를 정하는 곳은 여기 하나(새 화면). 모든 도구가 이것만 따른다 ===== */
 function rBookLast(b){ const B=SD.book[b]; return B?Math.max(...B.chs):1; }
-function rScopeLabel(){ const S=view.st; if(S.wide&&S.mode!=="tool") return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
-function rScopeHTML(){ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
+function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||S.mode==="start")) return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rScopeHTML(){ return ""; /* 2026-10-21: 범위는 위 주소 단추에서(연구 탭에서는 '이 장/이 책 전체/구약 전체' 고르기) */ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
 function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)?S.vc:R.c1, last=rBookLast(b), u=b===19?"편":"장"; const tool=S.mode==="tool";
   sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>`);
   document.querySelectorAll("#sheetRoot [data-rsc]").forEach(x=>x.onclick=()=>{ const k=x.dataset.rsc; document.getElementById("sheetRoot").innerHTML="";
@@ -137,7 +137,7 @@ function morphFull(mi){ const [sp,vs,vt,ps,gn,nu,st,pp,pg,pn]=SD.M[mi]; const o=
   if(pp&&pp!=="NA"&&pp!=="unknown"){ o.push("인칭 접미어 "+[PS_K[pp]?PS_K[pp]+"인칭":"",GN_K[pg]?GN_K[pg]+"성":"",NU_K[pn]?NU_K[pn]+"수":""].filter(Boolean).join(" ")); }
   return o.join(" · "); }
 /* 범위: [[책, 장 시작, 장 끝]] 또는 null(구약 전체) */
-function stSpans(){ const S=view.st; if(S.wide&&(S.mode==="word"||S.mode==="query")) return null; const R=S.R; return R?[[R.b,R.c1,R.c2]]:null; }
+function stSpans(){ const S=view.st; if(ux2()&&S.mode==="word") return null;   /* 새 화면: 낱말의 다른 용례는 늘 구약 전체 */ if(S.wide&&(S.mode==="word"||S.mode==="query")) return null; const R=S.R; return R?[[R.b,R.c1,R.c2]]:null; }
 const rLabel=R=>R?`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${R.b===19?"편":"장"}`:"";
 function stRangeLabel(){ const sp=stSpans(); if(!sp) return "구약 전체"; return rLabel(view.st.R); }
 /* 오늘 본문 가운데 구약 첫 책의 장 범위 */
@@ -186,6 +186,12 @@ function hitList(hits,more,emptyMsg){
     return `<button class="shit" data-svi="${vi}" data-swj="${[...set][0]}"><small>${esc(sRef(vi))}${words?` · ${words}`:""}</small><span class="heb">${heb}</span><span class="kr">${esc(krvText(vi))}</span></button>`; }).join("")+`</div>`;
   if(vs.length>lim) h+=`<button class="btn ghost small" id="sMore">${Math.min(30,vs.length-lim)}곳 더 보기 (남은 ${vs.length-lim}곳)</button>`;
   return h; }
+/* 새 화면: 낱말의 쓰임을 책별로 — 책을 누르면 그 책의 절들. 지금 보던 책을 맨 위에 */
+function wordByBookHTML(H,cnt){ const S=view.st, B=new Map(); for(const [vi,set] of H){ const b=SD.V[vi][0]; const e=B.get(b)||B.set(b,{n:0,v:0}).get(b); e.n+=set.size; e.v++; }
+  const cur=S.R&&S.R.b; const L=[...B.entries()].sort((a,b)=>(b[0]===cur)-(a[0]===cur)||a[0]-b[0]); const mx=Math.max(1,...L.map(x=>x[1].n)); if(S.wbook!=null&&!B.has(S.wbook)) S.wbook=null;
+  return `<p class="lead"><b>구약 전체</b>에서 ${cnt.toLocaleString()}번 · ${B.size}권 · ${H.size.toLocaleString()}절 — 책을 누르면 그 책의 구절이 펼쳐집니다</p><div class="wbooks">${L.map(([b,e])=>{ const on=S.wbook===b; let sub="";
+    if(on){ const Hb=new Map([...H].filter(([vi])=>SD.V[vi][0]===b)); sub=`<div class="wbookhits">${hitList(Hb,S.more)}</div>`; }
+    return `<div class="wbook${on?" on":""}"><button class="wbookb" data-wbk="${b}"><span class="n">${esc(PLAN.full[b-1])}${b===cur?" <small>(지금 보는 책)</small>":""}</span><span class="bar"><i style="width:${Math.max(4,e.n/mx*100)}%"></i></span><b>${e.n}</b><i>${on?"▴":"▾"}</i></button>${sub}</div>`; }).join("")}</div>`; }
 function distBars(hits,sp){ const C=new Map(); for(const [vi,set] of hits){ const [b,c]=SD.V[vi]; const k=(!sp||sp.length>1&&new Set(sp.map(x=>x[0])).size>1)?b:b*1000+c; C.set(k,(C.get(k)||0)+set.size); }
   const byBook=!sp||new Set(sp.map(x=>x[0])).size>1; const L=[...C.entries()].sort((a,b)=>a[0]-b[0]); if(L.length<2) return "";
   const mx=Math.max(...L.map(x=>x[1]));
@@ -285,7 +291,7 @@ function renderStudy(){
   const needAll=S.mode==="query"||(S.mode==="word"&&S.lex!=null); if(needAll&&!SD.allLoaded){ ensureAll().then(()=>render()).catch(()=>{}); }
   if((S.mode==="word"||(S.mode==="verse"&&S.rv>=0))&&!SD.LK) lexKoLoad();
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
-  h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
+  h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(ux2()&&["start","tool","query"].includes(S.mode)?rScopeLabel():`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
   if(ux2()&&S.mode==="start") return h+renderResearchStart();
   if(RESEARCH_MODES.includes(S.mode)) h+=ux2()?`<div class="rback"><button class="mtog back" id="rStart">← 연구 시작</button> <b>${esc(S.mode==="tool"&&S.tool?S.tool+" · "+(ST_TOOLS.find(x=>x[0]===S.tool)||[])[1]:rModeName(S.mode))}</b></div>${["tool","word","query"].includes(S.mode)?rScopeHTML():""}`:`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
@@ -305,7 +311,7 @@ function renderStudy(){
       h+=`<div class="slexhd">${lexRow(S.lex,`<button class="iconbtn" id="sLexX" aria-label="다른 낱말 찾기">✕</button>`,'data-noop="1"')}${lexKo(S.lex)?`<p class="lead">사전 풀이: ${esc(lexKo(S.lex))}</p>`:""}</div>
         <div class="sfilt"><label>누구의 말<select id="sDom"><option value="">모두</option><option value="N"${S.dom==="N"?" selected":""}>서술</option><option value="Q"${S.dom==="Q"?" selected":""}>인물의 말</option><option value="D"${S.dom==="D"?" selected":""}>율법·시 등</option></select></label>
         ${x[2]==="verb"?`<label>줄기<select id="sVs"><option value="">모두</option>${[...forms.vs.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vs===k?" selected":""}>${esc(VS_K[k]||k)} (${n})</option>`).join("")}</select></label><label>형태<select id="sVt"><option value="">모두</option>${[...forms.vt.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vt===k?" selected":""}>${esc(VT_K[k]||k)} (${n})</option>`).join("")}</select></label>`:""}</div>
-        ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`; }
+        ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}${ux2()?wordByBookHTML(H,cnt):`<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`}`; }
     h+=`</section>`; }
   else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
@@ -352,7 +358,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-swi]").forEach(b=>b.onclick=()=>{ const wi=+b.dataset.swi; S.sel=S.sel===wi?-1:wi; const y=scrollY; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-sw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openWordSheet(+b.dataset.sw); });
   m.querySelectorAll("[data-sfold]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=+b.dataset.sfold; S.fold ||= {}; S.fold[a]=b.dataset.open?false:true; const y=scrollY; render(); scrollTo({top:y}); });
-  const ad=document.getElementById("sAddr"); if(ad) ad.onclick=openAddr;
+  const ad=document.getElementById("sAddr"); if(ad) ad.onclick=()=>{ if(ux2()&&["start","tool","query"].includes(S.mode)) rScopeOpen(); else openAddr(); };
   const inf=document.getElementById("sInfo"); if(inf) inf.onclick=openStudyInfo;
   const cp=document.getElementById("sCPrev"), cn=document.getElementById("sCNext"); if(cp) cp.onclick=()=>{ chStep(-1); render(); scrollTo({top:0}); }; if(cn) cn.onclick=()=>{ chStep(1); render(); scrollTo({top:0}); };
   const chsR=S.R?[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y):[]; const vcGo=d=>{ const k=chsR.indexOf(S.vc)+d; if(k<0||k>=chsR.length) return; S.vc=chsR[k]; S.rv=-1; render(); scrollTo({top:0}); };
@@ -365,6 +371,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   const ex1=m.querySelector("#stExpert"); if(ex1) ex1.onclick=()=>expertSet(true); const ex0=m.querySelector("#stExpertOff"); if(ex0) ex0.onclick=()=>expertSet(false);
   const rsc=m.querySelector("#rScope"); if(rsc) rsc.onclick=()=>rScopeOpen();
+  m.querySelectorAll("[data-wbk]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.wbk; S.wbook=S.wbook===k?null:k; S.more=1; const y=scrollY; render(); scrollTo({top:y}); });
   const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });
   const rsv=m.querySelector("#rSaved"); if(rsv) rsv.onclick=()=>{ S.mode="query"; S.rmode="query"; render(); if(window.qOpenSaved) qOpenSaved(); };
