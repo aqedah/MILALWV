@@ -53,8 +53,8 @@ view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,d
 const SP_K={verb:"동사",subs:"명사",nmpr:"고유명사",adjv:"형용사",advb:"부사",prep:"전치사",conj:"접속사",prps:"인칭대명사",prde:"지시대명사",prin:"의문대명사",intj:"감탄사",nega:"부정어",inrg:"의문사",art:"관사"};
 const VS_K={qal:"칼",nif:"니팔",piel:"피엘",pual:"푸알",hif:"히필",hof:"호팔",hit:"히트파엘",htpo:"히트포엘",hsht:"히쉬타펠",hotp:"호트파엘",nit:"니트파엘",poel:"포엘",poal:"포알",tif:"티프엘",pasq:"파사크",
   peal:"페알(아람어)",peil:"페일(아람어)",pael:"파엘(아람어)",haf:"하펠(아람어)",afel:"아펠(아람어)",shaf:"샤펠(아람어)",etpe:"이트페엘(아람어)",etpa:"이트파알(아람어)",htpe:"히트페엘(아람어)",htpa:"히트파알(아람어)"};
-const VT_K={perf:"완료(카탈)",impf:"미완료(이크톨)",wayq:"와이크톨",impv:"명령",infa:"부정사 절대형",infc:"부정사 연계형",ptca:"능동 분사",ptcp:"수동 분사"};
-const VT_S={perf:"완료",impf:"미완료",wayq:"와이크톨",impv:"명령",infa:"부정사",infc:"부정사",ptca:"분사",ptcp:"분사"};
+const VT_K={perf:"완료(카탈)",impf:"미완료(이크톨)",wayq:"봐이크톨",impv:"명령",infa:"부정사 절대형",infc:"부정사 연계형",ptca:"능동 분사",ptcp:"수동 분사"};
+const VT_S={perf:"완료",impf:"미완료",wayq:"봐이크톨",impv:"명령",infa:"부정사",infc:"부정사",ptca:"분사",ptcp:"분사"};
 const PS_K={p1:"1",p2:"2",p3:"3"}, GN_K={m:"남",f:"여",c:"공"}, NU_K={sg:"단",pl:"복",du:"쌍"};
 const FN_K={Subj:"주어",Objc:"목적어",Pred:"서술어",PreO:"서술어+목적어",PreS:"서술어+주어",PreC:"서술어(보어)",Cmpl:"보충어",Adju:"부가어",Time:"때",Loca:"곳",Modi:"꾸밈말",Conj:"접속",Ques:"물음",Nega:"부정",Intj:"감탄",Voct:"부름말",Rela:"관계사",Frnt:"앞에 내세운 말",PrcS:"서술어 보어(주어 접미)",PtcO:"분사+목적어",NCoS:"부정 서술어",Supp:"보충",IntS:"감탄(주어)",PrAd:"서술 부가어",NCop:"부정 서술어",ModS:"꾸밈(주어)",Exst:"있음·없음",ExsS:"있음·없음(주어)",EPPr:"지시 서술어"};
 const DOM_K={N:"서술",Q:"인물의 말",D:"담화(율법·시 등)","?":"구분 안 됨"};
@@ -159,8 +159,8 @@ function openAddr(){ const S=view.st, T=todayOT(), RC=recentRanges();
     box.querySelectorAll("[data-ac]").forEach(cb=>cb.onclick=()=>go({b,c1:+cb.dataset.ac,c2:+cb.dataset.ac})); box.scrollIntoView({block:"start",inline:"nearest",behavior:"smooth"}); }); }
 function openStudyInfo(){ sheet("장 구조 보는 법",`<div class="theory"><p>한 줄은 ETCBC가 나눈 '절 원자'(동사 하나를 중심으로 한 가장 작은 문장 단위)입니다. 오른쪽의 선은 ETCBC가 매긴 문장의 층으로, 줄이 어느 문장에 기대어 있는지 보여 줍니다(┤ 아래에 같은 층이 더 있음, ┘ 그 층의 마지막).</p>
   <div class="stlegend"><span class="k-main">이야기 줄기</span><span class="k-bg">배경·멈춤</span><span class="k-msyn">이야기 표지</span><span class="k-q">인물의 말</span></div>
-  <p><b>이야기 줄기</b>(와이크톨)는 사건을 앞으로 밀고 가고, <b>배경·멈춤</b>(명사문, 다른 말이 앞선 완료형, 분사)은 흐름을 멈추고 설명·이전 일·대조를 알립니다.</p>
-  <p><b>이야기 표지</b>: 와예히·웨하야가 때(때 구, 베/케+부정사, 키)나 곳과 함께 새 장면을 여는 자리, 그리고 홀로 선 '보라'·'이제'입니다. 와예히에 주어나 보어가 붙어 실제로 무엇이 생긴 경우는 이야기 줄기로 둡니다.</p>
+  <p><b>이야기 줄기</b>(봐이크톨)는 사건을 앞으로 밀고 가고, <b>배경·멈춤</b>(명사문, 다른 말이 앞선 완료형, 분사)은 흐름을 멈추고 설명·이전 일·대조를 알립니다.</p>
+  <p><b>이야기 표지</b>: 봐예히·웨하야가 때(때 구, 베/케+부정사, 키)나 곳과 함께 새 장면을 여는 자리, 그리고 홀로 선 '보라'·'이제'입니다. 봐예히에 주어나 보어가 붙어 실제로 무엇이 생긴 경우는 이야기 줄기로 둡니다.</p>
   <p><b>인물의 말</b>: 따옴표 안의 말입니다. 말 속의 말은 '2단'으로 표시합니다. 위의 ⇕ 단추로 말을 모두 접으면 이야기 뼈대만 남고, 줄마다 '말 접기'로 하나씩 접을 수도 있습니다.</p>
   <p>줄마다 BHSA 2021의 절 원자 노드 번호를 간직하고 있어, MILAL이 판정한 관계를 그대로 받아 겹쳐 보일 수 있습니다(준비 중). 낱말을 누르면 뜻·꼴·문장 속 역할이 나옵니다. 오른쪽 끝 숫자는 절 번호입니다. 이 구분은 ETCBC(탈스트라)와 니카치의 본문언어학을 따른 참고 표시입니다.</p></div>`); }
 
@@ -183,7 +183,7 @@ function distBars(hits,sp){ const C=new Map(); for(const [vi,set] of hits){ cons
   return `<div class="sdist">${L.map(([k,n])=>`<div class="amrow"><span class="n">${byBook?esc(PLAN.abbr[k-1]):esc(PLAN.abbr[Math.floor(k/1000)-1]+" "+(k%1000))}</span><span class="bar"><i style="width:${Math.max(4,n/mx*100)}%"></i></span><b>${n}</b></div>`).join("")}</div>`; }
 function lexRow(li,extra,attr){ const x=SD.L[li]; return `<button class="slex" ${attr||`data-slex="${li}"`}><span class="heb">${esc(x[0])}</span><span class="sl"><b>${esc(lexGloss(li))}</b><small>${esc(x[6])}${x[3]?` · H${x[3]}`:""} · ${SP_K[x[2]]||x[2]}${x[8]?" · 아람어":""}</small></span>${extra||`<i>${x[7].toLocaleString()}</i>`}</button>`; }
 /* 일곱 도구 연결 */
-const ST_TOOLS=[["반복","되풀이되는 말","이 범위에서 유난히 자주 나오는 낱말"],["화자","서술과 인물의 말","누가 말하는지, 서술자가 '보라'로 인물의 눈을 빌리는 곳"],["장면","장면이 열리는 곳","'그리고 ~ 일이 있었다(와예히)', 때를 앞세운 문장"],["전환","흐름이 멈추는 문장","이야기 사이에 끼어든 설명·배경·대조"],["인물","누가 주어인가","주어로 나오는 인물, 하나님이 하시는 일"]];
+const ST_TOOLS=[["반복","되풀이되는 말","이 범위에서 유난히 자주 나오는 낱말"],["화자","서술과 인물의 말","누가 말하는지, 서술자가 '보라'로 인물의 눈을 빌리는 곳"],["장면","장면이 열리는 곳","'그리고 ~ 일이 있었다(봐예히)', 때를 앞세운 문장"],["전환","흐름이 멈추는 문장","이야기 사이에 끼어든 설명·배경·대조"],["인물","누가 주어인가","주어로 나오는 인물, 하나님이 하시는 일"]];
 function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
   if(t==="반복"){ const C=new Map(), CN=new Map(); let tot=0;
     forWords(sp,i=>{ tot++; const li=SD.wl[i]; C.set(li,(C.get(li)||0)+1); if(SD.domW[i]===SD.dN) CN.set(li,(CN.get(li)||0)+1); });
@@ -210,12 +210,12 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
       const j=SD.L[SD.wl[i]][1]==="W"?i+1:i; if(hy.has(SD.wl[j])&&SD.M[SD.wm[j]][2]==="wayq"){ const a=SD.wa[i], W=[]; for(let x=i;x<i+12&&x<SD.wl.length&&SD.wa[x]===a;x++) W.push(x); const N=[]; for(let x=W[W.length-1]+1;x<W[W.length-1]+6&&x<SD.wl.length&&SD.wa[x]===SD.wa[W[W.length-1]+1];x++) N.push(x); if(markerKind(W,N,SD.TY[SD.ay[a]])) add(j); return; }
       if(SD.wf[i]===tm&&SD.domW[i]===SD.dN) add(i);
       else if(SD.TY[SD.ct[SD.wc[i]]]==="MSyn") add(i); });
-    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(와예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(와예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 와예히는 뺐습니다. (${hits.size}곳)</p>`+hitList(hits,S.more); }
+    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(봐예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(봐예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 봐예히는 뺐습니다. (${hits.size}곳)</p>`+hitList(hits,S.more); }
   if(t==="전환"){ const G={a:["상태·설명",["NmCl","AjCl","WXNm"],"동사 없이 상태나 정체를 말하는 문장"],b:["앞선 일·대조",["XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"],"주어나 다른 말이 앞에 나오고 완료형이 따르는 문장. 이야기 진행을 멈추고 배경·이전 일·대조를 알립니다"],c:["진행 중인 일",["Ptcp"],"분사로 그때 벌어지고 있던 일을 보여 주는 문장"]};
     const hits={a:new Map(),b:new Map(),c:new Map()}; const T2G={}; for(const k in G) G[k][1].forEach(t=>T2G[SD.TY.indexOf(t)]=k);
     forWords(sp,i=>{ if(SD.domW[i]!==SD.dN) return; const g=T2G[SD.ct[SD.wc[i]]]; if(!g) return; const vi=SD.vOf[i]; const H=hits[g]; if(!H.has(vi)) H.set(vi,new Set()); H.get(vi).add(i); });
     const sel=S.sub&&G[S.sub]?S.sub:"b";
-    return `<p class="lead">이야기는 '와이크톨' 동사(그리고 ~했다)가 줄지어 나아갑니다. 그 줄이 끊기는 문장은 서술자가 잠시 멈춰 무언가를 알려 주는 자리입니다. 서술 부분만 모았습니다.</p><div class="seg sseg">${Object.entries(G).map(([k,g])=>`<button aria-checked="${k===sel}" data-ssub="${k}">${g[0]} <small>${hits[k].size}</small></button>`).join("")}</div><p class="lead">${G[sel][2]}</p>`+hitList(hits[sel],S.more,"이 범위의 서술에는 해당 문장이 없습니다."); }
+    return `<p class="lead">이야기는 '봐이크톨' 동사(그리고 ~했다)가 줄지어 나아갑니다. 그 줄이 끊기는 문장은 서술자가 잠시 멈춰 무언가를 알려 주는 자리입니다. 서술 부분만 모았습니다.</p><div class="seg sseg">${Object.entries(G).map(([k,g])=>`<button aria-checked="${k===sel}" data-ssub="${k}">${g[0]} <small>${hits[k].size}</small></button>`).join("")}</div><p class="lead">${G[sel][2]}</p>`+hitList(hits[sel],S.more,"이 범위의 서술에는 해당 문장이 없습니다."); }
   if(t==="인물"){ const subj=new Set(["Subj","PreS","IntS","ModS","ExsS","PrcS"].map(f=>SD.FN.indexOf(f)).filter(x=>x>=0)), pred=new Set(["Pred","PreO","PreS","PreC","PtcO"].map(f=>SD.FN.indexOf(f)).filter(x=>x>=0));
     const P=new Map(), godCl=new Set();
     forWords(sp,i=>{ if(!subj.has(SD.wf[i])) return; const x=SD.L[SD.wl[i]]; if(x[2]==="nmpr"||GOD_LEX.has(x[1])){ P.set(SD.wl[i],(P.get(SD.wl[i])||0)+1); if(GOD_LEX.has(x[1])) godCl.add(SD.wc[i]); } });
@@ -405,15 +405,15 @@ function structHead(b){ const S=view.st, f=milalFile(b), st=f&&(S.milalOn?milalL
   const bk=S.back?`<button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}으로 돌아가기</button> `:"";
   return `<div class="srcnote">${bk?`<span>${bk}</span>`:""}<span><b>선·층·종류</b> BHSA 원자료 · <b>색·표지</b> 앱의 관찰 후보(판정 아님) · ${m}</span><span class="lead">줄 오른쪽 이름표를 누르면 세 출처를 따로 봅니다. <button class="mtog" id="stGloss">용어 풀이 ⓘ</button></span></div>`; }
 /* 구조 화면 용어 풀이: 색(앱 관찰 후보)과 줄 종류 코드(BHSA) — 초급 신학생이 코드만 보고 막히지 않게 */
-const TY_HELP={Way0:"와이크톨(그리고 ~했다)로 시작하는 절 — 이야기의 주된 줄기",WayX:"와이크톨 뒤에 주어 등이 오는 절",WXQt:"'와'+다른 말+완료형 — 흐름을 멈추고 배경·대조를 넣는 절",xQtX:"앞에 다른 말+완료형+뒤에 다른 말",xQt0:"앞에 다른 말+완료형",XQtl:"주어 등 다른 말+완료형",ZQt0:"완료형으로 시작",ZQtX:"완료형으로 시작, 뒤에 다른 말",WQt0:"'와'+완료형(웨카탈) — 지시·습관·미래의 연쇄",WQtX:"'와'+완료형+다른 말",WYq0:"'와'+미완료형",WYqX:"'와'+미완료형+다른 말",xYq0:"앞에 다른 말+미완료형",xYqX:"앞에 다른 말+미완료형+뒤에 다른 말",ZYq0:"미완료형으로 시작",ZYqX:"미완료형으로 시작, 뒤에 다른 말",NmCl:"명사문(동사 없음) — 상태·설명",AjCl:"형용사문",Ptcp:"분사문 — 진행·상태",InfC:"부정사 연계형(~하기 위해 등)",InfA:"부정사 절대형",Voct:"부름말(호격)",Ellp:"생략된 절",CPen:"앞세운 말(casus pendens)",MSyn:"이야기 표지(와예히 등)",Reop:"다시 받는 말",XPos:"뒤로 뺀 말",ZIm0:"명령형",ZImX:"명령형+다른 말",xIm0:"앞에 다른 말+명령형",WIm0:"'와'+명령형",Defc:"불완전한 절",Unkn:"분류 안 됨"};
+const TY_HELP={Way0:"봐이크톨(그리고 ~했다)로 시작하는 절 — 이야기의 주된 줄기",WayX:"봐이크톨 뒤에 주어 등이 오는 절",WXQt:"'와'+다른 말+완료형 — 흐름을 멈추고 배경·대조를 넣는 절",xQtX:"앞에 다른 말+완료형+뒤에 다른 말",xQt0:"앞에 다른 말+완료형",XQtl:"주어 등 다른 말+완료형",ZQt0:"완료형으로 시작",ZQtX:"완료형으로 시작, 뒤에 다른 말",WQt0:"'와'+완료형(베카탈) — 지시·습관·미래의 연쇄",WQtX:"'와'+완료형+다른 말",WYq0:"'와'+미완료형",WYqX:"'와'+미완료형+다른 말",xYq0:"앞에 다른 말+미완료형",xYqX:"앞에 다른 말+미완료형+뒤에 다른 말",ZYq0:"미완료형으로 시작",ZYqX:"미완료형으로 시작, 뒤에 다른 말",NmCl:"명사문(동사 없음) — 상태·설명",AjCl:"형용사문",Ptcp:"분사문 — 진행·상태",InfC:"부정사 연계형(~하기 위해 등)",InfA:"부정사 절대형",Voct:"부름말(호격)",Ellp:"생략된 절",CPen:"앞세운 말(casus pendens)",MSyn:"이야기 표지(봐예히 등)",Reop:"다시 받는 말",XPos:"뒤로 뺀 말",ZIm0:"명령형",ZImX:"명령형+다른 말",xIm0:"앞에 다른 말+명령형",WIm0:"'와'+명령형",Defc:"불완전한 절",Unkn:"분류 안 됨"};
 function openStructGlossary(b){ const S=view.st, c=S.vc; const codes=new Map(); if(SD.loaded.has(b)){ const a0=SD.bookA[b-1], a1=b<39?SD.bookA[b]:SD.can.length; for(let a=a0;a<a1;a++){ const w=atomFirstWord(a); if(w==null) continue; const v=SD.V[SD.vOf[w]]; if(v[1]!==c) continue; const t=SD.TY[SD.ay[a]]; codes.set(t,(codes.get(t)||0)+1); } }
   const rows=[...codes.entries()].sort((x,y)=>y[1]-x[1]).map(([t,n])=>`<dt><code>${esc(t)}</code> <small>${n}줄</small></dt><dd>${esc(TY_HELP[t]||(typeof TY_FAM==="function"?TY_FAM(t):"")||"")}</dd>`).join("");
-  sheet("구조 화면 용어 풀이",`<div class="sdetail"><span class="label">색·표지 — 앱의 관찰 후보(자동 분류, 판정 아님)</span><dl class="rdl"><dt><i class="k-main mkdot" style="background:var(--accent)"></i> 이야기 줄기</dt><dd>와이크톨 절(Way0·WayX). 사건이 이어지는 주된 흐름</dd><dt><i class="mkdot" style="background:#C46A2B"></i> 배경·멈춤</dt><dd>명사문·분사문·'와+다른 말+완료형' 등. 흐름을 멈추고 상태·배경·대조를 넣는 자리</dd><dt><i class="mkdot" style="background:#7A6BB0"></i> 이야기 표지</dt><dd>'그리고 ~일이 있었다(와예히)', 때를 앞세운 문장 등 장면이 열리는 표지</dd><dt><i class="mkdot" style="background:#9AA5A0"></i> 인물의 말</dt><dd>BHSA가 따옴표 안(Q)으로 표시한 절. 겹친 인용은 '2단'처럼 표시</dd></dl>
-    <span class="label">줄 종류 코드 — BHSA 원자료 (이 장에 나온 것)</span><p class="lead" style="margin:0 0 4px">코드 읽는 법: 앞의 W='와(그리고)', x/X='앞·뒤에 다른 말', Z='동사로 시작'; 가운데 Qt=완료형, Yq=미완료형, Im=명령형, Way=와이크톨.</p><dl class="rdl">${rows||"<dd>자료를 아직 받지 못했습니다.</dd>"}</dl>
+  sheet("구조 화면 용어 풀이",`<div class="sdetail"><span class="label">색·표지 — 앱의 관찰 후보(자동 분류, 판정 아님)</span><dl class="rdl"><dt><i class="k-main mkdot" style="background:var(--accent)"></i> 이야기 줄기</dt><dd>봐이크톨 절(Way0·WayX). 사건이 이어지는 주된 흐름</dd><dt><i class="mkdot" style="background:#C46A2B"></i> 배경·멈춤</dt><dd>명사문·분사문·'와+다른 말+완료형' 등. 흐름을 멈추고 상태·배경·대조를 넣는 자리</dd><dt><i class="mkdot" style="background:#7A6BB0"></i> 이야기 표지</dt><dd>'그리고 ~일이 있었다(봐예히)', 때를 앞세운 문장 등 장면이 열리는 표지</dd><dt><i class="mkdot" style="background:#9AA5A0"></i> 인물의 말</dt><dd>BHSA가 따옴표 안(Q)으로 표시한 절. 겹친 인용은 '2단'처럼 표시</dd></dl>
+    <span class="label">줄 종류 코드 — BHSA 원자료 (이 장에 나온 것)</span><p class="lead" style="margin:0 0 4px">코드 읽는 법: 앞의 W='와(그리고)', x/X='앞·뒤에 다른 말', Z='동사로 시작'; 가운데 Qt=완료형, Yq=미완료형, Im=명령형, Way=봐이크톨.</p><dl class="rdl">${rows||"<dd>자료를 아직 받지 못했습니다.</dd>"}</dl>
     <span class="label">세 출처</span><p class="lead"><b>BHSA 원자료</b>는 네덜란드 ETCBC가 만든 문법 자료, <b>앱의 관찰 후보</b>는 이 앱이 코드만 보고 칠한 색(판정 아님), <b>MILAL 판정</b>은 연구 도구 MILAL의 규칙·연구자 판정입니다. 셋을 섞지 않고 따로 보여 드립니다.</p></div>`); }
 /* 장 구조 보기: ETCBC 절 원자(clause atom)를 들여쓰기(tab)대로 */
 const MAINLINE=new Set(["Way0","WayX"]), BACKGR=new Set(["NmCl","AjCl","Ptcp","XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"]);
-/* 이야기 표지 판정 (ETCBC 자료로): 와예히/웨하야 + 때·키·베/케+부정사·곳, MSyn의 보라·이제 */
+/* 이야기 표지 판정 (ETCBC 자료로): 봐예히/웨하야 + 때·키·베/케+부정사·곳, MSyn의 보라·이제 */
 const lxk=w=>SD.L[SD.wl[w]][1], fnk=w=>SD.FN[SD.wf[w]];
 function markerKind(W,NW,typ){
   const lx=W.map(lxk), fns=new Set(W.map(fnk));
@@ -518,7 +518,7 @@ function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=w
 function stripHTML(vi){ const S=view.st, G=vGroups(vi); if(S.rw==null||SD.vOf[S.rw]!==vi) S.rw=gMain(G[0]);
   const gi=G.findIndex(g=>g.includes(S.rw)), sel=S.mkSel&&S.mkSel.vi===vi?S.mkSel.set:null;
   const bar=sel?`<div class="mkbar"><span>${S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]+": ":""}고른 묶음 ${sel.size}개 — 띠에서 더 고르거나</span><button class="btn small" id="mkAll">절 전체</button><button class="btn small" id="mkGo"${sel.size?"":" disabled"}>표시하기</button><button class="btn small ghost" id="mkCancel">취소</button></div>`:"";
-  return `<div class="rstripw">${bar}<div class="rstrip${sel?" mksel":""}" dir="rtl">${G.map((g,k)=>{ const m=gMain(g); return `<button class="rsw${!sel&&k===gi?" on":""}${sel&&sel.has(k)?" sel":""}" data-rsw="${m}" data-rg="${k}"><span class="heb">${esc(g.map(wHeb).join("").trim())}</span><b>${esc(lexGloss(SD.wl[m]))}</b><small>${esc(g.map(wHan).join(""))}</small></button>`; }).join("")}</div>${sel?"":`<div class="rdet" id="rDet">${readDetail(S.rw)}</div>`}</div>`; }
+  return `<div class="rstripw">${bar}<div class="rstrip${sel?" mksel":""}" dir="rtl">${G.map((g,k)=>{ const m=gMain(g); return `<button class="rsw${!sel&&k===gi?" on":""}${sel&&sel.has(k)?" sel":""}" data-rsw="${m}" data-rg="${k}"><span class="heb">${esc(g.map(wHeb).join("").trim())}</span><b>${esc(lexGloss(SD.wl[m]))}</b><small>${esc(g.map(wHan).join(""))}</small></button>`; }).join("")}</div>${sel?"":`<div class="rdet" id="rDet">${readDetail(S.rw)}</div>`}${ux2()&&!sel?`<button class="vinfo vclose" data-vinfo="${vi}">원어 닫기 ▴</button>`:""}</div>`; }
 function strongText(t){ return esc(t).replace(/H(\d+)/g,(m,n)=>`<button class="shl" data-sh="${n}">H${n}</button>`); }
 function strongBlock(n){ if(!n) return ""; if(!STR){ strongLoad().then(()=>{ const d=document.getElementById("rDet"); if(d&&view.st.rw!=null){ d.innerHTML=readDetail(view.st.rw); bindReadDet(d); } }); return `<p class="lead">스트롱 사전을 불러오는 중입니다…</p>`; }
   const e=STR[n]; if(!e) return ""; const [,s,m,u]=e;
@@ -549,7 +549,8 @@ function bindRead(m){ const S=view.st;
     const all=document.getElementById("mkAll"); if(all) all.onclick=e=>{ e.stopPropagation(); S.mkSel.set=new Set(G.map((_,k)=>k)); const y=scrollY; render(); scrollTo({top:y}); };
     const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]:`낱말 묶음 ${S.mkSel.set.size}개`,S.mkSel.preset); };
     const cn=document.getElementById("mkCancel"); if(cn) cn.onclick=e=>{ e.stopPropagation(); S.mkSel=null; const y=scrollY; render(); scrollTo({top:y}); }; }
-  m.querySelectorAll("[data-vinfo]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.vinfo; const y=scrollY; S.rv=S.rv===vi?-1:vi; S.rw=null; S.mkSel=null; render(); scrollTo({top:y}); });
+  m.querySelectorAll("[data-vinfo]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.vinfo; const y=scrollY; const closing=S.rv===vi; S.rv=closing?-1:vi; S.rw=null; S.mkSel=null; render(); scrollTo({top:y});
+    if(closing){ const el=document.getElementById("stv-"+vi); if(el){ const r=el.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*0.6) el.scrollIntoView({block:"center"}); } } });   /* 아래 '원어 닫기'로 닫으면 그 절로 돌아온다 */
   if(ux2()) selPopBind(m);
   m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(ux2()) return;   /* 시안: 절 누름은 글자 고르기를 방해하지 않게 아무것도 안 함 */ if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; S.rinfo=false; const y=scrollY; render(); scrollTo({top:y});
     /* 누른 절이 화면에서 같은 자리에 머물게: 위쪽 띠가 닫히며 줄어든 만큼 되돌림 */

@@ -2,7 +2,7 @@
 const QT_K={book:"책",chapter:"장",verse:"절",sentence:"문장",clause:"절(클로즈)",phrase:"구",word:"낱말"};
 const QOP_K={"":"어디든","<":"뒤 어딘가","<:":"바로 뒤에 붙어서","=:":"맨 앞에서",":=":"맨 끝에서"};
 const PTY_K={VP:"동사구",NP:"명사구",PP:"전치사구",CP:"접속사구",AdvP:"부사구",AdjP:"형용사구",InjP:"감탄사구",DPrP:"지시대명사구",PrNP:"고유명사구",NegP:"부정구",PPrP:"인칭대명사구",IPrP:"의문대명사구",InrP:"의문사구"};
-const TY_FAM=c=>/Way/.test(c)?"와이크톨":/Q/.test(c)?"완료":/Y/.test(c)?"미완료":/I/.test(c)&&/m|0|X|I/.test(c)&&!/Inf/.test(c)?"명령":({NmCl:"명사문",AjCl:"형용사문",Ptcp:"분사문",InfC:"부정사 연계형",InfA:"부정사 절대형",Ellp:"생략",Voct:"부름",CPen:"앞세운 말",MSyn:"이야기 표지",Reop:"다시 받음",XPos:"뒤로 뺀 말"})[c]||"";
+const TY_FAM=c=>/Way/.test(c)?"봐이크톨":/Q/.test(c)?"완료":/Y/.test(c)?"미완료":/I/.test(c)&&/m|0|X|I/.test(c)&&!/Inf/.test(c)?"명령":({NmCl:"명사문",AjCl:"형용사문",Ptcp:"분사문",InfC:"부정사 연계형",InfA:"부정사 절대형",Ellp:"생략",Voct:"부름",CPen:"앞세운 말",MSyn:"이야기 표지",Reop:"다시 받음",XPos:"뒤로 뺀 말"})[c]||"";
 const TY_LEAD=c=>/^W/.test(c)?"와(그리고)+":/^[xX]/.test(c)?"앞에 다른 말+":/^Z/.test(c)?"":"";
 const tyLabel=c=>`${c} · ${TY_LEAD(c)}${TY_FAM(c)}`;
 /* 검색식 읽기 */
@@ -46,7 +46,7 @@ const Q_QUESTIONS=[
   {key:"예시2",q:"'보라' 뒤에 능동분사가 있는 절 찾기",desc:"같은 절 안에서 '보라(힌네, HNH)' 뒤 어딘가에 능동분사(ptca)가 오는 곳을 찾습니다. 바로 뒤일 필요는 없습니다.",
    hints:["이 문장들의 앞뒤 문맥을 살펴보세요. '보라'가 언제 쓰이는지, 늘 같은 역할을 하는지 관찰해 보세요.","분사의 주어가 누구인지, 말하는 이와 같은지 적어 보세요.","아래 '다음 단계'로 조건을 바꿔 가며 결과가 어떻게 달라지는지 보세요."]},
   {key:"서술명사문",q:"서술에 사용된 명사문 찾기",desc:"서술 영역(N — 인물의 말이 아닌 서술자의 말) 안의 명사문(NmCl)을 찾습니다. 이것이 장면 전환인지 배경 설명인지는 찾아 주지 않습니다 — 본문에서 보고 판단하세요.",
-   hints:["명사문 바로 앞뒤의 문장 종류(와이크톨인지, 완료형인지)를 보세요.","명사문이 이야기 흐름을 멈추는 자리인지, 새 인물·장소를 소개하는 자리인지 사례별로 적어 보세요.","한 장에 몰려 있다면 그 장을 구조 화면에서 열어 보세요."]},
+   hints:["명사문 바로 앞뒤의 문장 종류(봐이크톨인지, 완료형인지)를 보세요.","명사문이 이야기 흐름을 멈추는 자리인지, 새 인물·장소를 소개하는 자리인지 사례별로 적어 보세요.","한 장에 몰려 있다면 그 장을 구조 화면에서 열어 보세요."]},
   {key:"__custom",q:"사용자가 직접 조건 만들기",desc:"'절 안에 낱말 하나'인 빈 틀에서 시작해 조건을 골라 넣습니다."}];
 /* 단계별 학습('보라' 예시): 조건을 하나씩 바꿔 보며 결과 변화를 본다 */
 const Q_STEPS={"예시2":[
@@ -271,7 +271,7 @@ function qApplyRange(q){ const S=view.st; if(q.range==="book"&&q.R&&q.v>=3){ con
 function qRangeLabel(q){ if(q.range==="all") return "구약 전체"; if(!q.R) return "범위 없음"; const R=q.R; if(!q.v||q.v<3) return `${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}`;   /* 옛 기록: 실제 장 범위만 적고 '책 전체'라 하지 않는다 */
   return q.range==="book"?`${PLAN.full[R.b-1]} 전체 (1–${R.c2}장)`:`${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}장`; }
 function qSaveCurrent(){ const text=qCurrentText().trim(); if(!text){ toast("먼저 검색식을 만드세요."); return; } const P=qParse(text); if(P.err){ toast("검색식에 문제가 있어 보관하지 않았습니다: "+P.err); return; }
-  const rg=qRangeOf(); sheet("검색식 보관",`<p class="lead">이름을 붙여 두면 보관함에서 다시 실행할 수 있습니다. 범위(${esc(qRangeLabel(rg))})도 함께 저장됩니다.</p><input id="qsName" type="text" placeholder="예: 창 22장 와이크톨+주어" style="width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box"><pre class="qsrc" style="margin:8px 0;white-space:pre-wrap">${esc(text)}</pre><button class="sbtn" id="qsGo">보관하기</button>`);
+  const rg=qRangeOf(); sheet("검색식 보관",`<p class="lead">이름을 붙여 두면 보관함에서 다시 실행할 수 있습니다. 범위(${esc(qRangeLabel(rg))})도 함께 저장됩니다.</p><input id="qsName" type="text" placeholder="예: 창 22장 봐이크톨+주어" style="width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box"><pre class="qsrc" style="margin:8px 0;white-space:pre-wrap">${esc(text)}</pre><button class="sbtn" id="qsGo">보관하기</button>`);
   const go=()=>{ const name=(document.getElementById("qsName").value.trim()||text.split("\n")[0].slice(0,40)); const L=qSavedList(); L.unshift({id:Date.now().toString(36),name,text,range:rg.range,R:rg.R,v:rg.v,t:Date.now()}); if(qSavedSet(L)){ document.getElementById("sheetRoot").innerHTML=""; toast("보관했습니다."); render(); } };
   document.getElementById("qsGo").onclick=go; document.getElementById("qsName").onkeydown=e=>{ if(e.key==="Enter") go(); }; setTimeout(()=>document.getElementById("qsName").focus(),50); }
 function qSavedMarkdown(L){ const d=t=>new Date(t).toLocaleDateString("ko-KR"); return ["# 검색식 보관함 (Text-Fabric)","",...L.flatMap(q=>[`## ${q.name}`,`- 범위: ${qRangeLabel(q)} · 작성일: ${d(q.t)}`,"","```",q.text,"```",""])].join("\n"); }

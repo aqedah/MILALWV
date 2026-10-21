@@ -45,7 +45,7 @@ function tutorialMaybe(){ try{ if(localStorage.getItem("milal-tut-seen")) return
 
 /* --- MILAL 소개 --- */
 function openAbout(){
-  sheet("MILAL이란",`<p><b>MILAL</b>은 <b>M</b>arker-<b>I</b>nformed <b>L</b>inguistic <b>A</b>nalysis of <b>L</b>ayers — '표지에 바탕을 둔 문장 층 분석'의 머리글자입니다. 히브리어 문장이 앞뒤 문장과 어떤 관계로 묶이는지를, 와예히·접속사·동사 형태 같은 <b>표지</b>를 근거로 판정하는 연구 방법이자, 욥기를 대상으로 그 규칙을 만들고 검증하는 분석 장치의 이름입니다.</p>
+  sheet("MILAL이란",`<p><b>MILAL</b>은 <b>M</b>arker-<b>I</b>nformed <b>L</b>inguistic <b>A</b>nalysis of <b>L</b>ayers — '표지에 바탕을 둔 문장 층 분석'의 머리글자입니다. 히브리어 문장이 앞뒤 문장과 어떤 관계로 묶이는지를, 봐예히·접속사·동사 형태 같은 <b>표지</b>를 근거로 판정하는 연구 방법이자, 욥기를 대상으로 그 규칙을 만들고 검증하는 분석 장치의 이름입니다.</p>
   <p>이 앱(MILALWV, MILAL Web View)은 그 결과를 누구나 휴대전화에서 볼 수 있게 만든 창입니다. 구약 히브리어 원문(BHSA)을 읽고, 문장 구조를 보고, 낱말과 문법 현상을 찾고, 본 것을 기록합니다.</p>
   <p>묻는 질문은 하나입니다. <b>"이 문장은 앞뒤 문장과 어떤 관계를 맺으며, 그 관계는 본문을 이해하는 데 무엇을 밝혀 주는가?"</b></p>
   <p class="lead">제작: 이츠학(이츠학아카데미) · 무료·비영리로 운영합니다(BHSA CC BY-NC 4.0). <a href="https://www.youtube.com/@이츠학아카데미" target="_blank" rel="noopener">유튜브</a> · <a href="https://github.com/aqedah/MILALWV" target="_blank" rel="noopener">GitHub</a></p>`); }
