@@ -6,7 +6,7 @@
    자동으로 "인용이다·재진술이다·뜻이 바뀌었다"를 판정하지 않는다. 자료는 BHSA 어휘(SD.wl)·형태(원문 낱말, 악센트 제거) 그대로. */
 const CMP_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);   /* 기능어(기본은 뺌; 켜면 포함) */
 const CMP_PRESETS=[   /* 2026-10-21 목사님이 고른 대표 예시. g: 반복 / 인용 / 재진술. B 가 비면 A 한 구간 안의 반복 */
-  {g:"repeat",n:"창 37:2–11 — '미워하다'",a:"창 37:2-11",b:"",t:"repeat",sel:"FN>["},
+  {g:"repeat",n:"룻 1:6–22 — '돌아가다(슈브)'",a:"룻 1:6-22",b:"",t:"repeat",sel:"CWB["},
   {g:"repeat",n:"삼상 14장 — '건너가다(아바르)'",a:"삼상 14",b:"",t:"repeat",sel:"<BR["},
   {g:"quote",n:"안식일: 창 2:1–3 ↔ 출 20:8–11",a:"창 2:1-3",b:"출 20:8-11",t:"quote"},
   {g:"quote",n:"시온의 산: 사 2:1–4 ↔ 미 4:1–5",a:"사 2:1-4",b:"미 4:1-5",t:"quote"},
@@ -14,7 +14,7 @@ const CMP_PRESETS=[   /* 2026-10-21 목사님이 고른 대표 예시. g: 반복
   {g:"restate",n:"사람이 무엇이기에: 시 8:4 ↔ 욥 15:14",a:"시 8:4",b:"욥 15:14",t:"restate"},
   {g:"restate",n:"엘리후가 욥의 말을: 욥 13:24, 27 ↔ 33:9–11",a:"욥 13:24,27",b:"욥 33:9-11",t:"restate"},
   {g:"restate",n:"엘리후가 욥의 말을: 욥 13:18 ↔ 34:5",a:"욥 13:18",b:"욥 34:5",t:"restate"},
-  {g:"restate",n:"엘리후가 욥의 말을: 욥 27:2 ↔ 34:6",a:"욥 27:2",b:"욥 34:6",t:"restate"}];
+  {g:"restate",n:"엘리후가 욥의 말을: 욥 27:2 ↔ 34:5–6",a:"욥 27:2",b:"욥 34:5-6",t:"restate"}];
 const CMP_PRE_G=[["repeat","반복 예시"],["quote","인용 후보 예시"],["restate","재진술 후보 예시"]];
 /* 예시 단추·시험에서 쓰는 한 줄 실행 */
 function cmpGo(qa,qb,t,selKey){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"repeat",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp; C.err=null; C.qa=qa; C.qb=qb||""; if(t) C.t=t; C.a=cmpParse(qa); C.b=qb?cmpParse(qb):null; C.sel=selKey&&SD.lexByKey[selKey]?SD.lexByKey[selKey][0]:null; C.selRun=null; render(); if(C.sel!=null){ const el=document.querySelector(".cmpsel"); if(el) el.scrollIntoView({block:"center"}); } }   /* 반복 예시는 그 낱말을 바로 강조 */
