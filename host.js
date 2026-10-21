@@ -28,7 +28,7 @@ function navOf(){ const S=view.st; if(S.pick||!S.entered||!S.R) return "";
   if(S.mode==="notes") return "notes"; if(RESEARCH_MODES.includes(S.mode)) return "research";
   return (typeof rdMode==="function"?rdMode():"read")==="struct"?"struct":"text"; }
 function navSync(){ const cur=navOf(); document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-selected",b.dataset.nav===cur)); }
-function bindNav(){ document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.onclick=()=>{ const S=view.st, k=b.dataset.nav;
+function bindNav(){ document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.onclick=()=>{ if(window.selPopClose) selPopClose(); const S=view.st, k=b.dataset.nav;
   if(typeof SD==="undefined"||!SD) return;
   if(!S.R) setRange(lastRange()||{b:1,c1:1,c2:1});
   S.home=false; S.entered=true; S.pick=false; S.more=1;

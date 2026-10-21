@@ -25,7 +25,8 @@ function topWordsHTML(){ const S=view.st, sp=S.R?[[S.R.b,S.R.c1,S.R.c2]]:null; c
 /* ===== UX 시안: 본문에서 낱말을 긁어 고르면 뜨는 작은 창(형광펜 색 4·밑줄·괄호·복사·메모). 한 절 안의 낱말만 받는다 ===== */
 function selPopBind(m){ if(window.__selPopOn) return; window.__selPopOn=true; let tm=null;
   document.addEventListener("selectionchange",()=>{ clearTimeout(tm); tm=setTimeout(selPopShow,180); });
-  document.addEventListener("pointerdown",e=>{ const pop=document.getElementById("selpop"); if(pop&&!pop.contains(e.target)) { /* 다른 곳을 누르면 닫힘(선택이 풀리며 selectionchange 로도 닫힘) */ } }); }
+  document.addEventListener("pointerdown",e=>{ const pop=document.getElementById("selpop"); if(pop&&!pop.contains(e.target)&&!e.target.closest(".rdh,.rdk")){ pop.remove(); view.st.selW=null; try{ document.getSelection().removeAllRanges(); }catch(er){} } }); }   /* 글자 밖(원어 단추·메뉴 등)을 누르면 닫힘 */
+function selPopClose(){ const p=document.getElementById("selpop"); if(p) p.remove(); if(view.st) view.st.selW=null; try{ const s=document.getSelection(); if(s&&!s.isCollapsed) s.removeAllRanges(); }catch(e){} }
 /* 고른 범위 → 히브리어 낱말(여러 절 가능, 같은 장 안) · 번역만 골랐으면 그 절들 */
 function selPopWords(){ const sel=document.getSelection(); if(!sel||sel.isCollapsed||!sel.rangeCount) return null; const r=sel.getRangeAt(0); const box=document.querySelector(".rdv"); if(!box||!box.contains(r.commonAncestorContainer)) return null;
   const hw=[...box.querySelectorAll(".rdh .hw")].filter(w=>r.intersectsNode(w)).map(w=>+w.dataset.wi); const vs=[...box.querySelectorAll("[data-rdv]")].filter(v=>r.intersectsNode(v)).map(v=>+v.dataset.rdv);
@@ -566,7 +567,7 @@ function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); });
   if(window.bindAnnots) bindAnnots(d);
   d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }
-function bindRead(m){ const S=view.st;
+function bindRead(m){ const S=view.st; selPopClose();   /* 화면을 다시 그리면(원어 열기·탭 이동 등) 떠 있던 도구 줄은 닫는다 */
   m.querySelectorAll("[data-rangemode]").forEach(b=>b.onclick=()=>{ S.rangeMode=b.dataset.rangemode==="1"; S.rangeStart=null; S.mkSel=null; render(); });
   m.querySelectorAll("[data-markshide]").forEach(b=>b.onclick=()=>marksToggle());
   m.querySelectorAll("[data-anedit]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=anList().find(x=>x.id===b.dataset.anedit); if(a) openAnnotEditor(a.kind,null,a); });

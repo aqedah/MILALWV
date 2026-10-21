@@ -31,7 +31,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   await pg.click('[data-rstart="repeat"]'); await W(500); await pg.click('.bnav [data-nav="text"]'); await W(300); await pg.click('.bnav [data-nav="research"]'); await W(300); const back = await pg.evaluate(() => view.st.mode); ok('본문에 갔다 연구로 돌아오면 마지막 도구 유지(처음 들어올 때만 시작 화면)', back === 'tool', back);
   // 본문(3차 피드백, 픽트리 방식): 글자를 끌어 고르면 아래에 형광펜 4색·밑줄·괄호·복사하기·노트에 추가, 절 아래 '원어' 단추 하나로 원어 분석
   await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 22, c2: 22 }); view.st.mode = 'verse'; view.st.rd = 'read'; view.st.rv = -1; render(); }); await pg.click('.bnav [data-nav="text"]'); await W(400);
-  const selWords = (v, a, z) => pg.evaluate(([v, a, z]) => { const ws = [...document.querySelectorAll(`[data-rdv="${v}"] .rdh .hw`)]; const r = document.createRange(); r.setStart(ws[a].firstChild || ws[a], 0); const e = ws[z]; r.setEnd(e.lastChild || e, (e.lastChild || e).textContent.length); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }, [v, a, z]);
+  const selWords = (v, a, z) => pg.evaluate(([v, a, z]) => { const ws = [...document.querySelectorAll(`[data-rdv="${v}"] .rdh .hw`)]; const r = document.createRange(); const tA = document.createTreeWalker(ws[a], NodeFilter.SHOW_TEXT).nextNode(); const wz = document.createTreeWalker(ws[z], NodeFilter.SHOW_TEXT); let tZ = null, n; while ((n = wz.nextNode())) tZ = n; r.setStart(tA, 0); r.setEnd(tZ, tZ.textContent.length); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }, [v, a, z]);
   const v0 = await pg.evaluate(() => +document.querySelector('[data-rdv]').dataset.rdv);
   await pg.click('[data-rdv] .rdh'); await W(300); const t0 = await pg.evaluate(() => ({ strip: !!document.querySelector('.rstrip'), vinfo: document.querySelectorAll('.vinfo').length, h3: !!document.querySelector('h3.sch'), hint: document.querySelector('.rdnote').textContent }));
   ok('본문: 절을 눌러도 아무것도 펼쳐지지 않음(글자 고르기 방해 없음), 절마다 "원어" 단추, 장 제목 중복 없음', !t0.strip && t0.vinfo > 10 && !t0.h3 && /길게 눌러 끌어 고르세요/.test(t0.hint), JSON.stringify(t0));
@@ -68,6 +68,10 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   // 음역: 바브는 v(봐예히·부·봐이크톨)
   const tr = await pg.evaluate(() => { const vi = SD.ref.get('1-22-1')[0]; return sHan(vi).join(' '); }); ok('음역: 창 22:1 "봐 예히 … 봐 요메르 엘라브" (바브=v, 절 끝 표지 없음)', /^봐 예히/.test(tr) && /봐 요메르 엘라브/.test(tr) && !/[스프]$/.test(tr.trim()), tr);
   const tr2 = await pg.evaluate(async () => { await loadBook(18); const vi = SD.ref.get('18-32-3')[0]; return sHan(vi).join(' '); }); ok('음역: 욥 32:3 접속사 וּ 는 "부"', /^부 /.test(tr2), tr2);
+  // 글자를 고른 채 '원어'를 누르면 도구 줄이 닫힘 / 다른 탭으로 가도 닫힘
+  await selWords(v0, 0, 2); await W(400); const pp0 = await pg.evaluate(() => !!document.getElementById('selpop')); await pg.click(`[data-vinfo="${v0}"]`); await W(400); const pp1 = await pg.evaluate(() => ({ pop: !!document.getElementById('selpop'), strip: !!document.querySelector('.rstrip') })); await pg.click(`[data-vinfo="${v0}"]`); await W(300);
+  await selWords(v0, 0, 2); await W(400); await pg.click('.bnav [data-nav="struct"]'); await W(400); const pp2 = await pg.evaluate(() => !!document.getElementById('selpop')); await pg.click('.bnav [data-nav="text"]'); await W(400);
+  ok('글자를 고른 채 "원어"를 누르거나 다른 탭으로 가면 아래 도구 줄이 닫힘', pp0 && !pp1.pop && pp1.strip && !pp2, JSON.stringify({ pp0, pp1, pp2 }));
   // 칠한 낱말을 누르면 기존 표시 고치기/지우기
   await pg.click('.rdh .mk.usr'); await W(400); const tm = await pg.evaluate(() => (document.getElementById('sheetRoot') || {}).textContent || ''); await pg.evaluate(() => { document.getElementById('sheetRoot').innerHTML = ''; }); ok('칠한 낱말을 누르면 그 표시 고치기·지우기 창(기존 기능)', /지우|삭제/.test(tm), tm.slice(0, 60));
   // 연구>낱말 top5 · 검색식 '언제 쓰나요' · 지도 이름
