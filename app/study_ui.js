@@ -56,6 +56,12 @@ function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)
   document.querySelectorAll("#sheetRoot [data-rsc]").forEach(x=>x.onclick=()=>{ const k=x.dataset.rsc; document.getElementById("sheetRoot").innerHTML="";
     if(k==="pick"){ S.pick=true; S.pk={b,c1:null,c2:null}; render(); scrollTo({top:0}); return; }
     if(k==="all"){ S.wide=true; } else { S.wide=false; setRange(k==="ch"?{b,c1:c,c2:c}:{b,c1:1,c2:last}); } render(); }); }
+/* 본문에서 '이 원어로 검색' → 다 보면 본문의 그 자리로 돌아간다(✕·'본문으로' 단추·휴대전화 뒤로 가기) */
+function wordFromText(li){ const S=view.st; if(S.mode==="verse") S.fromText={R:{...S.R},vc:S.vc,rv:S.rv,rw:S.rw,rd:S.rd,y:scrollY,ref:S.rw!=null&&SD.vOf?sRef(SD.vOf[S.rw]):rLabel(S.R)};
+  S.wide=true; S.mode="word"; S.lex=li; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; S.wbook=null; if(S.fromText){ try{ history.pushState({milal:"word"},""); }catch(e){} } render(); scrollTo({top:0}); }
+function returnToText(){ const S=view.st, F=S.fromText; if(!F) return false; S.fromText=null; setRange(F.R); S.mode="verse"; S.rd=F.rd; S.vc=F.vc; S.rv=F.rv; S.rw=F.rw; render(); scrollTo({top:F.y}); requestAnimationFrame(()=>scrollTo({top:F.y})); return true; }
+function leaveWordToText(){ try{ if(history.state&&history.state.milal==="word"){ history.back(); return; } }catch(e){} returnToText(); }
+if(!window.__wordPop){ window.__wordPop=true; addEventListener("popstate",()=>{ const S=view.st; if(S.fromText&&S.mode==="word") returnToText(); }); }
 function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
@@ -305,7 +311,8 @@ function renderStudy(){
   else if(S.mode==="query") h+=renderQuery();
   else if(S.mode==="compare") h+=(window.renderCompare?renderCompare():"");
   else if(S.mode==="word"){
-    h+=`<section class="sec">${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>${ux2()&&S.lex==null&&!(S.q||"").trim()?topWordsHTML():""}`;
+    if(S.fromText&&S.fromText.R&&S.lex==null) S.fromText=null;   /* 다른 낱말을 직접 찾기 시작하면 돌아갈 자리는 잊는다 */
+    h+=`<section class="sec">${S.fromText?`<div class="srcnote"><span><button class="mtog back" id="sBackText">← 본문으로 돌아가기 (${esc(S.fromText.ref)})</button></span></div>`:""}${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>${ux2()&&S.lex==null&&!(S.q||"").trim()?topWordsHTML():""}`;
     if(S.lex!=null){ const x=SD.L[S.lex], H=wordHits(); let cnt=0; H.forEach(s=>cnt+=s.size);
       const forms={vs:new Map(),vt:new Map()}; if(x[2]==="verb"){ const ids=new Set([S.lex]); for(let i=0;i<SD.wl.length;i++) if(SD.wl[i]===S.lex){ const m=SD.M[SD.wm[i]]; forms.vs.set(m[1],(forms.vs.get(m[1])||0)+1); forms.vt.set(m[2],(forms.vt.get(m[2])||0)+1); } }
       h+=`<div class="slexhd">${lexRow(S.lex,`<button class="iconbtn" id="sLexX" aria-label="다른 낱말 찾기">✕</button>`,'data-noop="1"')}${lexKo(S.lex)?`<p class="lead">사전 풀이: ${esc(lexKo(S.lex))}</p>`:""}</div>
@@ -353,7 +360,8 @@ function bindStudy(m){
   m.querySelectorAll("[data-svi]").forEach(b=>b.onclick=()=>gotoVerse(+b.dataset.svi,b.dataset.swj!=null?+b.dataset.swj:null));
   const mo=document.getElementById("sMore"); if(mo) mo.onclick=()=>{ S.more=(S.more||1)+1; const y=scrollY; render(); scrollTo({top:y}); };
   const q=document.getElementById("sQ"); if(q){ q.oninput=()=>{ S.q=q.value; if(S.lex!=null){ S.lex=null; const p=q.selectionStart; render(); const q2=document.getElementById("sQ"); q2.focus(); q2.setSelectionRange(p,p); return; } const sg=document.getElementById("sSug"); sg.innerHTML=sugHTML(S.q); sg.querySelectorAll("[data-slex]").forEach(b=>b.onclick=()=>goWord(+b.dataset.slex)); }; }
-  const lx=document.getElementById("sLexX"); if(lx) lx.onclick=e=>{ e.stopPropagation(); S.lex=null; render(); document.getElementById("sQ")?.focus(); };
+  const lx=document.getElementById("sLexX"); if(lx) lx.onclick=e=>{ e.stopPropagation(); if(S.fromText){ leaveWordToText(); return; } S.lex=null; render(); document.getElementById("sQ")?.focus(); };
+  const bt=document.getElementById("sBackText"); if(bt) bt.onclick=()=>leaveWordToText();
   [["sDom","dom"],["sVs","vs"],["sVt","vt"]].forEach(([id,k])=>{ const el=document.getElementById(id); if(el) el.onchange=()=>{ S[k]=el.value; rr(); }; });
   m.querySelectorAll("[data-swi]").forEach(b=>b.onclick=()=>{ const wi=+b.dataset.swi; S.sel=S.sel===wi?-1:wi; const y=scrollY; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-sw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openWordSheet(+b.dataset.sw); });
@@ -554,7 +562,7 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
 function bindReadDet(d){ const S=view.st;
   d.querySelectorAll("[data-rpt]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.rw=+b.dataset.rpt; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   d.querySelectorAll("[data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); });
-  d.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.wide=true; S.mode="word"; S.lex=+b.dataset.sfindw; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); });
+  d.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); wordFromText(+b.dataset.sfindw); });
   d.querySelectorAll("[data-rnote]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openNoteSheet(+b.dataset.rnote); });
   if(window.bindAnnots) bindAnnots(d);
   d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }
@@ -581,7 +589,7 @@ function bindRead(m){ const S=view.st;
 function openStrongSheet(n){ const go=()=>{ const e=STR&&STR[n]; const lis=(SD.L.map((x,i)=>[x,i]).filter(([x])=>x[3]===n).sort((a,b)=>b[0][7]-a[0][7])); const li=lis.length?lis[0][1]:-1;
     sheet(`스트롱 H${n}`,e?`<div class="sdetail sheetd"><div class="rdh2"><span class="heb">${esc(e[0])}</span>${li>=0?`<span class="rdp">${esc(SD.L[li][6])}</span><b>${esc(lexGloss(li))}</b>`:""}</div><dl class="rdl">${e[1]?`<dt>유래</dt><dd>${strongText(e[1])}</dd>`:""}${e[2]?`<dt>단어 정의</dt><dd>${strongText(e[2])}</dd>`:""}${e[3]?`<dt>KJV에서 옮긴 말 <small class="rdx">× 는 다른 말과 묶여 그렇게 옮겨진 경우</small></dt><dd>${strongText(e[3])}</dd>`:""}${li>=0?`<dt>구약에 나오는 횟수</dt><dd>${SD.L[li][7].toLocaleString()}번</dd>`:""}</dl>${li>=0?`<div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button></div>`:""}</div>`:`<p class="lead">이 번호의 풀이가 없습니다.</p>`);
     const root=document.getElementById("sheetRoot"); root.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>openStrongSheet(+b.dataset.sh));
-    root.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=()=>{ root.innerHTML=""; const S=view.st; S.wide=true; S.mode="word"; S.lex=+b.dataset.sfindw; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); }); };
+    root.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=()=>{ root.innerHTML=""; wordFromText(+b.dataset.sfindw); }); };
   if(STR) go(); else strongLoad().then(go); }
 /* 원어 메모: 이 기기에 저장 */
 const SN_KEY="milal-study-notes";

@@ -89,6 +89,16 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   await pg.fill('#cmpA', '룻 1:6-22'); await pg.fill('#cmpB', ''); await pg.click('#cmpGo'); await W(400); const nb = await pg.evaluate(() => /B 본문도 넣으세요/.test(document.querySelector('#main').innerText)); await pg.click('#cmpToRepeat'); await W(500); const rp = await pg.evaluate(() => ({ mode: view.st.mode, tool: view.st.tool, ex: document.querySelectorAll('[data-rpex]').length }));
   ok('B 없이 비교 → "B 본문도 넣으세요" + 반복 도구로 가기(반복 예시 룻 1장·삼상 14장은 반복 도구에)', nb && rp.mode === 'tool' && rp.tool === '반복' && rp.ex === 2, JSON.stringify(rp));
   await pg.evaluate(() => { view.st.mode = 'start'; render(); });
+  // 본문 → '이 원어로 검색' → ✕ / '본문으로 돌아가기' / 휴대전화 뒤로 가기 → 본문의 그 자리
+  for (const how of ['x', 'btn', 'back']) {
+    await pg.evaluate(async () => { await loadBook(18); setRange({ b: 18, c1: 3, c2: 3 }); view.st.mode = 'verse'; view.st.rd = 'read'; view.st.rv = -1; view.st.fromText = null; render(); }); await pg.click('.bnav [data-nav="text"]'); await W(300);
+    const v6 = await pg.evaluate(() => SD.ref.get('18-3-6')[0]); await pg.evaluate(v => document.getElementById('stv-' + v).scrollIntoView({ block: 'center' }), v6); await W(200); await pg.click(`[data-vinfo="${v6}"]`); await W(400); const y0 = await pg.evaluate(() => { document.querySelector('#rDet [data-sfindw]').scrollIntoView({ block: 'center' }); return scrollY; });
+    await pg.click('#rDet [data-sfindw]'); await pg.waitForFunction(() => document.querySelector('.wbooks'), null, { timeout: 60000 }); await W(300);
+    const inW = await pg.evaluate(() => ({ mode: view.st.mode, btn: (document.querySelector('#sBackText') || {}).textContent || '' }));
+    if (how === 'x') await pg.click('#sLexX'); else if (how === 'btn') await pg.click('#sBackText'); else await pg.goBack(); await W(600);
+    const back = await pg.evaluate(v => ({ mode: view.st.mode, nav: (document.querySelector('.bnav [aria-selected="true"]') || {}).dataset.nav, open: view.st.rv === v, strip: !!document.querySelector('.rstrip'), y: Math.round(scrollY), url: location.href }), v6);
+    ok(`원어 검색에서 ${how === 'x' ? '✕' : how === 'btn' ? '"본문으로 돌아가기"' : '휴대전화 뒤로 가기'} → 본문 탭, 같은 절(욥 3:6)의 원어 분석이 열린 채, 같은 자리`, inW.mode === 'word' && /본문으로 돌아가기 \(욥 3:6/.test(inW.btn) && back.mode === 'verse' && back.nav === 'text' && back.open && back.strip && Math.abs(back.y - y0) < 60 && /index\.html/.test(back.url), JSON.stringify({ inW, back, y0 }));
+  }
   // 연구 탭 1단계(찾는 곳 하나) · 2단계(0건 이유)
   await pg.evaluate(async () => { await loadBook(18); await loadBook(15); view.st.wide = false; setRange({ b: 18, c1: 1, c2: 42 }); view.st.mode = 'start'; render(); }); await W(300);
   const sc0 = await pg.evaluate(() => ({ chip: document.querySelector('#sAddr').textContent, inpage: !!document.querySelector('#rScope') }));
