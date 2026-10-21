@@ -5,14 +5,13 @@
    - 공통 연쇄 = 어순이 같은 공통 어휘 2개 이상(양쪽 본문에서 이어진 자리). 차이 보기 = LCS 정렬(범위가 작을 때만 정확 정렬; 크면 생략하고 그렇다고 말한다).
    자동으로 "인용이다·재진술이다·뜻이 바뀌었다"를 판정하지 않는다. 자료는 BHSA 어휘(SD.wl)·형태(원문 낱말, 악센트 제거) 그대로. */
 const CMP_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);   /* 기능어(기본은 뺌; 켜면 포함) */
-const CMP_PRESETS=[
-  {n:"창 22장 안의 반복(1–10절 ↔ 11–19절)",a:"창 22:1-10",b:"창 22:11-19",t:"repeat"},
-  {n:"욥 1:5 ↔ 34:5",a:"욥 1:5",b:"욥 34:5",t:"restate"},
-  {n:"욥 32–37 발언 도입(32:6 ↔ 34:1)",a:"욥 32:6",b:"욥 34:1",t:"quote"},
-  {n:"욥 발언 도입(35:1 ↔ 36:1)",a:"욥 35:1",b:"욥 36:1",t:"quote"},
+const CMP_PRESETS=[   /* 2026-10-21 목사님이 고른 대표 예시 */
   {n:"안식일: 창 2:1–3 ↔ 출 20:8–11",a:"창 2:1-3",b:"출 20:8-11",t:"quote"},
   {n:"시온의 산: 사 2:1–4 ↔ 미 4:1–5",a:"사 2:1-4",b:"미 4:1-5",t:"quote"},
-  {n:"사람이 무엇이기에: 시 8:4 ↔ 욥 15:14",a:"시 8:4",b:"욥 15:14",t:"restate"}];
+  {n:"사람이 무엇이기에: 시 8:4 ↔ 욥 15:14",a:"시 8:4",b:"욥 15:14",t:"restate"},
+  {n:"고레스 칙령: 대하 36:22–23 ↔ 스 1:1–4",a:"대하 36:22-23",b:"스 1:1-4",t:"quote"}];
+/* 예시 단추·시험에서 쓰는 한 줄 실행 */
+function cmpGo(qa,qb,t){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"repeat",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp; C.err=null; C.qa=qa; C.qb=qb||""; if(t) C.t=t; C.a=cmpParse(qa); C.b=qb?cmpParse(qb):null; C.sel=null; C.selRun=null; render(); }
 const CMP_PAL=["#F6E27A","#BFE3B4","#BBD6F3","#F3C4D8","#E6D3F7","#FFD9B3","#C9EDEA","#E0E0A8"];
 const CMP_LCS_MAX=9000000;        /* 정확 정렬(LCS) 상한: 낱말 수 A×B. 3000×3000 ≈ 표 18MB(Uint16)·수십 ms */
 const CMP_TYPE_KO={repeat:"반복",quote:"인용 후보",restate:"재진술 후보"};
@@ -84,8 +83,8 @@ function cmpVerseHTML(vi,M,sel){ const s=SD.V[vi][5], n=SD.V[vi][6], H=sHeb(vi);
     const on=sel!=null&&m.li===sel, dim=sel!=null&&!on; return `<span class="cw ${m.same?"cw-same":"cw-diff"}${on?" cw-on":""}${dim?" cw-dim":""}${runCls(wi)}" style="background:${dim?"transparent":m.bg}" data-cw="${wi}" data-li="${m.li}">${txt}</span>${sp}`; }).join("")}</p>${krvText(vi)?`<p class="cmpk">${esc(krvText(vi))}</p>`:""}</div>`; }
 function renderCompare(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"repeat",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp;
   let h=`<section class="sec"><span class="label">본문 비교기 <small>— 두 범위를 나란히 놓고 같은 어휘를 봅니다. 인용·재진술인지는 앱이 정하지 않습니다</small></span>
-    <div class="cmpin"><label>A <input id="cmpA" type="text" placeholder="예: 창 22:1-10" value="${esc(C.qa)}"></label><label>B <input id="cmpB" type="text" placeholder="비워 두면 A 안의 반복만" value="${esc(C.qb)}"></label><button class="btn small" id="cmpGo">비교</button></div>
-    <div class="cmppre">${CMP_PRESETS.map((p,k)=>`<button class="achip" data-cmppre="${k}">${esc(p.n)}</button>`).join("")}</div>
+    <div class="cmpin"><label>A <input id="cmpA" type="text" placeholder="예: 창 2:1-3" value="${esc(C.qa)}"></label><label>B <input id="cmpB" type="text" placeholder="비워 두면 A 안의 반복만" value="${esc(C.qb)}"></label><button class="btn small" id="cmpGo">비교</button></div>
+    <div class="cmppre"><span class="label" style="margin:6px 0 4px">예시 — 누르면 그 두 본문을 바로 비교합니다</span>${CMP_PRESETS.map((p,k)=>`<button class="achip" data-cmppre="${k}">예시 ${k+1} · ${esc(p.n)}</button>`).join("")}</div>
     <div class="rfrow"><div class="seg sseg mseg" style="flex:1">${[["repeat","반복"],["quote","인용 후보"],["restate","재진술 후보"]].map(([k,n])=>`<button aria-checked="${C.t===k}" data-cmpt="${k}">${n}</button>`).join("")}</div><label class="anchk" style="margin:0"><input type="checkbox" id="cmpFn"${C.fn?" checked":""}> 기능어 포함</label></div>`;
   if(C.err) h+=`<p class="lead warn">⚠ ${esc(C.err)}</p>`;
   if(!C.a){ return h+`<p class="lead">범위를 넣거나 위 보기를 누르세요. 형식: <code>창 22:1-10</code>, <code>욥 1:5</code>, <code>욥 32:6-33:33</code>, <code>창 22</code>(장 전체).</p></section>`; }
@@ -117,7 +116,7 @@ function renderCompare(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"
   return h; }
 function bindCompare(m){ const S=view.st, C=S.cmp; const go=()=>{ const qa=m.querySelector("#cmpA").value, qb=m.querySelector("#cmpB").value; C.err=null; const a=cmpParse(qa); if(!a||a.err){ C.err=a?("A: "+a.err):"A 범위를 넣으세요."; C.a=null; render(); return; } const b=qb.trim()?cmpParse(qb):null; if(b&&b.err){ C.err="B: "+b.err; C.a=null; render(); return; } C.qa=qa; C.qb=qb; C.a=a; C.b=b; C.sel=null; C.selRun=null; render(); };
   const g=m.querySelector("#cmpGo"); if(g) g.onclick=go; m.querySelectorAll("#cmpA,#cmpB").forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter") go(); });
-  m.querySelectorAll("[data-cmppre]").forEach(b=>b.onclick=()=>{ const p=CMP_PRESETS[+b.dataset.cmppre]; C.err=null; C.qa=p.a; C.qb=p.b; C.t=p.t; C.a=cmpParse(p.a); C.b=cmpParse(p.b); C.sel=null; C.selRun=null; render(); });
+  m.querySelectorAll("[data-cmppre]").forEach(b=>b.onclick=()=>{ const p=CMP_PRESETS[+b.dataset.cmppre]; cmpGo(p.a,p.b,p.t); });
   m.querySelectorAll("[data-cmpt]").forEach(b=>b.onclick=()=>{ C.t=b.dataset.cmpt; render(); }); const fn=m.querySelector("#cmpFn"); if(fn) fn.onchange=()=>{ C.fn=fn.checked; render(); };
   const st=m.querySelector("#cmpStack"); if(st) st.onclick=()=>{ C.stack=!C.stack; render(); };
   const openWord=wi=>{ sheet(`낱말 · ${sRef(SD.vOf[wi])}`,`<div class="sdetail" id="rDet">${readDetail(wi)}</div>`); const d=document.getElementById("rDet"); if(d&&window.bindReadDet) bindReadDet(d); };
