@@ -22,6 +22,27 @@ const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","int
 function topWordsHTML(){ const S=view.st, sp=stSpans(); const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
   const top=[...M].sort((a,b)=>b[1]-a[1]).slice(0,5); if(!top.length) return "";
   return `<div class="topw"><span class="label">${esc(rLabel(S.R))}에서 자주 나오는 낱말 — 눌러서 다른 곳의 쓰임을 보세요</span><div class="qqs">${top.map(([li,n])=>`<button class="qq" data-slex="${li}"><b><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}</b><small>이 범위에서 ${n}번 · ${esc(SP_K[SD.L[li][2]]||SD.L[li][2])}</small></button>`).join("")}</div><p class="lead" style="margin-top:6px">다른 낱말은 위 칸에 뜻·히브리어·음역으로 찾습니다.</p></div>`; }
+/* ===== UX 시안: 본문에서 낱말을 긁어 고르면 뜨는 작은 창(형광펜 색 4·밑줄·괄호·복사·메모). 한 절 안의 낱말만 받는다 ===== */
+function selPopBind(m){ if(window.__selPopOn) return; window.__selPopOn=true; let tm=null;
+  document.addEventListener("selectionchange",()=>{ clearTimeout(tm); tm=setTimeout(selPopShow,180); });
+  document.addEventListener("pointerdown",e=>{ const pop=document.getElementById("selpop"); if(pop&&!pop.contains(e.target)) { /* 다른 곳을 누르면 닫힘(선택이 풀리며 selectionchange 로도 닫힘) */ } }); }
+/* 고른 범위 → 히브리어 낱말(여러 절 가능, 같은 장 안) · 번역만 골랐으면 그 절들 */
+function selPopWords(){ const sel=document.getSelection(); if(!sel||sel.isCollapsed||!sel.rangeCount) return null; const r=sel.getRangeAt(0); const box=document.querySelector(".rdv"); if(!box||!box.contains(r.commonAncestorContainer)) return null;
+  const hw=[...box.querySelectorAll(".rdh .hw")].filter(w=>r.intersectsNode(w)).map(w=>+w.dataset.wi); const vs=[...box.querySelectorAll("[data-rdv]")].filter(v=>r.intersectsNode(v)).map(v=>+v.dataset.rdv);
+  if(!hw.length&&!vs.length) return null; return {ws:hw,vis:[...new Set(hw.length?hw.map(w=>SD.vOf[w]):vs)].sort((x,y)=>x-y),text:sel.toString().trim()}; }
+/* 고르면 화면 아래(하단 메뉴 바로 위)에 도구 줄이 뜬다 — 휴대전화의 '복사·공유' 말풍선(선택 위쪽)과 겹치지 않게 */
+function selPopShow(){ let pop=document.getElementById("selpop"); const W=ux2()&&view.st.mode==="verse"?selPopWords():null; if(!W){ if(pop) pop.remove(); view.st.selW=null; return; } const S=view.st; S.selW=W;
+  if(!pop){ pop=document.createElement("div"); pop.id="selpop"; document.body.appendChild(pop); }
+  const heb=W.ws.length>0; const ref=W.vis.length>1?`${sRef(W.vis[0])}–${SD.V[W.vis[W.vis.length-1]][2]}`:sRef(W.vis[0]);
+  pop.innerHTML=`<div class="sprow"><b>${esc(ref)}</b>${heb?` · 낱말 ${W.ws.length}개`:` · 번역 <small>(형광펜·밑줄·괄호는 히브리어 낱말에)</small>`}</div><div class="sprow">${heb?`${MARK_COLORS.map(([k,hex,n])=>`<button class="mkc" data-sp="hl:${k}" style="background:${hex}" aria-label="형광펜 ${n}"></button>`).join("")}<button data-sp="ul:">밑줄</button><button data-sp="br:">⟦ ⟧ 괄호</button>`:""}<button data-sp="copy:">복사하기</button><button data-sp="note:">노트에 추가</button></div>`;
+  const nav=document.querySelector(".bnav"); pop.style.bottom=((nav?nav.offsetHeight:56)+8)+"px";
+  pop.querySelectorAll("[data-sp]").forEach(b=>{ b.onpointerdown=e=>e.preventDefault(); b.onmousedown=e=>e.preventDefault(); b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); selPopAct(b.dataset.sp); }; }); }
+function selPopAct(k){ const S=view.st, W=S.selW; if(!W) return; const [st,co]=k.split(":"); const clear=()=>{ try{ document.getSelection().removeAllRanges(); }catch(e){} const p=document.getElementById("selpop"); if(p) p.remove(); S.selW=null; };
+  const v0=W.vis[0], v1=W.vis[W.vis.length-1]; const ref=v0===v1?sRef(v0):`${sRef(v0)}–${SD.V[v1][2]}`; const quote=W.ws.length?W.ws.map(wi=>wHeb(wi)).join("").trim():W.text;
+  if(st==="copy"){ const t=`${W.text||quote} (${ref})`; window.__lastSelCopy=t; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("복사했습니다"),()=>toast("복사하지 못했습니다 — 휴대전화의 '복사'를 쓰세요.")); clear(); return; }
+  if(st==="note"){ clear(); if(!window.openAnnotEditor) return; if(v0===v1) openAnnotEditor("verse",v0,{kind:"verse",key:"v:"+SD.V[v0][0]+"-"+SD.V[v0][1]+"-"+SD.V[v0][2],anchor:anchorVerse(v0),_new:true,tags:[],observation:`${quote} — `});
+    else { const anchor=anchorRange(v0,v1); openAnnotEditor("range",null,{kind:"range",key:"r:"+anchor.span.from_word+"-"+anchor.span.to_word,anchor,_new:true,tags:[],observation:`${quote} — `}); } return; }
+  if(!W.ws.length) return; const y=scrollY; markWordsNow(W.ws,st,co).then(()=>{ clear(); toast(st==="hl"?"형광펜을 칠했습니다.":st==="ul"?"밑줄을 그었습니다.":"괄호로 묶었습니다."); render(); scrollTo({top:y}); }).catch(e=>toast("표시를 저장하지 못했습니다: "+e.message)); }
 function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
@@ -483,15 +504,13 @@ function gMain(g){ for(let k=g.length-1;k>=0;k--) if(MAIN_SP.has(SD.L[SD.wl[g[k]
 const wHeb=wi=>{ const vi=SD.vOf[wi]; return sHeb(vi)[wi-SD.V[vi][5]]; }, wHan=wi=>{ const vi=SD.vOf[wi]; return sHan(vi)[wi-SD.V[vi][5]]||""; };
 const stTrName=()=>{ try{ return (TR_INFO[window.BIBLE_SRC||TR]||TR_INFO.krv).name; }catch(e){ return ""; } };
 function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=window.marksHidden&&marksHidden();
-  let h=`${S.back&&S.back.mode?`<div class="srcnote"><span><button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}${/[가-힣]$/.test(S.back.label||"")&&((S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===0||(S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===8)?"로":"으로"} 돌아가기</button></span></div>`:""}<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):(ux2()?"절을 누르면 형광펜·밑줄·괄호·메모를 할 수 있습니다":"절을 누르면 낱말이 펼쳐집니다")}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
+  let h=`${S.back&&S.back.mode?`<div class="srcnote"><span><button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}${/[가-힣]$/.test(S.back.label||"")&&((S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===0||(S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===8)?"로":"으로"} 돌아가기</button></span></div>`:""}<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):(ux2()?"글자를 길게 눌러 끌어 고르세요 — 형광펜·밑줄·메모":"절을 누르면 낱말이 펼쳐집니다")}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
   for(const vi of vis){ const kv=SD.V[vi][2], k=SD.V[vi][1]+":"+kv, first=k!==lastK; lastK=k;
     let kt=""; if(first&&kv>0){ try{ kt=BIBLE[b-1][c-1][kv-1]||""; }catch(e){} }
     const open=S.rv===vi, num=kv===0?"표제":kv, per=window.marksForVerse?marksForVerse(vi):null, rs=S.rangeMode&&S.rangeStart===vi;
-    h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b>${esc(kt)}</p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p></div>`;
-    if(open&&!S.rangeMode){ if(ux2()&&!S.rinfo&&!S.mkSel) h+=verseActBar(vi); else h+=stripHTML(vi); } }
+    h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b>${esc(kt)}</p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${ux2()?hebSelectable(vi,per):per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p>${ux2()?`<button class="vinfo${open?" on":""}" data-vinfo="${vi}" aria-label="원어·문법 보기">${open?"원어 닫기 ▴":"원어 ▾"}</button>`:""}</div>`;
+    if(open&&!S.rangeMode) h+=stripHTML(vi); }
   return h+`</div>`; }
-/* UX 시안: 절을 누르면 바로 할 수 있는 일 — 형광펜·밑줄·괄호·메모, 그리고 '원어 보기' 단추 하나 */
-function verseActBar(vi){ return `<div class="vact"><button class="btn small" data-vact="hl:${vi}">🖍 형광펜</button><button class="btn small" data-vact="ul:${vi}">밑줄</button><button class="btn small" data-vact="br:${vi}">⟦ ⟧ 괄호</button><button class="btn small" data-vact="note:${vi}">✎ 메모</button><button class="btn small ghost" data-vact="info:${vi}">원어·문법 보기 ▸</button></div>`; }
 function stripHTML(vi){ const S=view.st, G=vGroups(vi); if(S.rw==null||SD.vOf[S.rw]!==vi) S.rw=gMain(G[0]);
   const gi=G.findIndex(g=>g.includes(S.rw)), sel=S.mkSel&&S.mkSel.vi===vi?S.mkSel.set:null;
   const bar=sel?`<div class="mkbar"><span>${S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]+": ":""}고른 묶음 ${sel.size}개 — 띠에서 더 고르거나</span><button class="btn small" id="mkAll">절 전체</button><button class="btn small" id="mkGo"${sel.size?"":" disabled"}>표시하기</button><button class="btn small ghost" id="mkCancel">취소</button></div>`:"";
@@ -518,11 +537,6 @@ function bindReadDet(d){ const S=view.st;
   if(window.bindAnnots) bindAnnots(d);
   d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }
 function bindRead(m){ const S=view.st;
-  m.querySelectorAll("[data-vact]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [k,v]=b.dataset.vact.split(":"), vi=+v; const y=scrollY;
-    if(k==="info"){ S.rinfo=true; render(); scrollTo({top:y}); return; }
-    if(k==="note"){ if(window.openAnnotEditor) openAnnotEditor("verse",vi); return; }
-    /* 표시: 띠에서 낱말을 고르게 하되, 방식(형광펜·밑줄·괄호)은 이미 정해졌으므로 고르고 '표시하기'만 누르면 끝 */
-    S.mkSel={vi,set:new Set(),preset:k}; S.rw=null; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-rangemode]").forEach(b=>b.onclick=()=>{ S.rangeMode=b.dataset.rangemode==="1"; S.rangeStart=null; S.mkSel=null; render(); });
   m.querySelectorAll("[data-markshide]").forEach(b=>b.onclick=()=>marksToggle());
   m.querySelectorAll("[data-anedit]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=anList().find(x=>x.id===b.dataset.anedit); if(a) openAnnotEditor(a.kind,null,a); });
@@ -531,7 +545,9 @@ function bindRead(m){ const S=view.st;
     const all=document.getElementById("mkAll"); if(all) all.onclick=e=>{ e.stopPropagation(); S.mkSel.set=new Set(G.map((_,k)=>k)); const y=scrollY; render(); scrollTo({top:y}); };
     const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]:`낱말 묶음 ${S.mkSel.set.size}개`,S.mkSel.preset); };
     const cn=document.getElementById("mkCancel"); if(cn) cn.onclick=e=>{ e.stopPropagation(); S.mkSel=null; const y=scrollY; render(); scrollTo({top:y}); }; }
-  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; S.rinfo=false; const y=scrollY; render(); scrollTo({top:y});
+  m.querySelectorAll("[data-vinfo]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.vinfo; const y=scrollY; S.rv=S.rv===vi?-1:vi; S.rw=null; S.mkSel=null; render(); scrollTo({top:y}); });
+  if(ux2()) selPopBind(m);
+  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(ux2()) return;   /* 시안: 절 누름은 글자 고르기를 방해하지 않게 아무것도 안 함 */ if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; S.rinfo=false; const y=scrollY; render(); scrollTo({top:y});
     /* 누른 절이 화면에서 같은 자리에 머물게: 위쪽 띠가 닫히며 줄어든 만큼 되돌림 */
     const ne=document.getElementById("stv-"+vi); if(ne){ scrollBy(0,ne.getBoundingClientRect().top-top0);
       const hd=document.querySelector(".shead2"), hb=hd?hd.getBoundingClientRect().bottom:0, sw=document.querySelector(".rstripw");

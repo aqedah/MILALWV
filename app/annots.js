@@ -93,10 +93,16 @@ function marksForVerse(vi){ if(marksHidden()) return null; const [, , , , ,s,n]=
     if(a.style==="br"){ per[ws[0]-lo].bo++; per[ws[ws.length-1]-lo].bc++; } }
   return per; }
 /* 절의 히브리어 줄: 낱말마다 span (표시가 있을 때만 쓴다) */
-function hebMarked(vi,per){ const H=sHeb(vi); return H.map((t,j)=>{ const p=per[j]; const txt=esc(t.replace(/\s+$/,"")), sp=/\s$/.test(t)?" ":""; if(!p||(!p.hl&&!p.ul&&!p.bo&&!p.bc)) return txt+sp;
+function hebMarkedWord(vi,per,j,t){ const p=per&&per[j]; const txt=esc(t.replace(/\s+$/,"")), sp=/\s$/.test(t)?" ":""; if(!p||(!p.hl&&!p.ul&&!p.bo&&!p.bc)) return [txt,sp];
   /* ⟦ ⟧ 는 거울 짝 문자라 RTL 안에서 저절로 뒤집혀 보인다: 여는 괄호는 낱말 오른쪽, 닫는 괄호는 왼쪽. span 으로 싸서 자리를 잴 수 있게 한다 */
   const bo=p.bo?`<span class="mkbr mkbr-o" data-mkid="${p.ids.join(",")}">${"⟦".repeat(p.bo)}</span>`:"", bc=p.bc?`<span class="mkbr mkbr-c" data-mkid="${p.ids.join(",")}">${"⟧".repeat(p.bc)}</span>`:"";
-  return `${bo}<span class="mk usr${p.ul?" mk-ul":""}${p.ids.length>1?" mk-multi":""}" ${p.hl?`style="background:${p.hl}"`:""} data-mkid="${p.ids.join(",")}" title="내 표시${p.ids.length>1?" "+p.ids.length+"개(겹침)":""}">${txt}</span>${bc}${sp}`; }).join(""); }
+  return [`${bo}<span class="mk usr${p.ul?" mk-ul":""}${p.ids.length>1?" mk-multi":""}" ${p.hl?`style="background:${p.hl}"`:""} data-mkid="${p.ids.join(",")}" title="내 표시${p.ids.length>1?" "+p.ids.length+"개(겹침)":""}">${txt}</span>${bc}`,sp]; }
+function hebMarked(vi,per){ const H=sHeb(vi); return H.map((t,j)=>hebMarkedWord(vi,per,j,t).join("")).join(""); }
+/* UX 시안: 낱말마다 span(data-wi)으로 싸서 본문에서 바로 긁어 고를 수 있게. 표시는 그대로 입힌다 */
+function hebSelectable(vi,per){ const H=sHeb(vi), s=SD.V[vi][5]; return H.map((t,j)=>{ const [h,sp]=hebMarkedWord(vi,per,j,t); return `<span class="hw" data-wi="${s+j}">${h}</span>${sp}`; }).join(""); }
+/* 낱말 목록에 표시를 바로 저장(시트 없음) — 저장 형식은 openMarkPicker 와 같다 */
+function markWordsNow(wordIdx,style,color){ wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); if(!wordIdx.length) return Promise.resolve(); const vi=SD.vOf[wordIdx[0]], [b,c,v]=SD.V[vi]; const heb=wordIdx.map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim();
+  return anSave({kind:"mark",key:"m:"+anId(),anchor:{book:b,ch:c,vs:v,bhsa:SD.bhsa||"2021",word_ids:wordIdx.map(slotOf),clause_atom_ids:[...new Set(wordIdx.map(j=>SD.can[SD.wa[j]]))],clause_ids:[...new Set(wordIdx.map(j=>String(SD.ccn[SD.wc[j]])))],heb},style,color:color||"",observation:"",interpretation:"",tags:[]}); }
 function marksForWords(vis){ if(marksHidden()) return null; const out=new Map(); for(const vi of vis){ const per=marksForVerse(vi); if(!per) continue; const s=SD.V[vi][5]; per.forEach((p,j)=>{ if(p.hl||p.ul) out.set(s+j,p); }); } return out.size?out:null; }
 /* 표시 고르기 창: 낱말 번호 목록(앱 번호)에 스타일 적용 */
 function openMarkPicker(wordIdx,label,preset){ if(!wordIdx.length){ toast("먼저 낱말을 고르세요."); return; } wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); /* 고른 순서가 아니라 본문 순서로 */

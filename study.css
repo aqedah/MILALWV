@@ -384,5 +384,8 @@ h3{font-size:14px;margin:14px 0 4px}
 .rback{display:flex;align-items:center;gap:8px;margin:6px 0 10px;font-size:14px}
 .rflow .stool{padding:8px 10px} .rflow .stool b{font-size:14px}
 .srcnote.expert{border-left:3px solid var(--ink);padding-left:8px}
-.vact{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;margin:0 0 6px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+#selpop{position:fixed;left:8px;right:8px;z-index:60;display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--card,var(--paper));border:1px solid var(--ink);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.18)} #selpop .sprow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px} #selpop button{padding:5px 9px;font-size:13px}
+#selpop button{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)} #selpop .mkc{width:26px;height:26px;padding:0;border-radius:50%} #selpop small{opacity:.6}
+.rdh .hw,.rdk{-webkit-user-select:text;user-select:text}
+.vinfo{display:block;margin:2px 0 0 auto;font:inherit;font-size:12px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);opacity:.7} .vinfo.on{opacity:1;border-color:var(--ink)}
 .topw{margin-top:10px} .qwhy0{border-left:3px solid var(--line);padding-left:8px}
