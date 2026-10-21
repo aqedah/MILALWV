@@ -9,7 +9,7 @@ function expertSet(v){ try{ localStorage.setItem("milal-expert",v?"1":"0"); }cat
 const R_START=[
   {k:"repeat",t:"반복되는 낱말 찾기",d:"이 장(또는 묶은 장들)에서 유난히 자주 나오는 낱말",go:{mode:"tool",tool:"반복"}},
   {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 전체에서 어디에(책별로) 쓰였는지",go:{mode:"word"}},
-  {k:"compare",t:"두 본문 비교하기",d:"같은 말·같은 어순이 어디서 되풀이되는지(인용·재진술 관찰)",go:{mode:"compare"}},
+  {k:"compare",t:"두 본문 비교하기",d:"관계가 있다고 보는 두 본문의 언어 근거 — 같은 순서로 이어진 말·드물게 함께 쓰인 낱말",go:{mode:"compare"}},
   {k:"query",t:"더 자세한 문법·문장 검색",d:"문장 종류·구의 역할·낱말 형태를 묶어 찾기 (고급 검색)",go:{mode:"query"}}];
 const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
 function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
@@ -314,7 +314,7 @@ function renderStudy(){
         ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}${ux2()?wordByBookHTML(H,cnt):`<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`}`; }
     h+=`</section>`; }
   else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
-    if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
+    if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`${ux2()&&S.tool==="반복"?`<div class="cmppreg" style="margin:0 0 8px"><small>예시 — 한 본문 안에서 이야기를 끌고 가는 말</small><button class="achip" data-rpex="룻 1:6-22">예시 · 룻 1:6–22 — '돌아가다(슈브)'</button><button class="achip" data-rpex="삼상 14">예시 · 삼상 14장 — '건너가다(아바르)'</button></div>`:""}<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
   h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
   return h; }
@@ -371,6 +371,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   const ex1=m.querySelector("#stExpert"); if(ex1) ex1.onclick=()=>expertSet(true); const ex0=m.querySelector("#stExpertOff"); if(ex0) ex0.onclick=()=>expertSet(false);
   const rsc=m.querySelector("#rScope"); if(rsc) rsc.onclick=()=>rScopeOpen();
+  m.querySelectorAll("[data-rpex]").forEach(b=>b.onclick=()=>{ const r=window.cmpParse&&cmpParse(b.dataset.rpex); if(!r||r.err) return; const go=()=>{ setRange({b:r.b,c1:r.c1,c2:r.c2}); S.mode="tool"; S.tool="반복"; render(); scrollTo({top:0}); }; if(SD.loaded.has(r.b)) go(); else loadBook(r.b).then(go); });
   m.querySelectorAll("[data-wbk]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.wbk; S.wbook=S.wbook===k?null:k; S.more=1; const y=scrollY; render(); scrollTo({top:y}); });
   const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });

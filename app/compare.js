@@ -15,6 +15,54 @@ const CMP_PRESETS=[   /* 2026-10-21 목사님이 고른 대표 예시. g: 반복
   {g:"restate",n:"엘리후가 욥의 말을: 욥 13:24, 27 ↔ 33:9–11",a:"욥 13:24,27",b:"욥 33:9-11",t:"restate"},
   {g:"restate",n:"엘리후가 욥의 말을: 욥 13:18 ↔ 34:5",a:"욥 13:18",b:"욥 34:5",t:"restate"},
   {g:"restate",n:"엘리후가 욥의 말을: 욥 27:2 ↔ 34:5–6",a:"욥 27:2",b:"욥 34:5-6",t:"restate"}];
+/* 새 화면(2026-10-21 다시 만듦): 비교기는 '두 본문의 관계를 받쳐 줄 언어 근거'를 확인한다. 한 본문 안의 반복은 반복 도구로 */
+const CMP2_PRESETS=[
+  {g:"quote",n:"안식일: 창 2:1–3 ↔ 출 20:8–11",a:"창 2:1-3",b:"출 20:8-11"},
+  {g:"quote",n:"시온의 산: 사 2:2–4 ↔ 미 4:1–3",a:"사 2:2-4",b:"미 4:1-3"},
+  {g:"quote",n:"고레스 칙령: 대하 36:22–23 ↔ 스 1:1–3",a:"대하 36:22-23",b:"스 1:1-3"},
+  {g:"restate",n:"사람이 무엇이기에: 시 8:4 ↔ 욥 15:14",a:"시 8:4",b:"욥 15:14"},
+  {g:"restate",n:"엘리후가 욥의 말을: 욥 13:24, 27 ↔ 33:9–11",a:"욥 13:24,27",b:"욥 33:9-11"},
+  {g:"restate",n:"엘리후가 욥의 말을: 욥 13:18 ↔ 34:5",a:"욥 13:18",b:"욥 34:5"},
+  {g:"restate",n:"엘리후가 욥의 말을: 욥 27:2 ↔ 34:5–6",a:"욥 27:2",b:"욥 34:5-6"},
+  {g:"none",n:"관계없는 두 본문: 창 3 ↔ 욥 1",a:"창 3",b:"욥 1"}];
+const CMP2_G=[["quote","인용으로 알려진 예시"],["restate","재진술·암시로 보는 예시"],["none","비교해 볼 만한 대조 예시"]];
+const CMP_RUN_MIN=3, CMP_RARE_MAX=100, CMP_SHORT=12;   /* 기준: 내용어 3개 이상이 같은 순서 · 구약에서 100번 미만 · 내용어 12개 미만이면 '짧은 본문' */
+const CMP_JUDGE=[["quote","인용"],["allusion","암시"],["restate","재진술"],["none","관계 없음"],["unknown","아직 모름"]];
+/* 신호 계산: 엔진(cmpCompute)은 그대로 쓰고, 그 결과에서 '같은 순서로 이어진 말'과 '드문 낱말'만 고른다 */
+function cmpSignals(C){ const R=cmpCompute(C); const isFn=wi=>CMP_FN.has(SD.L[SD.wl[wi]][2]); const short=Math.min(R.fa.length,R.fb.length)<CMP_SHORT;
+  let RR=R; if(short&&!C.fn) RR=cmpCompute(Object.assign({},C,{fn:true}));   /* 짧은 본문은 기능어까지(מָה … כִּי 같은 연결은 기능어에 있다) */
+  const runs=RR.runsText.filter(r=>short?r.len>=2:r.a.filter(w=>!isFn(w)).length>=CMP_RUN_MIN);
+  const rare=R.shared.filter(x=>SD.L[x.li][7]<CMP_RARE_MAX).sort((x,y)=>SD.L[x.li][7]-SD.L[y.li][7]);
+  const common=(short?RR:R).shared.filter(x=>!rare.includes(x)&&!(short?false:SD.L[x.li][7]<CMP_RARE_MAX));
+  const maxRun=Math.max(0,...runs.map(r=>r.len)); const level=short?"short":(maxRun>=5||(runs.length&&rare.length>=2))?"strong":(runs.length||rare.length>=2)?"weak":"none";
+  return {R,RR,short,runs,rare,common,maxRun,level}; }
+function renderCompare2(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp; C.fn=false;
+  let h=`<section class="sec"><h2 class="qtitle">두 본문 비교</h2><p class="lead" style="margin:0 0 8px">관계가 있다고 보는 두 본문을 나란히 놓고, 그 관계를 받쳐 줄 <b>언어 근거</b>(같은 순서로 이어진 말 · 드물게 함께 쓰인 낱말)를 확인합니다. 인용인지·암시인지는 앱이 정하지 않습니다.</p>
+    <div class="cmpin"><label>A <input id="cmpA" type="text" placeholder="예: 사 2:2-4" value="${esc(C.qa)}"></label><label>B <input id="cmpB" type="text" placeholder="예: 미 4:1-3 · 욥 13:24,27" value="${esc(C.qb)}"></label><button class="btn small" id="cmpGo">비교</button></div>
+    <div class="cmppre"><span class="label" style="margin:6px 0 4px">예시 — 누르면 바로 비교합니다</span>${CMP2_G.map(([g,gn])=>`<div class="cmppreg"><small>${gn}</small>${CMP2_PRESETS.map((p,k)=>p.g===g?`<button class="achip" data-cmppre2="${k}">예시 · ${esc(p.n)}</button>`:"").join("")}</div>`).join("")}</div>`;
+  if(C.err) h+=`<p class="lead warn">⚠ ${esc(C.err)}</p>`;
+  if(!C.a) return h+`</section>`;
+  if(!C.b) return h+`<p class="lead warn">B 본문도 넣으세요. 한 본문 안에서 되풀이되는 말은 <button class="mtog" id="cmpToRepeat">반복되는 낱말 찾기 ›</button>에서 봅니다.</p></section>`;
+  const need=[C.a.b,C.b.b].filter(b=>b&&!SD.loaded.has(b)); if(need.length){ Promise.all(need.map(b=>loadBook(b))).then(()=>render()); return h+`<p class="lead">자료를 받는 중…</p></section>`; }
+  const V=cmpValidate(C); if(V.errors.length) return h+V.errors.map(e=>`<p class="lead warn">⚠ ${esc(e)}</p>`).join("")+`</section>`;
+  h+=V.warnings.filter(w=>!/서로 다른 책/.test(w)).map(w=>`<p class="lead warn">⚠ ${esc(w)}</p>`).join("");
+  const G=cmpSignals(C), R=G.R; S.cmpR=R; S.cmpG=G; const va=V.va, vb=V.vb; const sel=C.sel!=null&&(G.short?G.RR:R).byLi.has(C.sel)?C.sel:null; C.sel=sel;
+  const nA=R.fa.length, nB=R.fb.length;
+  const verdict=G.level==="strong"?`<b>뚜렷한 언어 신호가 있습니다.</b>`:G.level==="weak"?`<b>약한 언어 신호가 있습니다</b> — 아래 근거를 직접 보세요.`:G.level==="short"?`<b>본문이 짧아(내용어 ${Math.min(nA,nB)}개) 신호의 세기를 말하기 어렵습니다</b> — 겹친 말을 직접 보세요(기능어까지 보입니다).`:`<b>두 본문을 잇는 뚜렷한 언어 신호는 없습니다.</b> 주제·사상의 연결은 이 방법으로 잡히지 않습니다.`;
+  h+=`<div class="cmpsum lv-${G.level}"><p>${verdict}</p><p class="cmpnums">같은 순서로 이어진 말 <b>${G.runs.length}곳</b>${G.maxRun?` (가장 긴 것 ${G.maxRun}낱말)`:""} · 드물게 함께 쓰인 낱말 <b>${G.rare.length}개</b></p><p class="lead" style="margin:2px 0 0">기준: ${G.short?"짧은 본문이라 2낱말 이상":`내용어 ${CMP_RUN_MIN}개 이상`}이 같은 순서 · 구약 전체에서 ${CMP_RARE_MAX}번 미만 나오는 낱말. 판정이 아니라 관찰 근거입니다.</p></div>`;
+  /* 본문: 신호가 된 낱말만 칠한다(이어진 말 = 노랑 · 드문 낱말 = 파랑 · 고른 낱말 = 테두리) */
+  const runW=new Set(G.runs.flatMap(r=>[...r.a,...r.b])), rareL=new Set(G.rare.map(x=>x.li)); const markOf=src=>{ const M=new Map(); for(const [wi,m] of src){ if(runW.has(wi)) M.set(wi,Object.assign({},m,{bg:"#F6E27A"})); else if(rareL.has(m.li)) M.set(wi,Object.assign({},m,{bg:"#BBD6F3"})); else if(sel!=null&&m.li===sel) M.set(wi,Object.assign({},m,{bg:"transparent"})); } return M; };
+  const SR=G.short?G.RR:R; const MA=markOf(SR.markA), MB=markOf(SR.markB);
+  const selS=sel!=null?SR.byLi.get(sel):null;
+  if(selS) h+=`<div class="cmpsel"><span class="heb">${esc(SD.L[sel][0])}</span> <b>${esc(lexGloss(sel))}</b> — A ${selS.wa.length}번 · B ${selS.wb.length}번 <button class="btn small ghost" id="cmpSelOff">표시 끄기</button></div>`;
+  h+=`<div class="cmpcols${C.stack?" stack":""}"><div class="cmpcol"><div class="cmphd">A · ${esc(C.a.label)}</div>${va.map(vi=>cmpVerseHTML(vi,MA,sel)).join("")}</div><div class="cmpcol"><div class="cmphd">B · ${esc(C.b.label)}</div>${vb.map(vi=>cmpVerseHTML(vi,MB,sel)).join("")}</div></div><p class="lead" style="margin:4px 0"><span class="sw" style="background:#F6E27A"></span> 같은 순서로 이어진 말 · <span class="sw" style="background:#BBD6F3"></span> 드물게 함께 쓰인 낱말 · 낱말을 누르면 뜻·문법</p></section>`;
+  const lexBtn=(x,extra)=>`<button class="cmplex${sel===x.li?" on":""}" data-cmplex="${x.li}"><span class="heb">${esc(SD.L[x.li][0])}</span><b>${esc(lexGloss(x.li))}</b><small>${extra}</small></button>`;
+  h+=`<section class="sec"><span class="label">같은 순서로 이어진 말 ${G.runs.length}</span>${G.runs.length?G.runs.slice(0,40).map(r=>`<div class="cmprun"><span class="heb" dir="rtl">${esc(cmpJoin(r.a))}</span><small>A ${esc(sRef(SD.vOf[r.a[0]]))} ‖ B ${esc(sRef(SD.vOf[r.b[0]]))} · ${r.len}낱말${r.cross?" · 절 경계를 넘음":""}</small></div>`).join(""):`<p class="lead">없음 — ${G.short?"2":CMP_RUN_MIN}낱말 이상이 같은 순서로 이어지는 곳이 없습니다.</p>`}</section>`;
+  h+=`<section class="sec"><span class="label">드물게 함께 쓰인 낱말 ${G.rare.length} <small>— 누르면 본문에서 그 낱말만 강조</small></span>${G.rare.length?`<div class="cmptbl">${G.rare.map(x=>lexBtn(x,`구약 ${SD.L[x.li][7]}번 · A ${x.wa.length} · B ${x.wb.length}`)).join("")}</div>`:`<p class="lead">없음 — 구약에서 ${CMP_RARE_MAX}번 미만 나오는 낱말을 두 본문이 함께 쓰지 않습니다.</p>`}</section>`;
+  h+=`<section class="sec"><details class="mdet"><summary>흔한 낱말까지 보기 (${G.common.length}개) — '말하다·하나님·모든' 같은 말은 관계없는 본문끼리도 겹칩니다</summary><div class="cmptbl">${G.common.map(x=>lexBtn(x,`구약 ${SD.L[x.li][7]}번 · A ${x.wa.length} · B ${x.wb.length}`)).join("")}</div></details>`;
+  if(R.exact) h+=`<details class="mdet"><summary>차이 보기 (같은 순서로 맞춰 본 A·B — 같은 말 / A에만 / B에만)</summary><div class="cmpdiff" dir="rtl">${R.ops.map(([op,i,j])=>{ const wi=op==="B"?R.fb[j]:R.fa[i]; return `<span class="${op==="="?"cd-s":op==="A"?"cd-A":"cd-B"}">${esc(wHeb(wi).trim())}</span>`; }).join(" ")}</div></details>`;
+  h+=`</section><section class="sec"><span class="label">내 판단 <small>— 메모에 함께 남습니다</small></span><div class="row" style="flex-wrap:wrap">${CMP_JUDGE.map(([k,n])=>`<button class="achip${C.judge===k?" on":""}" data-cmpjudge="${k}">${n}</button>`).join("")}</div><div class="rfrow" style="margin-top:8px"><button class="btn small" id="cmpNote">이 비교에 관찰·해석 쓰기</button><button class="btn small ghost" id="cmpMd">Markdown 내보내기</button><button class="btn small ghost" id="cmpPrint">인쇄·PDF</button></div></section>`;
+  return h; }
 const CMP_PRE_G=[["repeat","반복 예시 → ① 같은 어휘"],["quote","인용 후보 예시 → ② 같은 순서로 이어진 말"],["restate","재진술 후보 예시 → ③ 달라진 말"]];
 /* 예시 단추·시험에서 쓰는 한 줄 실행 */
 function cmpGo(qa,qb,t,selKey){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp; C.err=null; C.qa=qa; C.qb=qb||""; if(t) C.t=t; C.a=cmpParse(qa); C.b=qb?cmpParse(qb):null; C.sel=selKey&&SD.lexByKey[selKey]?SD.lexByKey[selKey][0]:null; C.selRun=null; render(); if(C.sel!=null){ const el=document.querySelector(".cmpsel"); if(el) el.scrollIntoView({block:"center"}); } }   /* 반복 예시는 그 낱말을 바로 강조 */
@@ -93,7 +141,7 @@ function cmpVerseHTML(vi,M,sel){ const s=SD.V[vi][5], n=SD.V[vi][6], H=sHeb(vi);
   return `<div class="cmpv"><small>${esc(sRef(vi))}</small><p class="heb cmph" dir="rtl">${H.map((t,j)=>{ const wi=s+j, m=M.get(wi); const txt=esc(t.replace(/\s+$/,"")), sp=/\s$/.test(t)?" ":"";
     if(!m) return `<span class="cw0${sel!=null?" cw-dim":""}${runCls(wi)}" data-cw="${wi}">${txt}</span>${sp}`;
     const on=sel!=null&&m.li===sel, dim=sel!=null&&!on; return `<span class="cw ${m.same?"cw-same":"cw-diff"}${on?" cw-on":""}${dim?" cw-dim":""}${runCls(wi)}" style="background:${dim?"transparent":m.bg}" data-cw="${wi}" data-li="${m.li}">${txt}</span>${sp}`; }).join("")}</p>${krvText(vi)?`<p class="cmpk">${esc(krvText(vi))}</p>`:""}</div>`; }
-function renderCompare(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp;
+function renderCompare(){ if(typeof ux2==="function"&&ux2()) return renderCompare2(); const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"",qa:"",qb:"",stack:false,sel:null}; const C=S.cmp;
   let h=`<section class="sec"><span class="label">본문 비교기 <small>— 두 범위를 나란히 놓고 같은 어휘를 봅니다. 인용·재진술인지는 앱이 정하지 않습니다</small></span>
     <div class="cmpin"><label>A <input id="cmpA" type="text" placeholder="예: 창 2:1-3 · 욥 13:24,27" value="${esc(C.qa)}"></label><label>B <input id="cmpB" type="text" placeholder="비워 두면 A 안의 반복만" value="${esc(C.qb)}"></label><button class="btn small" id="cmpGo">비교</button></div>
     <div class="cmppre"><span class="label" style="margin:6px 0 4px">예시 — 누르면 비교하고, 그 예시에서 볼 곳(①·②·③)으로 바로 갑니다</span>${CMP_PRE_G.map(([g,gn])=>`<div class="cmppreg"><small>${gn}</small>${CMP_PRESETS.map((p,k)=>p.g===g?`<button class="achip" data-cmppre="${k}">예시 · ${esc(p.n)}</button>`:"").join("")}</div>`).join("")}</div>
@@ -128,7 +176,10 @@ function renderCompare(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:"
   h+=`<section class="sec"><div class="rfrow"><button class="btn small" id="cmpNote">이 비교에 관찰·해석 쓰기</button><button class="btn small ghost" id="cmpMd">Markdown 내보내기</button><button class="btn small ghost" id="cmpPrint" title="브라우저 인쇄 → PDF로 저장">인쇄·PDF</button></div><p class="lead">메모는 A·B 범위의 낱말 번호와 비교 설정을 함께 보관합니다(기록 탭 '구간 메모', 태그 #비교 — 누르면 이 비교 화면이 다시 열립니다). 계산 ${R.ms}ms.</p></section>`;
   return h; }
 function bindCompare(m){ const S=view.st, C=S.cmp; const go=()=>{ const qa=m.querySelector("#cmpA").value, qb=m.querySelector("#cmpB").value; C.err=null; C.t="";   /* 직접 넣은 범위는 분류 없음 */ const a=cmpParse(qa); if(!a||a.err){ C.err=a?("A: "+a.err):"A 범위를 넣으세요."; C.a=null; render(); return; } const b=qb.trim()?cmpParse(qb):null; if(b&&b.err){ C.err="B: "+b.err; C.a=null; render(); return; } C.qa=qa; C.qb=qb; C.a=a; C.b=b; C.sel=null; C.selRun=null; render(); };
-  const g=m.querySelector("#cmpGo"); if(g) g.onclick=go; m.querySelectorAll("#cmpA,#cmpB").forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter") go(); });
+  const g=m.querySelector("#cmpGo"); if(g) g.onclick=go;
+  m.querySelectorAll("[data-cmppre2]").forEach(b=>b.onclick=()=>{ const p=CMP2_PRESETS[+b.dataset.cmppre2]; C.judge=null; cmpGo(p.a,p.b,""); let n=0; const fit=()=>{ const el=document.querySelector(".cmpsum"); if(el){ const hd=(document.querySelector(".shead2")||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom, top=el.getBoundingClientRect().top; if(Math.abs(top-hd-8)>4) scrollBy(0,top-hd-8); } if(++n<10) setTimeout(fit,150); }; setTimeout(fit,40); });   /* 결과 요약이 머리띠 바로 아래 오게(책을 받는 동안 다시 그려져도) */
+  m.querySelectorAll("[data-cmpjudge]").forEach(b=>b.onclick=()=>{ C.judge=C.judge===b.dataset.cmpjudge?null:b.dataset.cmpjudge; const y=scrollY; render(); scrollTo({top:y}); });
+  const tr=m.querySelector("#cmpToRepeat"); if(tr) tr.onclick=()=>{ const a=C.a; if(a&&!a.err) setRange({b:a.b,c1:a.c1,c2:a.c2}); S.mode="tool"; S.rmode="tool"; S.tool="반복"; render(); scrollTo({top:0}); }; m.querySelectorAll("#cmpA,#cmpB").forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter") go(); });
   m.querySelectorAll("[data-cmppre]").forEach(b=>b.onclick=()=>{ const p=CMP_PRESETS[+b.dataset.cmppre]; cmpGo(p.a,p.b,p.t,p.sel); { const id=p.sel?"":p.g==="quote"?"cmpS2":p.g==="restate"?"cmpS3":"cmpS1"; let n=0; const go=()=>{ const el=id?document.getElementById(id):document.querySelector(".cmpsel"); if(el){ const top=el.getBoundingClientRect().top, hd=(document.querySelector(".shead2")||{getBoundingClientRect:()=>({bottom:0})}).getBoundingClientRect().bottom; if(Math.abs(top-hd-8)>4) scrollBy(0,top-hd-8); } if(++n<12) setTimeout(go,150); }; setTimeout(go,60); } });   /* 책 자료를 받는 동안 다시 그려져도 그 자리에 머물게 몇 번 맞춘다 */   /* 예시를 누르면 그 예시에서 볼 곳(① 반복 · ② 인용 · ③ 재진술)으로 바로 */
   m.querySelectorAll("[data-cmpt]").forEach(b=>b.onclick=()=>{ C.t=b.dataset.cmpt; render(); }); const fn=m.querySelector("#cmpFn"); if(fn) fn.onchange=()=>{ C.fn=fn.checked; render(); };
   const st=m.querySelector("#cmpStack"); if(st) st.onclick=()=>{ C.stack=!C.stack; render(); };
@@ -152,8 +203,10 @@ function cmpNewNote(){ const S=view.st, C=S.cmp; const va=cmpVerses(C.a); if(!va
   if(C.b){ const vb=cmpVerses(C.b); const ab=anchorRange(vb[0],vb[vb.length-1]); cmp.b={q:C.qb,book:C.b.b,ch:C.b.c1,vs:C.b.v1,ch2:SD.V[vb[vb.length-1]][1],vs2:SD.V[vb[vb.length-1]][2],label:C.b.label,word_ids:[ab.span.from_word,ab.span.to_word]};
     /* 하위 호환: 옛 판이 읽던 평평한 칸도 둔다 */ Object.assign(cmp,{book:cmp.b.book,ch:cmp.b.ch,vs:cmp.b.vs,ch2:cmp.b.ch2,vs2:cmp.b.vs2,label:cmp.b.label}); }
   anchor.compare=cmp;
-  const R=S.cmpR||{shared:[]}; const seed=R.shared.slice(0,6).map(s=>SD.L[s.li][0]+"("+lexGloss(s.li)+")").join(", ");
-  openAnnotEditor("range",null,{kind:"range",key:"cmp:"+anchor.span.from_word+"-"+anchor.span.to_word+(C.b?"/"+C.b.label:""),anchor,_new:true,tags:["비교"],observation:seed?`공통 어휘: ${seed}${R.shared.length>6?" …":""}`:""}); }
+  const R=S.cmpR||{shared:[]}; let seed=R.shared.slice(0,6).map(s=>SD.L[s.li][0]+"("+lexGloss(s.li)+")").join(", "); seed=seed?`공통 어휘: ${seed}${R.shared.length>6?" …":""}`:"";
+  const G=typeof ux2==="function"&&ux2()?S.cmpG:null; const jn=C.judge?(CMP_JUDGE.find(x=>x[0]===C.judge)||[])[1]:""; if(C.judge) cmp.judge=C.judge;
+  if(G) seed=`같은 순서로 이어진 말 ${G.runs.length}곳${G.runs[0]?` (예: ${cmpJoin(G.runs[0].a)})`:""} · 드물게 함께 쓰인 낱말 ${G.rare.length}개${G.rare.length?`: ${G.rare.slice(0,5).map(x=>SD.L[x.li][0]+"("+lexGloss(x.li)+")").join(", ")}`:""}`;
+  openAnnotEditor("range",null,{kind:"range",key:"cmp:"+anchor.span.from_word+"-"+anchor.span.to_word+(C.b?"/"+C.b.label:""),anchor,_new:true,tags:["비교"].concat(jn?[jn]:[]),observation:seed}); }
 /* 기록 탭에서 비교 메모를 누르면: A/B 범위와 설정을 되살려 비교 화면을 연다. 옛 메모(compare 에 word_ids 없음)는 주소로 되살린다 */
 function cmpOpenFromAnnot(a){ const S=view.st; const cp=a.anchor&&a.anchor.compare; if(!cp) return false; const A=a.anchor;
   const rangeStr=(b,c1,v1,c2,v2)=>`${PLAN.abbr[b-1]} ${c1}:${v1}${(c2!=null&&(c2!==c1||v2!==v1))?`-${c2!==c1?c2+":":""}${v2}`:""}`;
