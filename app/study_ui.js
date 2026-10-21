@@ -13,7 +13,7 @@ const R_START=[
   {k:"query",t:"더 자세한 문법·문장 검색",d:"문장 종류·구의 역할·낱말 형태를 묶어 찾기 (고급 검색)",go:{mode:"query"}}];
 const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
 function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
-  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">지금 범위 <b>${esc(rg)}</b> — 범위는 위의 장 이름에서 바꿉니다.</p>
+  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2>${rScopeHTML()}
     <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
     <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
     <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
@@ -47,6 +47,15 @@ function selPopAct(k){ const S=view.st, W=S.selW; if(!W) return; const [st,co]=k
     else { const anchor=anchorRange(v0,v1); openAnnotEditor("range",null,{kind:"range",key:"r:"+anchor.span.from_word+"-"+anchor.span.to_word,anchor,_new:true,tags:[],observation:`${quote} — `}); } return; }
   if(!W.ws.length&&!W.tr) return; const y=scrollY; (W.ws.length?markWordsNow(W.ws,st,co):markTrNow(W.tr.vi,W.tr.from,W.tr.to,W.tr.text,st,co)).then(()=>{ clear(); toast(st==="hl"?"형광펜을 칠했습니다.":st==="ul"?"밑줄을 그었습니다.":"괄호로 묶었습니다."); render(); scrollTo({top:y}); }).catch(e=>toast("표시를 저장하지 못했습니다: "+e.message)); }
 const sfzHTML=()=>`<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div>`;
+/* ===== 연구 탭의 '찾는 곳' — 범위를 정하는 곳은 여기 하나(새 화면). 모든 도구가 이것만 따른다 ===== */
+function rBookLast(b){ const B=SD.book[b]; return B?Math.max(...B.chs):1; }
+function rScopeLabel(){ const S=view.st; if(S.wide&&S.mode!=="tool") return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rScopeHTML(){ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
+function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)?S.vc:R.c1, last=rBookLast(b), u=b===19?"편":"장"; const tool=S.mode==="tool";
+  sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>`);
+  document.querySelectorAll("#sheetRoot [data-rsc]").forEach(x=>x.onclick=()=>{ const k=x.dataset.rsc; document.getElementById("sheetRoot").innerHTML="";
+    if(k==="pick"){ S.pick=true; S.pk={b,c1:null,c2:null}; render(); scrollTo({top:0}); return; }
+    if(k==="all"){ S.wide=true; } else { S.wide=false; setRange(k==="ch"?{b,c1:c,c2:c}:{b,c1:1,c2:last}); } render(); }); }
 function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
@@ -247,7 +256,7 @@ function verseView(){ const S=view.st; let vi=Math.max(0,Math.min(SD.V.length-1,
   if(S.sel>=s&&S.sel<s+n) h+=`<div class="sdetail">${wordDetail(S.sel)}</div>`;
   else h+=`<p class="lead">낱말을 누르면 뜻·꼴·문장 속 역할이 나옵니다. 오른쪽에서 왼쪽으로 읽습니다.</p>`;
   return h; }
-function rangeBox(){ const S=view.st; if(!(S.mode==="word"||S.mode==="query")) return "";
+function rangeBox(){ const S=view.st; if(ux2()) return ""; if(!(S.mode==="word"||S.mode==="query")) return "";
   return `<div class="seg sseg swide">${[["","이 범위 · "+(S.R?`${PLAN.abbr[S.R.b-1]} ${S.R.c1}–${S.R.c2}`:"")],["1","구약 전체"]].map(([k,n])=>`<button aria-checked="${(S.wide?"1":"")===k}" data-swide="${k}">${esc(n)}</button>`).join("")}</div>`; }
 const BOOK_GRP=[["율법서",1,5],["역사서",6,17],["시가서",18,22],["선지서",23,39]];
 function pickerHTML(){ const S=view.st, pk=S.pk ||= {b:null,c1:null,c2:null};
@@ -279,7 +288,7 @@ function renderStudy(){
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
   if(ux2()&&S.mode==="start") return h+renderResearchStart();
-  if(RESEARCH_MODES.includes(S.mode)) h+=ux2()?`<div class="rback"><button class="mtog back" id="rStart">← 연구 시작</button> <b>${esc(S.mode==="tool"&&S.tool?S.tool+" · "+(ST_TOOLS.find(x=>x[0]===S.tool)||[])[1]:rModeName(S.mode))}</b></div>`:`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
+  if(RESEARCH_MODES.includes(S.mode)) h+=ux2()?`<div class="rback"><button class="mtog back" id="rStart">← 연구 시작</button> <b>${esc(S.mode==="tool"&&S.tool?S.tool+" · "+(ST_TOOLS.find(x=>x[0]===S.tool)||[])[1]:rModeName(S.mode))}</b></div>${["tool","word","query"].includes(S.mode)?rScopeHTML():""}`:`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
   if(S.mode==="theory") return h+renderTheory();
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
@@ -298,7 +307,7 @@ function renderStudy(){
         ${x[2]==="verb"?`<label>줄기<select id="sVs"><option value="">모두</option>${[...forms.vs.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vs===k?" selected":""}>${esc(VS_K[k]||k)} (${n})</option>`).join("")}</select></label><label>형태<select id="sVt"><option value="">모두</option>${[...forms.vt.entries()].sort((a,b)=>b[1]-a[1]).map(([k,n])=>`<option value="${k}"${S.vt===k?" selected":""}>${esc(VT_K[k]||k)} (${n})</option>`).join("")}</select></label>`:""}</div>
         ${!SD.allLoaded?`<p class="lead" style="color:var(--accent)">구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 결과가 바뀔 수 있습니다.</p>`:""}<p class="lead"><b>${esc(stRangeLabel())}</b>에서 ${cnt.toLocaleString()}번, ${H.size.toLocaleString()}절</p>${distBars(H,stSpans())}${hitList(H,S.more)}`; }
     h+=`</section>`; }
-  else { h+=`<section class="sec"><button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div></section>`;
+  else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">이 결과의 검색식 보기 ›</button>`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
   h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
@@ -355,6 +364,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-ssv]").forEach(b=>b.onclick=()=>{ S.sv=b.dataset.ssv; render(); });
   m.querySelectorAll("[data-milal]").forEach(b=>b.onclick=()=>{ S.milalOn=b.dataset.milal==="1"; render(); });
   const ex1=m.querySelector("#stExpert"); if(ex1) ex1.onclick=()=>expertSet(true); const ex0=m.querySelector("#stExpertOff"); if(ex0) ex0.onclick=()=>expertSet(false);
+  const rsc=m.querySelector("#rScope"); if(rsc) rsc.onclick=()=>rScopeOpen();
   const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });
   const rsv=m.querySelector("#rSaved"); if(rsv) rsv.onclick=()=>{ S.mode="query"; S.rmode="query"; render(); if(window.qOpenSaved) qOpenSaved(); };

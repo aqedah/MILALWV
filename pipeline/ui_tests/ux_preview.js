@@ -92,6 +92,21 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   ok('비교 결과: 유형 단추 없음, ① 같은 어휘 ② 같은 순서로 이어진 말 ③ 달라진 말 이 늘 같은 순서', sec.types === 0 && sec.heads.join('').replace(/\s/g, '') === '①②③', JSON.stringify(sec));
   const jump = await pg.evaluate(async () => { const k = CMP_PRESETS.findIndex(p => p.n.includes('13:24')); document.querySelector(`[data-cmppre="${k}"]`).click(); await new Promise(r => setTimeout(r, 2200)); return Math.round(document.getElementById('cmpS3').getBoundingClientRect().top); });
   ok('재진술 예시를 누르면 ③ 달라진 말로 바로 이동', jump > 50 && jump < 200, String(jump));
+  // 연구 탭 1단계(찾는 곳 하나) · 2단계(0건 이유)
+  await pg.evaluate(async () => { await loadBook(18); await loadBook(15); view.st.wide = false; setRange({ b: 18, c1: 1, c2: 42 }); view.st.mode = 'start'; render(); }); await W(300);
+  const sc0 = await pg.evaluate(() => ({ chip: (document.querySelector('#rScope') || {}).textContent }));
+  ok('연구 시작 화면에 "찾는 곳: 욥기 전체" 칩 하나', /찾는 곳: 욥기 전체/.test(sc0.chip), JSON.stringify(sc0));
+  await pg.click('[data-rstart="query"]'); await W(300); const sc1 = await pg.evaluate(() => ({ chip: (document.querySelector('#rScope') || {}).textContent, old: document.querySelectorAll('.qrange, .swide, #qPickRange').length, bookOpt: [...document.querySelectorAll('select[data-qt] option, .qblock select option')].some(o => o.value === 'book') }));
+  ok('자세한 검색: 같은 칩만 있고 옛 범위 상자(이 범위/구약 전체·책·장 고르기)는 없음', /욥기 전체/.test(sc1.chip) && sc1.old === 0, JSON.stringify(sc1));
+  await pg.evaluate(() => { const S = view.st; S.qMode = 'text'; S.qkey = '__custom'; S.qt = 'book book=' + SD.BK[14] + '\n  word lex=MLK/\n'; S.qres = null; qExec(); render(); }); await W(500);
+  const sc2 = await pg.evaluate(() => ({ err: view.st.qres.err || '', btn: [...document.querySelectorAll('[data-qcf]')].map(b => b.textContent) }));
+  ok('보고된 문제: 욥기에서 "책=에스라" 식 → 0건 대신 "겹치지 않아 찾을 수 없습니다" + [찾는 곳을 에스라 전체로][구약 전체로]', /겹치지 않아/.test(sc2.err) && sc2.btn.includes('찾는 곳을 에스라 전체로') && sc2.btn.includes('구약 전체로'), JSON.stringify(sc2));
+  await pg.click('[data-qcf="15"]'); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits, null, { timeout: 60000 }); const sc3 = await pg.evaluate(() => ({ n: view.st.qres.n, chip: document.querySelector('#rScope').textContent }));
+  ok('단추 하나로 찾는 곳이 에스라로 바뀌고 결과가 나옴', sc3.n > 0 && /에스라 전체/.test(sc3.chip), JSON.stringify(sc3));
+  await pg.evaluate(() => { const S = view.st; S.wide = false; setRange({ b: 18, c1: 1, c2: 42 }); S.qt = 'clause typ=NmCl\n  phrase function=Subj\n    word lex=MLK/\n'; S.qres = null; qExec(); render(); }); await pg.waitForFunction(() => view.st.qres && view.st.qres.diag && view.st.qres.diag.todo === 0, null, { timeout: 60000 }); await W(200);
+  const sc4 = await pg.evaluate(() => ({ n: view.st.qres.n, items: document.querySelectorAll('.qdiag li').length, txt: (document.querySelector('.qdiag') || {}).textContent || '' }));
+  ok('0건이면 "왜 0건일까요?" — 조건을 하나씩 뺀 건수를 보이고 [이렇게 찾기]', sc4.n === 0 && sc4.items >= 2 && /조건을 빼면/.test(sc4.txt), JSON.stringify({ n: sc4.n, items: sc4.items }));
+  await pg.click('[data-qdiag="0"]'); await pg.waitForFunction(() => view.st.qres && view.st.qres.hits && view.st.qres.n > 0, null, { timeout: 60000 }); ok('[이렇게 찾기] 를 누르면 그 조건으로 다시 찾아 결과가 나옴', true);
   // 옛 화면(?ux=0)은 그대로
   await open('index.html?ux=0'); await pg.evaluate(async () => { await loadBook(18); setRange({ b: 18, c1: 32, c2: 32 }); render(); }); await pg.click('.bnav [data-nav="struct"]'); await W(1200);
   await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 22, c2: 22 }); view.st.mode = 'verse'; view.st.rd = 'read'; render(); }); await pg.click('.bnav [data-nav="text"]'); await W(400); await pg.click('[data-rdv] .rdh'); await W(400); const liveT = await pg.evaluate(() => ({ vinfo: document.querySelectorAll('.vinfo').length, hw: document.querySelectorAll('.rdh .hw').length, strip: !!document.querySelector('.rstrip'), h3: !!document.querySelector('h3.sch') })); ok('옛 화면(?ux=0) 본문: 절을 누르면 전처럼 낱말 띠, 원어 단추·낱말 고르기 없음, 장 제목 그대로', !liveT.vinfo && !liveT.hw && liveT.strip && liveT.h3, JSON.stringify(liveT)); await pg.evaluate(async () => { await loadBook(18); setRange({ b: 18, c1: 32, c2: 32 }); render(); }); await pg.click('.bnav [data-nav="struct"]'); await W(1000);

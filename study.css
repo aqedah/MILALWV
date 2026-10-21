@@ -397,3 +397,5 @@ h3{font-size:14px;margin:14px 0 4px}
 .cmppreg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}.cmppreg>small{flex:1 1 100%;opacity:.7;margin-top:4px}
 .cmph1{display:block;margin-top:14px;font-size:15px}
 .cmph1 small{display:block;font-weight:400;font-size:12px;letter-spacing:0;line-height:1.5;opacity:.75;margin-top:2px}
+.rscope{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 10px}.rscopeb{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink)}.rscope small{opacity:.7}
+.qdiag{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:8px 0}.qdiag ul{margin:6px 0;padding-left:18px}.qdiag li{margin:4px 0}

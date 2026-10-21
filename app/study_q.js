@@ -79,30 +79,47 @@ function qWorkerMsg(m){ const S=view.st; if(!m) return;
   if(m.err){ S.qres={err:m.err}; render(); return; }
   const P=Q.P; const order=[]; (function walk(n){ order.push(n); n.ch.forEach(walk); })(P.root); order.forEach((n,i)=>n.k=i);   /* 워커와 같은 순서(같은 walk) */
   const hits=new Map(m.hits.map(([vi,ws])=>[vi,new Set(ws)])), why=new Map(m.why);
-  S.qres={hits,why,fp:m.fp,n:m.n,capped:m.capped,limitHit:m.limitHit,stepsHit:m.stepsHit,status:m.limitHit?"limit":m.stepsHit?"steps":"full",ms:m.ms,wall:Math.round(performance.now()-Q.t0),engine:"worker",text:Q.text,canon:Q.canon,P,order,outTotal:m.n,range:Q.range,rg:Q.rg,prev:Q.prev,fromNote:Q.fromNote}; S.more=1; render(); }
+  S.qres={hits,why,fp:m.fp,n:m.n,capped:m.capped,limitHit:m.limitHit,stepsHit:m.stepsHit,status:m.limitHit?"limit":m.stepsHit?"steps":"full",ms:m.ms,wall:Math.round(performance.now()-Q.t0),engine:"worker",text:Q.text,canon:Q.canon,P,order,outTotal:m.n,range:Q.range,rg:Q.rg,prev:Q.prev,fromNote:Q.fromNote}; S.more=1; qDiagStart(); render(); }
 function qCancel(){ const S=view.st; if(!(S.qres&&S.qres.loading&&S.qres.seq!=null)) return; S.qSeq=(S.qSeq||0)+1; qWorkerDrop(); S.qres=S.qres.prevRes||null; render(); }
 function qExec(){ const S=view.st; S.qPending=null; const text=S.qMode==="text"?S.qt:qGen(S.qb||qNew("clause")); const P=qParse(text); const sp=stSpans();
   /* 이 범위(책·장)만 찾을 때는 그 책 자료만 받고, 구약 전체일 때만 전체 자료를 받는다 */
   if(sp){ const need=[...new Set(sp.map(x=>x[0]))].filter(b=>!SD.loaded.has(b)); if(need.length){ S.qres={err:`${need.map(b=>PLAN.full[b-1]).join(", ")} 자료를 받는 중입니다. 다 받으면 자동으로 실행합니다.`,loading:true}; Promise.all(need.map(b=>loadBook(b))).then(()=>{ qExec(); render(); }).catch(()=>{}); return; } }
   else if(!SD.allLoaded){ S.qres={err:`구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 자동으로 실행합니다.`,loading:true}; ensureAll().then(()=>{ qExec(); render(); }).catch(()=>{}); return; }
   if(P.err){ S.qres={err:P.err}; return; }
+  const cf=qScopeConflict(P,sp); if(cf){ S.qres={err:cf.msg,conflict:cf}; return; }
   if(!qWorkerOn()){ qExecSync(); return; }
   const w=qWorkerGet(); if(!w){ qExecSync(); return; }
   const seq=S.qSeq=(S.qSeq||0)+1; const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:null; const prevRes=S.qres&&S.qres.hits?S.qres:null;
   S.qres={loading:true,seq,err:"찾는 중입니다… 화면은 그대로 쓸 수 있습니다.",t0:performance.now(),text,canon:qCanon(P),P,range:stRangeLabel(),rg:qRangeOf(),prev,prevRes,fromNote:S.qFromNote||null}; S.qFromNote=null;
   try{ qWorkerSend(w); w.postMessage({type:"run",seq,key:w.key,text,sp,limit:20000}); }catch(e){ qWorkerDrop(); window.__qWorkerBroken=true; qExecSync(); } }
+/* 검색식 안의 책 조건이 '찾는 곳'과 겹치지 않으면 실행 전에 알린다(전에는 조용히 0건) */
+function qScopeConflict(P,sp){ if(!sp) return null; const books=new Set(); for(const n of P.nodes) for(const c of n.conds) if(c.f==="book"&&c.o==="="&&Array.isArray(c.v)) c.v.forEach(v=>books.add(v)); if(!books.size) return null;
+  const inScope=new Set(sp.map(x=>SD.BK[x[0]-1])); if([...books].some(v=>inScope.has(v))) return null; const bks=[...books].map(v=>SD.BK.indexOf(v)+1).filter(b=>b>0);
+  return {books:bks,msg:`검색식의 책 조건(${bks.map(b=>PLAN.full[b-1]).join(", ")})이 지금 찾는 곳(${stRangeLabel()})과 겹치지 않아 찾을 수 없습니다.`}; }
+function qConflictHTML(cf){ return `<div class="row" style="margin-top:6px">${cf.books.slice(0,2).map(b=>`<button class="btn small" data-qcf="${b}">찾는 곳을 ${esc(PLAN.full[b-1])} 전체로</button>`).join("")}<button class="btn small ghost" data-qcf="all">구약 전체로</button></div>`; }
+/* 0건일 때: 조건을 하나씩 빼 보면 몇 건이 되는지(같은 찾는 곳에서). 화면이 멈추지 않게 하나씩 나눠 센다 */
+function qDiagVariants(P){ const root=qFromParse(P.root,P); const out=[]; const clone=b=>JSON.parse(JSON.stringify(b));
+  (function walk(b,path){ for(const k of Object.keys(b.c)){ if(b.c[k]===""||b.c[k]==null) continue; const r=clone(root); let t=r; for(const i of path) t=t.ch[i]; delete t.c[k]; out.push({say:qSay({t:b.t,c:{[k]:b.c[k]},x:[],ch:[]}).replace(/<[^>]+>/g,""),root:r}); }
+    b.x.forEach((x,xi)=>{ const r=clone(root); let t=r; for(const i of path) t=t.ch[i]; t.x.splice(xi,1); out.push({say:`${QT_K[b.t]}의 '${x}'`,root:r}); });
+    b.ch.forEach((c,ci)=>{ if(path.length||b.ch.length>0){ const r=clone(root); let t=r; for(const i of path) t=t.ch[i]; t.ch.splice(ci,1); if(t===r&&!r.ch.length&&!Object.keys(r.c).length) return; out.push({say:`${QT_K[c.t]} 상자 전체(${qSay(Object.assign(clone(c),{ch:[]})).replace(/<[^>]+>/g,"")})`,root:r}); } walk(c,path.concat(ci)); }); })(root,[]);
+  return out.slice(0,10); }
+function qDiagStart(){ const S=view.st, R=S.qres; if(!R||R.n!==0||R.diag||!R.P) return; const vars=qDiagVariants(R.P), sp=stSpans(); R.diag={todo:vars.length,done:[]}; let k=0;
+  const step=()=>{ if(S.qres!==R) return; if(k>=vars.length){ R.diag.todo=0; render(); return; } const v=vars[k++]; try{ const t=qGen(v.root), P2=qParse(t); if(!P2.err){ const r=qRun(P2,sp,1000); if(r.out.length) R.diag.done.push({say:v.say,n:r.out.length,more:r.limitHit||r.stepsHit,text:t}); } }catch(e){} R.diag.todo=vars.length-k; if(k%3===0||k>=vars.length) render(); setTimeout(step,0); };
+  setTimeout(step,30); }
+function qDiagHTML(R){ const D=R.diag; if(!D) return ""; const L=D.done.slice().sort((a,b)=>a.n-b.n);
+  return `<div class="qdiag"><span class="label">왜 0건일까요? <small>— 조건을 하나씩 빼고 같은 곳(${esc(R.range||stRangeLabel())})에서 다시 세어 봤습니다</small></span>${L.length?`<ul>${L.map((d,i)=>`<li>${esc(d.say)} 조건을 빼면 <b>${d.n.toLocaleString()}건${d.more?" 이상":""}</b> <button class="btn small ghost" data-qdiag="${i}">이렇게 찾기</button></li>`).join("")}</ul>`:D.todo?"":`<p class="lead">조건 하나를 빼도 0건입니다. 찾는 곳을 넓혀 보세요.</p>`}${D.todo?`<p class="lead">세는 중… (${D.todo}개 남음)</p>`:""}</div>`; }
 /* 주 스레드 실행(워커 없을 때·시험용). 같은 엔진 함수(study_qe.js)를 그대로 쓴다 */
 function qExecSync(){ const S=view.st; const text=S.qMode==="text"?S.qt:qGen(S.qb||qNew("clause")); const P=qParse(text); const sp=stSpans(); if(P.err){ S.qres={err:P.err}; return; }
   const fromNote=(S.qres&&S.qres.loading&&S.qres.fromNote)||S.qFromNote||null; const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:(S.qres&&S.qres.loading?S.qres.prev:null);
   let r; try{ r=qRun(P,sp,20000); }catch(e){ S.qres={err:"검색 중 문제가 생겼습니다: "+e.message}; return; }
-  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),fp:qFingerprint(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,wall:r.ms,engine:"main",text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote}; S.qFromNote=null; S.more=1; }
+  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),fp:qFingerprint(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,wall:r.ms,engine:"main",text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote}; S.qFromNote=null; S.more=1;  qDiagStart(); }
 /* 절마다 실제로 맞은 묶음 수와 대표 묶음(최대 3개)을 실행 때 보존한다 — 결과 전체(상한 20,000)를 훑으므로 뒤쪽 절도 근거를 잃지 않는다 */
 /* 결과 지문: 묶음마다 (단위, 첫 낱말 BHSA 번호, 낱말 수)를 적어 정렬한 뒤 해시. 내부 색인이 아니라 BHSA 낱말 번호를 쓰므로 자료를 다시 만들어도 같은 판이면 같다 */
 function qStatusKo(st){ return st==="limit"?"상한 20,000건까지만":st==="steps"?"계산 중단(전체 아님)":"전체 계산"; }
 /* 블록 화면 */
 function qSel(path,f,opts,cur,label){ return `<label class="qf">${label}<select data-qf="${path}" data-f="${f}"><option value="">아무거나</option>${opts.map(([v,n])=>`<option value="${esc(v)}"${cur===v?" selected":""}>${esc(n)}</option>`).join("")}${cur&&!opts.some(o=>o[0]===cur)?`<option value="${esc(cur)}" selected>${esc(cur.split("|").map(v=>((opts.find(o=>o[0]===v)||[])[1]||v).replace(/ \(.*\)$/,"")).join(" 또는 "))}</option>`:""}</select></label>`; }
 function qBlockHTML(b,path,parentT,idx){ const childTypes=QT_ORDER.filter(t=>QT_ORDER.indexOf(t)>QT_ORDER.indexOf(parentT||"")||!parentT);
-  const typeOpts=(parentT?QT_ORDER.slice(QT_ORDER.indexOf(parentT)+1):QT_ORDER).map(t=>`<option value="${t}"${t===b.t?" selected":""}>${QT_K[t]} (${t})</option>`).join("");
+  const typeOpts=(parentT?QT_ORDER.slice(QT_ORDER.indexOf(parentT)+1):QT_ORDER).filter(t=>!window.UX2||t===b.t||!["book","chapter","verse"].includes(t)).map(t=>`<option value="${t}"${t===b.t?" selected":""}>${QT_K[t]} (${t})</option>`).join("");
   let f="";
   if(b.t==="word"){ const lk=b.c.lex, li=lk&&SD.lexByKey[lk]?SD.lexByKey[lk][0]:null;
     f+=`<label class="qf qlex">사전형${li!=null?`<span class="qlexv"><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}<button class="qx" data-qlexx="${path}" aria-label="지우기">✕</button></span>`:lk?`<span class="qlexv">${lk.split("|").map(k=>{ const i2=SD.lexByKey[k]; return i2?`<span class="heb">${esc(SD.L[i2[0]][0])}</span> ${esc(lexGloss(i2[0]))}`:esc(k); }).join(" 또는 ")}<button class="qx" data-qlexx="${path}">✕</button></span>`:`<input data-qlexq="${path}" placeholder="뜻·히브리어·H번호" autocomplete="off"><span class="qsug" id="qsug-${path}"></span>`}</label>`;
@@ -133,7 +150,8 @@ function renderQuery(){ const S=view.st; S.qb ||= (()=>{ const r=qNew("clause");
   h+=hasRes||S.qkey==="__custom"||pending?`<details class="mdet qqd"${S.qOpenQs?" open":""}><summary>다른 연구 질문 보기</summary>${qlist}</details>`:qlist;
   h+=`</section>`;
   const editing=S.qEdit||S.qkey==="__custom";   /* 첫 화면은 질문만; 편집기는 '직접 만들기'나 '조건 고치기'를 눌렀을 때 */
-  if(!hasRes&&!editing&&!pending) h=h.replace("</section>",`<div class="qrange"><span class="label">찾는 범위 — <b>${esc(stRangeLabel())}</b> <small>(책·장은 아래 단추나 위의 장 이름에서, 전체는 전환 단추로)</small></span>${rangeBox()}<div class="row" style="margin-top:4px"><button class="btn ghost small" id="qPickRange">책·장 범위 고르기</button></div></div><div class="row" style="margin-top:6px"><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div></section>`);
+  if(!hasRes&&!editing&&!pending&&window.UX2) h=h.replace("</section>",`<div class="row" style="margin-top:6px"><button class="btn ghost small" id="qSaved">보관한 검색식 ${qSavedList().length}</button></div></section>`);
+  if(!hasRes&&!editing&&!pending&&!window.UX2) h=h.replace("</section>",`<div class="qrange"><span class="label">찾는 범위 — <b>${esc(stRangeLabel())}</b> <small>(책·장은 아래 단추나 위의 장 이름에서, 전체는 전환 단추로)</small></span>${rangeBox()}<div class="row" style="margin-top:4px"><button class="btn ghost small" id="qPickRange">책·장 범위 고르기</button></div></div><div class="row" style="margin-top:6px"><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div></section>`);
   /* 지금 조건: 결과가 있을 때는 쉬운 말 한 줄 + '조건 고치기'. 고치기를 누르면 편집기가 펼쳐진다 */
   if(hasRes&&!S.qEdit&&S.qkey!=="__custom"){ const P=R.P||qParse(R.text||text); const QQ=Q_QUESTIONS.find(x=>x.key===S.qkey&&x.desc&&Q_RECIPES[x.key]===R.text); h+=`<section class="sec"><span class="label">지금 조건 <small>· 범위 ${esc(R.range||stRangeLabel())}</small></span>${QQ?`<p class="lead" style="margin:0 0 6px"><b>${esc(QQ.desc)}</b></p>`:""}${qFromNoteHTML()}<div class="qsay">${P&&!P.err?qSayAll(qFromParse(P.root,P)):esc(R.text||text)}</div><pre class="qsrc qmini" dir="ltr">${esc((R.text||text).trim())}</pre><div class="row"><button class="btn small" id="qEditBtn">조건 고치기</button><button class="btn small ghost" id="qRun">다시 찾기</button><button class="btn ghost small" id="qSave">보관</button><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div>${rangeBox()}<div class="row" style="margin-top:4px"><button class="btn ghost small" id="qPickRange">책·장 범위 고르기</button></div>${qChangedNote()}</section>`; }
   if(editing){ h+=`<section class="sec">${rangeBox()}<div class="seg sseg" style="margin-top:4px">${[["blocks","골라서 만들기"],["text","검색식 직접 쓰기"]].map(([k,n])=>`<button aria-checked="${S.qMode===k}" data-qmode="${k}">${n}</button>`).join("")}</div>`;
@@ -142,9 +160,10 @@ function renderQuery(){ const S=view.st; S.qb ||= (()=>{ const r=qNew("clause");
     else h+=`<p class="lead">Text-Fabric 검색식을 씁니다. 두 칸씩 들여 써서 큰 단위 안에 작은 단위를 둡니다. 조건은 띄어쓰기 없이 <code>sp=verb</code>처럼 씁니다. 범위는 위에서 고른 것을 따릅니다.</p><textarea id="qText" class="qsrc" rows="7" spellcheck="false" dir="ltr">${esc(S.qt||text)}</textarea><div class="row"><button class="btn ghost small" id="qToBlocks">상자로 옮기기</button><button class="btn ghost small" id="qHelp">쓸 수 있는 것</button></div>${S.qHelp?qHelpHTML():""}`;
     if(S.qMode==="blocks") h+=`<div class="qsay"><b>읽어 보면</b> ${qSayAll(S.qb)}</div>`;
     h+=`${hasRes?qChangedNote():""}<div class="row"><button class="btn" id="qRun" style="flex:1">${hasRes?"다시 찾기":"찾기"}</button>${hasRes&&S.qEdit?`<button class="btn ghost small" id="qEditOff">고치기 닫기</button>`:""}<button class="btn ghost small" id="qSave" title="이 검색식을 이름 붙여 보관">보관</button><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div></section>`; }
-  if(R){ h+=`<section class="sec" id="qResults">`; if(R.err) h+=`<p class="${R.loading?"lead":"qerr"}">${esc(R.err)}${R.loading&&R.seq!=null?` <button class="btn small ghost" id="qCancel">취소</button>`:""}</p>`; else {
+  if(R){ h+=`<section class="sec" id="qResults">`; if(R.err) h+=`<p class="${R.loading?"lead":"qerr"}">${esc(R.err)}${R.loading&&R.seq!=null?` <button class="btn small ghost" id="qCancel">취소</button>`:""}</p>${R.conflict?qConflictHTML(R.conflict):""}`; else {
       const cnt=R.limitHit?`<b>${R.n.toLocaleString()}건 이상</b> (처음 20,000건까지만 세었습니다 — 전체 건수가 아닙니다)`:R.stepsHit?`<b>${R.n.toLocaleString()}건까지 찾고 중단</b> (계산이 너무 커서 끝까지 보지 못했습니다 — 범위를 좁히거나 조건을 더 넣으세요)`:`<b>${R.n.toLocaleString()}건</b>`;
       h+=`<p class="lead"><b>${esc(R.range||stRangeLabel())}</b>에서 ${cnt}, ${R.hits.size.toLocaleString()}절 · ${R.ms}ms${R.prev&&R.prev.n!=null&&R.prev.text!==R.text?` · <span class="qdelta">바로 전 조건은 ${R.prev.n.toLocaleString()}건</span>`:""}</p>${distBars(R.hits,stSpans())}`;
+      if(R.n===0) h+=qDiagHTML(R);
       h+=qStepsHTML();
       h+=qHitList(R,S.more);
       if(R.hits.size){ h+=`<div class="qhow"><span class="label">이렇게 연구해 보세요</span><ul>${qResearchHints(R.P||qParse(R.text)).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="row"><button class="btn small" id="qNote">이 검색에 관찰·해석 쓰기</button><button class="btn small ghost" id="qSave2">검색식 보관</button></div><p class="lead" style="margin:4px 0 0">결과를 누르면 본문이 열리고, 본문 위의 '← 검색 결과로' 단추로 돌아옵니다. 메모는 결과 줄의 '메모'로 그 절에 바로 남길 수도 있습니다.</p></div>`; } }
@@ -199,6 +218,8 @@ function qHelpHTML(){ return `<div class="qhelp"><p><b>단위</b> book · chapte
   <p><b>아직 안 되는 것</b> 거리 조건(<code>:3:</code> 등), 맨 위 줄 여러 개, 그 밖의 BHSA 조건. 결과는 20,000건까지 셉니다. 히브리어는 끝글자·모음 없이 써도 됩니다.</p></div>`; }
 function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render(); scrollTo({top:y}); };
   m.querySelectorAll("#qCancel").forEach(b=>b.onclick=()=>qCancel());
+  m.querySelectorAll("[data-qcf]").forEach(b=>b.onclick=()=>{ const k=b.dataset.qcf; if(k==="all") S.wide=true; else { const bk=+k; S.wide=false; setRange({b:bk,c1:1,c2:Math.max(...SD.book[bk].chs)}); } S.mode="query"; qExec(); render(); });
+  m.querySelectorAll("[data-qdiag]").forEach(b=>b.onclick=()=>{ const R=S.qres, D=R&&R.diag; if(!D) return; const L=D.done.slice().sort((a,b)=>a.n-b.n), d=L[+b.dataset.qdiag]; if(!d) return; S.qMode="text"; S.qt=d.text; const P=qParse(d.text); if(!P.err) S.qb=qFromParse(P.root,P); S.qkey=null; qExec(); render(); });
   m.querySelectorAll("#qPickRange").forEach(b=>b.onclick=()=>{ S.pick=true; S.pk={b:S.R?S.R.b:1,c1:null,c2:null}; render(); scrollTo({top:0}); });
   m.querySelectorAll("#qRerunNote").forEach(b=>b.onclick=()=>{ const Pn=S.qPending; if(!Pn) return; S.qPending=null; S.qFromNote=Pn.from; qExec(); render(); document.getElementById("qResults")?.scrollIntoView({block:"start"}); });
   m.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{ const k=b.dataset.qq; S.qEdit=false; S.qOpenQs=false; if(k==="__custom") qOpenCustom(); else qOpen(k); });
