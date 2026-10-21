@@ -91,7 +91,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   await pg.click('[data-cmpjudge="none"]'); await W(200); await pg.click('#cmpNote'); await W(400); const jm = await pg.evaluate(() => ({ tags: (document.querySelector('#anTags') || {}).value || '', obs: (document.querySelector('#anObs') || {}).value || '' })); await pg.evaluate(() => { document.getElementById('sheetRoot').innerHTML = ''; });
   ok('내 판단("관계 없음")을 고르고 메모 쓰기 → 태그에 판단, 관찰 칸에 신호 요약', /관계 없음/.test(jm.tags) && /같은 순서로 이어진 말/.test(jm.obs), JSON.stringify(jm));
   await pg.fill('#cmpA', '룻 1:6-22'); await pg.fill('#cmpB', ''); await pg.click('#cmpGo'); await W(400); const nb = await pg.evaluate(() => /B 본문도 넣으세요/.test(document.querySelector('#main').innerText)); await pg.click('#cmpToRepeat'); await W(500); const rp = await pg.evaluate(() => ({ mode: view.st.mode, tool: view.st.tool, ex: document.querySelectorAll('[data-rpex]').length }));
-  ok('B 없이 비교 → "B 본문도 넣으세요" + 반복 도구로 가기(반복 예시 룻 1장·삼상 14장은 반복 도구에)', nb && rp.mode === 'tool' && rp.tool === '반복' && rp.ex === 2, JSON.stringify(rp));
+  ok('B 없이 비교 → "B 본문도 넣으세요" + 반복 도구로 가기(반복 예시 룻 1장은 반복 도구에)', nb && rp.mode === 'tool' && rp.tool === '반복' && rp.ex === 1, JSON.stringify(rp));
   await pg.evaluate(() => { view.st.mode = 'start'; render(); });
   // 본문 → '이 원어로 검색' → ✕ / '본문으로 돌아가기' / 휴대전화 뒤로 가기 → 본문의 그 자리
   for (const how of ['x', 'btn', 'back']) {
