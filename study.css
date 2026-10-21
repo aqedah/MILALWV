@@ -384,3 +384,5 @@ h3{font-size:14px;margin:14px 0 4px}
 .rback{display:flex;align-items:center;gap:8px;margin:6px 0 10px;font-size:14px}
 .rflow .stool{padding:8px 10px} .rflow .stool b{font-size:14px}
 .srcnote.expert{border-left:3px solid var(--ink);padding-left:8px}
+.vact{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;margin:0 0 6px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+.topw{margin-top:10px} .qwhy0{border-left:3px solid var(--line);padding-left:8px}

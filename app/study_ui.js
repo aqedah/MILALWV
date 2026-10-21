@@ -17,6 +17,11 @@ function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
     <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
     <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
     <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
+/* UX 시안: 낱말 찾기 첫 화면에 이 범위에서 자주 나오는 낱말 5개를 보기로 — 누르면 바로 그 낱말의 용례 */
+const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);
+function topWordsHTML(){ const S=view.st, sp=stSpans(); const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
+  const top=[...M].sort((a,b)=>b[1]-a[1]).slice(0,5); if(!top.length) return "";
+  return `<div class="topw"><span class="label">${esc(rLabel(S.R))}에서 자주 나오는 낱말 — 눌러서 다른 곳의 쓰임을 보세요</span><div class="qqs">${top.map(([li,n])=>`<button class="qq" data-slex="${li}"><b><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}</b><small>이 범위에서 ${n}번 · ${esc(SP_K[SD.L[li][2]]||SD.L[li][2])}</small></button>`).join("")}</div><p class="lead" style="margin-top:6px">다른 낱말은 위 칸에 뜻·히브리어·음역으로 찾습니다.</p></div>`; }
 function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 검색",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
@@ -253,14 +258,14 @@ function renderStudy(){
   if(S.mode==="theory") return h+renderTheory();
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
-    h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
-      <div class="svrow">${rd==="struct"?`<div class="seg svm sv3">${[["tree","계층"],["speech","발화"],["map","지도"]].filter(([x])=>x!=="map"||!ux2()||expertOn()).map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
+    h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}${ux2()&&!multi?"":`<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>`}${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
+      <div class="svrow">${rd==="struct"?`<div class="seg svm sv3">${[["tree","계층"],["speech","발화"],["map",ux2()?"MILAL 관계 그림":"지도"]].filter(([x])=>x!=="map"||!ux2()||expertOn()).map(([x,n])=>`<button aria-checked="${(S.sv||"tree")===x}" data-ssv="${x}">${n}</button>`).join("")}</div>`:`<span></span>`}<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div></div>
       ${rd==="read"?readView(S.R.b,vc):((S.sv||"tree")==="map"?unitMapView(S.R.b):structHead(S.R.b)+((S.sv||"tree")==="speech"?speechView(S.R.b,vc):structView(S.R.b,vc,true)))}
       ${multi&&k<chs.length-1?`<button class="sbtn snextch" id="sVcN2">${chs[k+1]}${u} 이어서 보기 ›</button>`:""}</section>`; }
   else if(S.mode==="query") h+=renderQuery();
   else if(S.mode==="compare") h+=(window.renderCompare?renderCompare():"");
   else if(S.mode==="word"){
-    h+=`<section class="sec">${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>`;
+    h+=`<section class="sec">${rangeBox()}<div class="ssearch"><input id="sQ" type="search" placeholder="뜻(예: 창조하다), 히브리어, 음역, 스트롱 번호(H1254)" value="${esc(S.q||"")}" autocomplete="off"></div><div id="sSug">${S.lex==null?sugHTML(S.q):""}</div>${ux2()&&S.lex==null&&!(S.q||"").trim()?topWordsHTML():""}`;
     if(S.lex!=null){ const x=SD.L[S.lex], H=wordHits(); let cnt=0; H.forEach(s=>cnt+=s.size);
       const forms={vs:new Map(),vt:new Map()}; if(x[2]==="verb"){ const ids=new Set([S.lex]); for(let i=0;i<SD.wl.length;i++) if(SD.wl[i]===S.lex){ const m=SD.M[SD.wm[i]]; forms.vs.set(m[1],(forms.vs.get(m[1])||0)+1); forms.vt.set(m[2],(forms.vt.get(m[2])||0)+1); } }
       h+=`<div class="slexhd">${lexRow(S.lex,`<button class="iconbtn" id="sLexX" aria-label="다른 낱말 찾기">✕</button>`,'data-noop="1"')}${lexKo(S.lex)?`<p class="lead">사전 풀이: ${esc(lexKo(S.lex))}</p>`:""}</div>
@@ -478,16 +483,18 @@ function gMain(g){ for(let k=g.length-1;k>=0;k--) if(MAIN_SP.has(SD.L[SD.wl[g[k]
 const wHeb=wi=>{ const vi=SD.vOf[wi]; return sHeb(vi)[wi-SD.V[vi][5]]; }, wHan=wi=>{ const vi=SD.vOf[wi]; return sHan(vi)[wi-SD.V[vi][5]]||""; };
 const stTrName=()=>{ try{ return (TR_INFO[window.BIBLE_SRC||TR]||TR_INFO.krv).name; }catch(e){ return ""; } };
 function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=window.marksHidden&&marksHidden();
-  let h=`${S.back&&S.back.mode?`<div class="srcnote"><span><button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}${/[가-힣]$/.test(S.back.label||"")&&((S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===0||(S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===8)?"로":"으로"} 돌아가기</button></span></div>`:""}<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):"절을 누르면 낱말이 펼쳐집니다"}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
+  let h=`${S.back&&S.back.mode?`<div class="srcnote"><span><button class="mtog back" id="sBack">← ${esc(S.back.label||"전 화면")}${/[가-힣]$/.test(S.back.label||"")&&((S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===0||(S.back.label.charCodeAt(S.back.label.length-1)-0xAC00)%28===8)?"로":"으로"} 돌아가기</button></span></div>`:""}<div class="rdtools"><span class="rdnote" style="margin:0;flex:1;text-align:left">${S.rangeMode?(S.rangeStart!=null?`구간: <b>${esc(sRef(S.rangeStart))}</b>부터 — 끝 절을 누르세요`:"구간: <b>시작 절</b>을 누르세요"):(ux2()?"절을 누르면 형광펜·밑줄·괄호·메모를 할 수 있습니다":"절을 누르면 낱말이 펼쳐집니다")}</span><button class="mtog${S.rangeMode?" on":""}" data-rangemode="${S.rangeMode?"0":"1"}">${S.rangeMode?"구간 취소":"구간 메모"}</button><button class="mtog" data-markshide="1">${hid?"표시 보이기":"표시 숨기기"}</button></div><div class="rdv">`, lastK="";
   for(const vi of vis){ const kv=SD.V[vi][2], k=SD.V[vi][1]+":"+kv, first=k!==lastK; lastK=k;
     let kt=""; if(first&&kv>0){ try{ kt=BIBLE[b-1][c-1][kv-1]||""; }catch(e){} }
     const open=S.rv===vi, num=kv===0?"표제":kv, per=window.marksForVerse?marksForVerse(vi):null, rs=S.rangeMode&&S.rangeStart===vi;
     h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b>${esc(kt)}</p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p></div>`;
-    if(open&&!S.rangeMode) h+=stripHTML(vi); }
+    if(open&&!S.rangeMode){ if(ux2()&&!S.rinfo&&!S.mkSel) h+=verseActBar(vi); else h+=stripHTML(vi); } }
   return h+`</div>`; }
+/* UX 시안: 절을 누르면 바로 할 수 있는 일 — 형광펜·밑줄·괄호·메모, 그리고 '원어 보기' 단추 하나 */
+function verseActBar(vi){ return `<div class="vact"><button class="btn small" data-vact="hl:${vi}">🖍 형광펜</button><button class="btn small" data-vact="ul:${vi}">밑줄</button><button class="btn small" data-vact="br:${vi}">⟦ ⟧ 괄호</button><button class="btn small" data-vact="note:${vi}">✎ 메모</button><button class="btn small ghost" data-vact="info:${vi}">원어·문법 보기 ▸</button></div>`; }
 function stripHTML(vi){ const S=view.st, G=vGroups(vi); if(S.rw==null||SD.vOf[S.rw]!==vi) S.rw=gMain(G[0]);
   const gi=G.findIndex(g=>g.includes(S.rw)), sel=S.mkSel&&S.mkSel.vi===vi?S.mkSel.set:null;
-  const bar=sel?`<div class="mkbar"><span>고른 묶음 ${sel.size}개 — 띠에서 더 고르거나</span><button class="btn small" id="mkAll">절 전체</button><button class="btn small" id="mkGo"${sel.size?"":" disabled"}>표시하기</button><button class="btn small ghost" id="mkCancel">취소</button></div>`:"";
+  const bar=sel?`<div class="mkbar"><span>${S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]+": ":""}고른 묶음 ${sel.size}개 — 띠에서 더 고르거나</span><button class="btn small" id="mkAll">절 전체</button><button class="btn small" id="mkGo"${sel.size?"":" disabled"}>표시하기</button><button class="btn small ghost" id="mkCancel">취소</button></div>`:"";
   return `<div class="rstripw">${bar}<div class="rstrip${sel?" mksel":""}" dir="rtl">${G.map((g,k)=>{ const m=gMain(g); return `<button class="rsw${!sel&&k===gi?" on":""}${sel&&sel.has(k)?" sel":""}" data-rsw="${m}" data-rg="${k}"><span class="heb">${esc(g.map(wHeb).join("").trim())}</span><b>${esc(lexGloss(SD.wl[m]))}</b><small>${esc(g.map(wHan).join(""))}</small></button>`; }).join("")}</div>${sel?"":`<div class="rdet" id="rDet">${readDetail(S.rw)}</div>`}</div>`; }
 function strongText(t){ return esc(t).replace(/H(\d+)/g,(m,n)=>`<button class="shl" data-sh="${n}">H${n}</button>`); }
 function strongBlock(n){ if(!n) return ""; if(!STR){ strongLoad().then(()=>{ const d=document.getElementById("rDet"); if(d&&view.st.rw!=null){ d.innerHTML=readDetail(view.st.rw); bindReadDet(d); } }); return `<p class="lead">스트롱 사전을 불러오는 중입니다…</p>`; }
@@ -511,15 +518,20 @@ function bindReadDet(d){ const S=view.st;
   if(window.bindAnnots) bindAnnots(d);
   d.querySelectorAll("[data-mkstart]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const vi=+b.dataset.mkstart, G=vGroups(vi), gi=G.findIndex(g=>g.includes(S.rw)); S.mkSel={vi,set:new Set(gi>=0?[gi]:[])}; const y=scrollY; render(); scrollTo({top:y}); }); }
 function bindRead(m){ const S=view.st;
+  m.querySelectorAll("[data-vact]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [k,v]=b.dataset.vact.split(":"), vi=+v; const y=scrollY;
+    if(k==="info"){ S.rinfo=true; render(); scrollTo({top:y}); return; }
+    if(k==="note"){ if(window.openAnnotEditor) openAnnotEditor("verse",vi); return; }
+    /* 표시: 띠에서 낱말을 고르게 하되, 방식(형광펜·밑줄·괄호)은 이미 정해졌으므로 고르고 '표시하기'만 누르면 끝 */
+    S.mkSel={vi,set:new Set(),preset:k}; S.rw=null; render(); scrollTo({top:y}); });
   m.querySelectorAll("[data-rangemode]").forEach(b=>b.onclick=()=>{ S.rangeMode=b.dataset.rangemode==="1"; S.rangeStart=null; S.mkSel=null; render(); });
   m.querySelectorAll("[data-markshide]").forEach(b=>b.onclick=()=>marksToggle());
   m.querySelectorAll("[data-anedit]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=anList().find(x=>x.id===b.dataset.anedit); if(a) openAnnotEditor(a.kind,null,a); });
   m.querySelectorAll("[data-mkid]").forEach(x=>x.onclick=e=>{ e.stopPropagation(); if(x.dataset.mkid) openMarkChoose(x.dataset.mkid.split(",").filter(Boolean)); });
   if(S.mkSel){ const vi=S.mkSel.vi, G=vGroups(vi); m.querySelectorAll(".rstrip.mksel .rsw").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const k=+b.dataset.rg; if(S.mkSel.set.has(k)) S.mkSel.set.delete(k); else S.mkSel.set.add(k); const y=scrollY; render(); scrollTo({top:y}); });
     const all=document.getElementById("mkAll"); if(all) all.onclick=e=>{ e.stopPropagation(); S.mkSel.set=new Set(G.map((_,k)=>k)); const y=scrollY; render(); scrollTo({top:y}); };
-    const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,`낱말 묶음 ${S.mkSel.set.size}개`); };
+    const go=document.getElementById("mkGo"); if(go) go.onclick=e=>{ e.stopPropagation(); const words=[...S.mkSel.set].sort((a,b)=>a-b).flatMap(k=>G[k]); openMarkPicker(words,S.mkSel.preset?({hl:"형광펜",ul:"밑줄",br:"괄호"})[S.mkSel.preset]:`낱말 묶음 ${S.mkSel.set.size}개`,S.mkSel.preset); };
     const cn=document.getElementById("mkCancel"); if(cn) cn.onclick=e=>{ e.stopPropagation(); S.mkSel=null; const y=scrollY; render(); scrollTo({top:y}); }; }
-  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; const y=scrollY; render(); scrollTo({top:y});
+  m.querySelectorAll("[data-rdv]").forEach(el=>el.onclick=()=>{ const vi=+el.dataset.rdv; if(S.rangeMode){ rangePick(vi); return; } if(S.mkSel&&S.mkSel.vi!==vi) S.mkSel=null; const top0=el.getBoundingClientRect().top; S.rv=S.rv===vi?-1:vi; S.rw=null; S.rinfo=false; const y=scrollY; render(); scrollTo({top:y});
     /* 누른 절이 화면에서 같은 자리에 머물게: 위쪽 띠가 닫히며 줄어든 만큼 되돌림 */
     const ne=document.getElementById("stv-"+vi); if(ne){ scrollBy(0,ne.getBoundingClientRect().top-top0);
       const hd=document.querySelector(".shead2"), hb=hd?hd.getBoundingClientRect().bottom:0, sw=document.querySelector(".rstripw");

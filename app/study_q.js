@@ -126,7 +126,7 @@ function qToBlocks(S){ const t=document.getElementById("qText"); if(t) S.qt=t.va
 function qAt(path){ let b=view.st.qb; if(path==="r") return b; for(const i of path.split(".").slice(1)) b=b.ch[+i]; return b; }
 function renderQuery(){ const S=view.st; S.qb ||= (()=>{ const r=qNew("clause"); r.ch.push(qNew("word")); return r; })(); S.qMode ||= "blocks"; S.qkey ||= null;
   const text=qGen(S.qb); const R=S.qres; const hasRes=!!(R&&(R.hits||R.err));
-  let h=`<section class="sec"><h2 class="qtitle">원문에서 문장 패턴 찾기</h2><p class="lead" style="margin:0 0 8px">단어뿐 아니라 낱말의 형태, 문장 속 역할, 앞뒤 관계를 결합해 같은 언어적 현상을 찾아봅니다.</p>`;
+  let h=`<section class="sec"><h2 class="qtitle">원문에서 문장 패턴 찾기</h2><p class="lead" style="margin:0 0 8px">단어뿐 아니라 낱말의 형태, 문장 속 역할, 앞뒤 관계를 결합해 같은 언어적 현상을 찾아봅니다.</p>${window.UX2?`<p class="lead qwhy0"><b>언제 쓰나요?</b> '낱말 찾기'는 <i>어떤 낱말</i>이 어디 나오는지 찾습니다. 여기서는 <i>어떤 모양의 문장</i>을 찾습니다 — "여호와가 주어인 문장", "'보라' 뒤에 분사가 오는 절"처럼 낱말 하나로는 찾을 수 없는 것. 아래 질문 하나를 눌러 보면 바로 압니다.</p>`:""}`;
   /* 연구 질문: 결과가 있으면 접어 두되 언제나 다시 고를 수 있다 */
   const qlist=`<div class="qqs">${Q_QUESTIONS.map(x=>`<button class="qq${S.qkey===x.key?" on":""}" data-qq="${esc(x.key)}"><b>${esc(x.q)}</b><small>${esc(x.desc)}</small></button>`).join("")}</div>`;
   const pending=!!(S.qPending&&!hasRes&&!S.qEdit); if(pending) h+=qPendingHTML();   /* 검색 메모에서 왔으면 그 카드를 맨 위에 */
