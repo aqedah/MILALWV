@@ -1,87 +1,11 @@
 /* ===== 성경연구 · 검색식 (Text-Fabric 검색식의 핵심 부분을 앱 안에서 실행) ===== */
-const QT_ORDER=["book","chapter","verse","sentence","clause","phrase","word"];
 const QT_K={book:"책",chapter:"장",verse:"절",sentence:"문장",clause:"절(클로즈)",phrase:"구",word:"낱말"};
-const QOPS=new Set(["=","#","<",">","<:",":>","=:",":=","::","==","&&","##","[[","]]"]);
 const QOP_K={"":"어디든","<":"뒤 어딘가","<:":"바로 뒤에 붙어서","=:":"맨 앞에서",":=":"맨 끝에서"};
 const PTY_K={VP:"동사구",NP:"명사구",PP:"전치사구",CP:"접속사구",AdvP:"부사구",AdjP:"형용사구",InjP:"감탄사구",DPrP:"지시대명사구",PrNP:"고유명사구",NegP:"부정구",PPrP:"인칭대명사구",IPrP:"의문대명사구",InrP:"의문사구"};
 const TY_FAM=c=>/Way/.test(c)?"와이크톨":/Q/.test(c)?"완료":/Y/.test(c)?"미완료":/I/.test(c)&&/m|0|X|I/.test(c)&&!/Inf/.test(c)?"명령":({NmCl:"명사문",AjCl:"형용사문",Ptcp:"분사문",InfC:"부정사 연계형",InfA:"부정사 절대형",Ellp:"생략",Voct:"부름",CPen:"앞세운 말",MSyn:"이야기 표지",Reop:"다시 받음",XPos:"뒤로 뺀 말"})[c]||"";
 const TY_LEAD=c=>/^W/.test(c)?"와(그리고)+":/^[xX]/.test(c)?"앞에 다른 말+":/^Z/.test(c)?"":"";
 const tyLabel=c=>`${c} · ${TY_LEAD(c)}${TY_FAM(c)}`;
-const hebNorm=s=>(s||"").replace(/[֑-ׇ]/g,"").replace(/[12]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
-const WFEAT={lex:1,lex_utf8:1,voc_lex_utf8:1,gloss:1,sp:1,vs:1,vt:1,ps:1,gn:1,nu:1,st:1,prs_ps:1,prs_gn:1,prs_nu:1,language:1};
-const QFEAT={book:{book:1},chapter:{book:1,chapter:1},verse:{book:1,chapter:1,verse:1},sentence:{},clause:{typ:1,domain:1},phrase:{typ:1,function:1},word:WFEAT};
-/* 단위 색인: 단위마다 낱말 목록(CSR) */
-function qIndex(){ if(SD.qi) return SD.qi; const N=SD.wl.length, U={word:null,phrase:SD.wp,clause:SD.wc,sentence:SD.ws,verse:SD.vOf};
-  const ch=new Uint32Array(N), bk=new Uint32Array(N); const chKey=new Map(), chInfo=[];
-  SD.V.forEach(([b,,,c],vi)=>{ const k=b*1000+c; if(!chKey.has(k)){ chKey.set(k,chInfo.length); chInfo.push([b,c]); } const id=chKey.get(k), [, , , , , s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ ch[j]=id; bk[j]=b-1; } });
-  U.chapter=ch; U.book=bk;
-  const C={}; for(const T of ["phrase","clause","sentence","verse","chapter","book"]){ const A=U[T]; let mx=0; for(let i=0;i<N;i++) if(A[i]>mx) mx=A[i]; const cnt=new Uint32Array(mx+2); for(let i=0;i<N;i++) cnt[A[i]+1]++; for(let i=1;i<cnt.length;i++) cnt[i]+=cnt[i-1]; const off=cnt.slice(), W=new Uint32Array(N); for(let i=0;i<N;i++) W[off[A[i]]++]=i; C[T]={st:cnt,W,n:mx+1}; }
-  return SD.qi={U,C,chInfo}; }
-const qWords=(T,id)=>{ if(T==="word") return [id]; const c=SD.qi.C[T]; return c.W.subarray(c.st[id],c.st[id+1]); };
-const qFirst=(T,id)=>T==="word"?id:SD.qi.C[T].W[SD.qi.C[T].st[id]];
-const qLast=(T,id)=>T==="word"?id:SD.qi.C[T].W[SD.qi.C[T].st[id+1]-1];
-function qFv(T,id,f){ const w0=qFirst(T,id);
-  if(T==="word"){ const x=SD.L[SD.wl[id]], m=SD.M[SD.wm[id]];
-    switch(f){ case "lex": return x[1]; case "lex_utf8": return hebNorm(x[10]); case "voc_lex_utf8": return x[0]; case "gloss": return x[5]; case "language": return x[8]?"Aramaic":"Hebrew";
-      case "sp": return m[0]; case "vs": return m[1]; case "vt": return m[2]; case "ps": return m[3]; case "gn": return m[4]; case "nu": return m[5]; case "st": return m[6]; case "prs_ps": return m[7]; case "prs_gn": return m[8]; case "prs_nu": return m[9]; } }
-  if(T==="clause") return f==="typ"?SD.TY[SD.ct[id]]:f==="domain"?SD.DO[SD.cd[id]]:undefined;
-  if(T==="phrase") return f==="typ"?SD.PTY[SD.pt[id]]:f==="function"?SD.FN[SD.wf[w0]]:undefined;
-  const vi=SD.vOf[w0], [b,,,c,v]=SD.V[vi];
-  if(f==="book") return SD.BK[b-1]; if(f==="chapter") return String(c); if(f==="verse") return String(v); }
 /* 검색식 읽기 */
-function qParse(text){
-  const lines=(text||"").split(/\n/), root=[], stack=[], rels=[], names={}; let err=null, nodes=[];
-  lines.forEach((raw,li)=>{ if(err) return; const line=raw.replace(/\t/g,"  ").replace(/\s+$/,""); if(!line.trim()||/^\s*%/.test(line)) return;
-    const ind=line.match(/^ */)[0].length; let toks=line.trim().split(/\s+/);
-    if(toks.length===3&&QOPS.has(toks[1])&&!QT_ORDER.includes(toks[0].split(":").pop())&&!/[=#~]/.test(toks[0])){ rels.push({a:toks[0],op:toks[1],b:toks[2],li}); return; }
-    if(toks.length===3&&/^:\d|^\d|:\d+:|=\d+:|:\d+=/.test(toks[1])){ err=`${li+1}째 줄: 거리 조건(${toks[1]})은 아직 앱에서 안 됩니다.`; return; }
-    let op=""; if(QOPS.has(toks[0])){ op=toks.shift(); } else if(/^[:=<>#&\[\]\d]+$/.test(toks[0])){ err=`${li+1}째 줄: '${toks[0]}' 관계는 아직 앱에서 안 됩니다.`; return; }
-    let head=toks.shift()||"", name=""; if(head.includes(":")){ [name,head]=head.split(":"); }
-    if(!QT_ORDER.includes(head)){ err=`${li+1}째 줄: '${head}'는 알 수 없는 단위입니다. book, chapter, verse, sentence, clause, phrase, word 가운데 하나를 쓰세요.`; return; }
-    const conds=[]; for(const t of toks){ const m=t.match(/^([a-z_0-9]+)(?:([=#~])(.*))?$/); if(!m){ err=`${li+1}째 줄: '${t}'를 읽을 수 없습니다. 조건은 띄어쓰기 없이 이름=값 으로 씁니다.`; return; }
-      const [,f,o,v]=m; if(!QFEAT[head][f]){ err=`${li+1}째 줄: ${head}의 '${f}' 조건은 아직 앱에서 안 됩니다.`; return; }
-      if(o==="~"){ try{ new RegExp(v); }catch(e){ err=`${li+1}째 줄: 정규식이 잘못되었습니다.`; return; } }
-      conds.push({f,o:o||"",v:o==="~"?v:(v||"").split("|").map(x=>f==="lex_utf8"?hebNorm(x):f==="book"?qBookName(x):x)}); }
-    if(err) return;
-    const nd={t:head,name,op,conds,ch:[],ind,li}; nodes.push(nd); if(name) names[name]=nd;
-    while(stack.length&&stack[stack.length-1].ind>=ind) stack.pop();
-    if(stack.length){ const p=stack[stack.length-1]; if(QT_ORDER.indexOf(head)<=QT_ORDER.indexOf(p.t)&&!(head==="sentence"&&p.t==="verse")&&!(head==="clause"&&p.t==="verse")){ err=`${li+1}째 줄: ${head}는 ${p.t} 안에 들어갈 수 없습니다.`; return; } nd.parent=p; p.ch.push(nd); }
-    else { if(root.length){ err="맨 위(들여쓰지 않은) 줄은 하나만 쓸 수 있습니다. 나머지는 그 아래로 들여 써 주세요."; return; } root.push(nd); }
-    stack.push(nd); });
-  if(!err&&!root.length) err="검색식이 비어 있습니다.";
-  if(!err) for(const r of rels){ if(!names[r.a]||!names[r.b]){ err=`${r.li+1}째 줄: 이름 '${!names[r.a]?r.a:r.b}'가 위에 없습니다.`; break; } }
-  return {err,root:root[0],rels,names,nodes}; }
-function qBookName(x){ const i=SD.BK.indexOf(x); if(i>=0) return x; const k=PLAN.full.findIndex((n,j)=>j<39&&(n===x||PLAN.abbr[j]===x)); return k>=0?SD.BK[k]:x; }
-function qCond(T,id,c){ const val=qFv(T,id,c.f); if(c.o==="") return val!=null&&val!==""&&val!=="NA"&&val!=="absent"&&val!=="n/a"; if(c.o==="~") return new RegExp(c.v).test(val||""); const hit=c.v.includes(val); return c.o==="="?hit:!hit; }
-function qRel(op,A,B){ // A, B: [T,id]
-  const af=qFirst(...A), al=qLast(...A), bf=qFirst(...B), bl=qLast(...B);
-  switch(op){ case "<": return af<bf; case ">": return af>bf; case "<:": return al+1===bf; case ":>": return bl+1===af; case "=:": return af===bf; case ":=": return al===bl; case "::": return af===bf&&al===bl;
-    case "=": return A[0]===B[0]&&A[1]===B[1]; case "#": return !(A[0]===B[0]&&A[1]===B[1]); case "==": return af===bf&&al===bl&&qWords(...A).length===qWords(...B).length;
-    case "&&": return af<=bl&&bf<=al; case "##": return al<bf||bl<af; case "[[": return af<=bf&&bl<=al; case "]]": return bf<=af&&al<=bl; }
-  return true; }
-function qRun(P,sp,limit){ qIndex(); const t0=performance.now(); const order=[]; (function walk(n){ order.push(n); n.ch.forEach(walk); })(P.root);
-  order.forEach((n,i)=>n.k=i);
-  /* 노드마다 확인할 관계: 줄 앞 관계(앞 형제 또는 부모)와 이름 관계 */
-  const chk=order.map(()=>[]);
-  order.forEach(n=>{ if(n.op){ const sib=n.parent?n.parent.ch[n.parent.ch.indexOf(n)-1]:null; const a=sib||n.parent; if(a) chk[Math.max(a.k,n.k)].push([a.k,n.op,n.k]); } });
-  P.rels.forEach(r=>{ const a=P.names[r.a].k, b=P.names[r.b].k; chk[Math.max(a,b)].push([a,r.op,b]); });
-  const U=SD.qi.U, out=[], asg=new Array(order.length); let capped=false, steps=0, stepsHit=false; const STEP_MAX=4e6;
-  const okNode=(n,id)=>{ for(const c of n.conds) if(!qCond(n.t,id,c)) return false; asg[n.k]=[n.t,id]; for(const [a,op,b] of chk[n.k]) if(!qRel(op,asg[a],asg[b])) return false; return true; };
-  const inside=(n,id,p)=>{ if(n.t==="word") return true; const PU=p[0]==="word"?null:U[p[0]]; if(!PU) return false; for(const w of qWords(n.t,id)) if(PU[w]!==p[1]) return false; return true; };
-  function rec(i){ if(out.length>=limit){ capped=true; return; } if(i===order.length){ out.push(asg.slice()); return; }
-    const n=order[i], p=asg[n.parent.k], seen=new Set(); const TU=U[n.t];
-    for(const w of qWords(...p)){ const id=n.t==="word"?w:TU[w]; if(seen.has(id)) continue; seen.add(id); if(++steps>STEP_MAX){ capped=true; stepsHit=true; return; }
-      if(!inside(n,id,p)) continue; if(!okNode(n,id)) continue; rec(i+1); if(capped&&out.length>=limit) return; } }
-  const R=P.root, RU=U[R.t], seen=new Set(); const V=spanVerses(sp);
-  const starts=V?V.flatMap(vi=>{ const [, , , , ,s,n]=SD.V[vi]; return Array.from({length:n},(_,j)=>s+j); }):null;
-  const iter=starts||{length:SD.wl.length,[Symbol.iterator]:function*(){ for(let i=0;i<SD.wl.length;i++) yield i; }};
-  for(const w of iter){ const id=R.t==="word"?w:RU[w]; if(seen.has(id)) continue; seen.add(id);
-    if(!okNode(R,id)) continue; rec(1); if(out.length>=limit||steps>STEP_MAX){ capped=true; if(steps>STEP_MAX) stepsHit=true; break; } }
-  return {out,order,capped,limitHit:out.length>=limit,stepsHit,steps,ms:Math.round(performance.now()-t0)}; }
-function qHits(res){ const H=new Map(); const leaf=res.order.map(n=>!n.ch.length);
-  for(const tup of res.out){ tup.forEach((a,k)=>{ if(!leaf[k]) return; const ws=qWords(...a); const lim=a[0]==="word"||a[0]==="phrase"||a[0]==="clause"?ws:[ws[0]];
-    for(const w of lim){ const vi=SD.vOf[w]; if(!H.has(vi)) H.set(vi,new Set()); if(a[0]!=="verse"&&a[0]!=="chapter"&&a[0]!=="book"&&a[0]!=="sentence") H.get(vi).add(w); } }); }
-  return H; }
 /* 블록 ↔ 검색식 */
 const qNew=t=>({t,c:{},x:[],op:"",ch:[]});
 function qGen(b,ind){ ind=ind||0; const cs=Object.entries(b.c).filter(([,v])=>v!==""&&v!=null).map(([k,v])=>` ${k}=${v}`).join("")+b.x.map(s=>" "+s).join("");
@@ -90,7 +14,6 @@ function qGen(b,ind){ ind=ind||0; const cs=Object.entries(b.c).filter(([,v])=>v!
   return ind===0&&b.rels&&b.rels.length?line+b.rels.map(r=>`${r.a} ${r.op} ${r.b}\n`).join(""):line; }
 function qFromParse(n,P){ const b=qNew(n.t); b.op=n.op; b.name=n.name; n.conds.forEach(c=>{ if(c.o==="="&&!b.c[c.f]&&c.f!=="lex_utf8") b.c[c.f]=c.v.join("|"); else b.x.push(c.f+c.o+(c.o==="~"?c.v:c.v.join("|"))); }); b.ch=n.ch.map(c=>qFromParse(c)); if(P&&P.rels&&P.rels.length) b.rels=P.rels.map(r=>({a:r.a,op:r.op,b:r.b})); return b; }
 /* 검색식의 '뜻'만 뽑아 비교(들여쓰기·빈 줄·조건 순서와 무관): 단위·이름·관계·조건·이름 관계 */
-function qCanon(P){ const node=n=>({t:n.t,name:n.name||"",op:n.op||"",conds:n.conds.map(c=>c.f+c.o+(Array.isArray(c.v)?[...c.v].sort().join("|"):c.v)).sort(),ch:n.ch.map(node)}); return JSON.stringify({root:node(P.root),rels:P.rels.map(r=>`${r.a} ${r.op} ${r.b}`).sort()}); }
 /* 텍스트 → 상자 → 텍스트 왕복이 뜻을 보존하는지. 보존되지 않으면 상자로 옮기지 않는다(원본 텍스트 유지) */
 function qRoundTrip(text){ const P=qParse(text); if(P.err) return {ok:false,err:P.err}; const b=qFromParse(P.root,P); const back=qGen(b); const P2=qParse(back); if(P2.err) return {ok:false,err:"상자에서 다시 만든 검색식을 읽지 못했습니다: "+P2.err,block:b,back};
   const ok=qCanon(P)===qCanon(P2); const lost=[]; if(!ok){ const a=JSON.parse(qCanon(P)), c=JSON.parse(qCanon(P2)); const flat=(n,path,out)=>{ out.push(path+":"+n.t+(n.name?"("+n.name+")":"")+" "+n.op+" "+n.conds.join(" ")); n.ch.forEach((k,i)=>flat(k,path+"."+i,out)); return out; }; const A=flat(a.root,"r",[]).concat(a.rels), C=new Set(flat(c.root,"r",[]).concat(c.rels)); A.forEach(x=>{ if(!C.has(x)) lost.push(x); }); }
@@ -138,22 +61,43 @@ function qResearchHints(P){ const Hs=[]; const Q=qExampleLive()?Q_QUESTIONS.find
   const has=f=>{ let r=false; (function w(n){ if(n.conds.some(c=>c.f===f)) r=true; n.ch.forEach(w); })(P.root); return r; };
   if(!Q||!Q.hints){ if(has("lex")) Hs.push("이 낱말이 나올 때 바로 앞 절과 뒤 절을 함께 읽고, 늘 같은 역할을 하는지 적어 보세요."); if(has("typ")) Hs.push("문장 종류가 같아도 쓰임이 같은지 몇 곳을 골라 견주어 보세요."); if(has("domain")) Hs.push("서술자의 말과 인물의 말에서 같은 모양이 다르게 쓰이는지 보세요."); if(has("function")) Hs.push("그 구가 문장 앞에 오는지 뒤에 오는지(어순)를 적어 보세요."); }
   Hs.push("한 책이나 한 장에 몰려 있다면 그 장을 구조 화면에서 열어 흐름 속에서 보세요."); return Hs.slice(0,4); }
+/* ===== 실행: 워커가 있으면 워커에서(화면이 멈추지 않음), 없거나 실패하면 주 스레드에서 같은 엔진으로 ===== */
+const Q_WORKER_URL="app/study_qw.js", Q_ENGINE_V="1";
+function qWorkerOn(){ try{ if(localStorage.getItem("milal-q-worker")==="off") return false; }catch(e){} return typeof Worker!=="undefined"&&!window.__qWorkerBroken; }
+function qWorkerGet(){ const S=view.st; if(S.qw) return S.qw; try{ const w=new Worker(Q_WORKER_URL+"?v="+Q_ENGINE_V,{name:Q_ENGINE_V}); w.key=null; w.onmessage=ev=>qWorkerMsg(ev.data); w.onerror=e=>{ console.warn("검색 워커 오류",e.message); window.__qWorkerBroken=true; const seq=S.qSeq; qWorkerDrop(); if(S.qres&&S.qres.loading&&S.qres.seq===seq){ qExecSync(); render(); } }; S.qw=w; return w; }catch(e){ window.__qWorkerBroken=true; return null; } }
+function qWorkerDrop(){ const S=view.st; if(S.qw){ try{ S.qw.terminate(); }catch(e){} S.qw=null; } }
+function qDataKey(){ return (SD.bhsa||"2021")+":"+[...SD.loaded].sort((a,b)=>a-b).join(","); }
+/* 엔진이 쓰는 자료만 복사해 보낸다(형식 배열은 구조 복제). 책을 더 받아 key 가 바뀌면 다시 보낸다 */
+function qWorkerSend(w){ const key=qDataKey(); if(w.key===key) return; const t0=performance.now(); const book={}; for(const b in SD.book){ const x=SD.book[b]; book[b]={a:x.a,z:x.z,chs:[...x.chs]}; }
+  w.postMessage({type:"data",key,book,PLAN:{full:PLAN.full,abbr:PLAN.abbr},SD:{L:SD.L,M:SD.M,FN:SD.FN,TY:SD.TY,DO:SD.DO,PTY:SD.PTY,BK:SD.BK,V:SD.V,bs:SD.bs,bhsa:SD.bhsa,vOf:SD.vOf,wl:SD.wl,wm:SD.wm,wf:SD.wf,wc:SD.wc,wp:SD.wp,ws:SD.ws,ct:SD.ct,cd:SD.cd,pt:SD.pt}}); w.key=key; w.sendMs=Math.round(performance.now()-t0); }
+function qWorkerMsg(m){ const S=view.st; if(!m) return;
+  if(m.type==="fatal"){ window.__qWorkerBroken=true; qWorkerDrop(); if(S.qres&&S.qres.loading){ qExecSync(); render(); } return; }
+  if(m.type!=="result"&&m.type!=="error") return;
+  if(m.seq!==S.qSeq){ return; }   /* 늦게 온 옛 결과(조건·범위를 바꿔 다시 찾았거나 취소함) — 덮어쓰지 않는다 */
+  const Q=S.qres&&S.qres.loading&&S.qres.seq===m.seq?S.qres:null; if(!Q) return;
+  if(m.type==="error"){ if(m.stale){ qWorkerDrop(); qExecSync(); render(); return; } S.qres={err:"검색 중 문제가 생겼습니다(워커): "+m.message}; render(); return; }
+  if(m.err){ S.qres={err:m.err}; render(); return; }
+  const P=Q.P; const order=[]; (function walk(n){ order.push(n); n.ch.forEach(walk); })(P.root); order.forEach((n,i)=>n.k=i);   /* 워커와 같은 순서(같은 walk) */
+  const hits=new Map(m.hits.map(([vi,ws])=>[vi,new Set(ws)])), why=new Map(m.why);
+  S.qres={hits,why,fp:m.fp,n:m.n,capped:m.capped,limitHit:m.limitHit,stepsHit:m.stepsHit,status:m.limitHit?"limit":m.stepsHit?"steps":"full",ms:m.ms,wall:Math.round(performance.now()-Q.t0),engine:"worker",text:Q.text,canon:Q.canon,P,order,outTotal:m.n,range:Q.range,rg:Q.rg,prev:Q.prev,fromNote:Q.fromNote}; S.more=1; render(); }
+function qCancel(){ const S=view.st; if(!(S.qres&&S.qres.loading&&S.qres.seq!=null)) return; S.qSeq=(S.qSeq||0)+1; qWorkerDrop(); S.qres=S.qres.prevRes||null; render(); }
 function qExec(){ const S=view.st; S.qPending=null; const text=S.qMode==="text"?S.qt:qGen(S.qb||qNew("clause")); const P=qParse(text); const sp=stSpans();
   /* 이 범위(책·장)만 찾을 때는 그 책 자료만 받고, 구약 전체일 때만 전체 자료를 받는다 */
   if(sp){ const need=[...new Set(sp.map(x=>x[0]))].filter(b=>!SD.loaded.has(b)); if(need.length){ S.qres={err:`${need.map(b=>PLAN.full[b-1]).join(", ")} 자료를 받는 중입니다. 다 받으면 자동으로 실행합니다.`,loading:true}; Promise.all(need.map(b=>loadBook(b))).then(()=>{ qExec(); render(); }).catch(()=>{}); return; } }
   else if(!SD.allLoaded){ S.qres={err:`구약 전체 자료를 받는 중입니다 (${loadedCount()}/39권). 다 받으면 자동으로 실행합니다.`,loading:true}; ensureAll().then(()=>{ qExec(); render(); }).catch(()=>{}); return; }
-  if(P.err){ S.qres={err:P.err}; return; } let r; try{ r=qRun(P,sp,20000); }catch(e){ S.qres={err:"검색 중 문제가 생겼습니다: "+e.message}; return; }
-  const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:null;
-  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),fp:qFingerprint(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote:S.qFromNote||null}; S.qFromNote=null; S.more=1; }
+  if(P.err){ S.qres={err:P.err}; return; }
+  if(!qWorkerOn()){ qExecSync(); return; }
+  const w=qWorkerGet(); if(!w){ qExecSync(); return; }
+  const seq=S.qSeq=(S.qSeq||0)+1; const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:null; const prevRes=S.qres&&S.qres.hits?S.qres:null;
+  S.qres={loading:true,seq,err:"찾는 중입니다… 화면은 그대로 쓸 수 있습니다.",t0:performance.now(),text,canon:qCanon(P),P,range:stRangeLabel(),rg:qRangeOf(),prev,prevRes,fromNote:S.qFromNote||null}; S.qFromNote=null;
+  try{ qWorkerSend(w); w.postMessage({type:"run",seq,key:w.key,text,sp,limit:20000}); }catch(e){ qWorkerDrop(); window.__qWorkerBroken=true; qExecSync(); } }
+/* 주 스레드 실행(워커 없을 때·시험용). 같은 엔진 함수(study_qe.js)를 그대로 쓴다 */
+function qExecSync(){ const S=view.st; const text=S.qMode==="text"?S.qt:qGen(S.qb||qNew("clause")); const P=qParse(text); const sp=stSpans(); if(P.err){ S.qres={err:P.err}; return; }
+  const fromNote=(S.qres&&S.qres.loading&&S.qres.fromNote)||S.qFromNote||null; const prev=S.qres&&S.qres.hits?{n:S.qres.n,text:S.qres.text}:(S.qres&&S.qres.loading?S.qres.prev:null);
+  let r; try{ r=qRun(P,sp,20000); }catch(e){ S.qres={err:"검색 중 문제가 생겼습니다: "+e.message}; return; }
+  const rg=qRangeOf(); S.qres={hits:qHits(r),why:qWhyIndex(r),fp:qFingerprint(r),n:r.out.length,capped:r.capped,limitHit:r.limitHit,stepsHit:r.stepsHit,status:r.limitHit?"limit":r.stepsHit?"steps":"full",ms:r.ms,wall:r.ms,engine:"main",text,canon:qCanon(P),P,order:r.order,outTotal:r.out.length,range:stRangeLabel(),rg,prev,fromNote}; S.qFromNote=null; S.more=1; }
 /* 절마다 실제로 맞은 묶음 수와 대표 묶음(최대 3개)을 실행 때 보존한다 — 결과 전체(상한 20,000)를 훑으므로 뒤쪽 절도 근거를 잃지 않는다 */
-function qWhyIndex(r){ const W=new Map(); const leaf=r.order.map(n=>!n.ch.length);
-  for(const tup of r.out){ const vs=new Set(); tup.forEach((a,k)=>{ if(!leaf[k]) return; for(const w of qWords(...a)) vs.add(SD.vOf[w]); });
-    for(const vi of vs){ let e=W.get(vi); if(!e){ e={n:0,t:[]}; W.set(vi,e); } e.n++; if(e.t.length<3) e.t.push(tup); } }
-  return W; }
 /* 결과 지문: 묶음마다 (단위, 첫 낱말 BHSA 번호, 낱말 수)를 적어 정렬한 뒤 해시. 내부 색인이 아니라 BHSA 낱말 번호를 쓰므로 자료를 다시 만들어도 같은 판이면 같다 */
-function qFingerprint(r){ const L=[]; for(const tup of r.out){ L.push(tup.map((a,k)=>{ const ws=qWords(...a); return `${r.order[k].t}${ws.length?slotOf(ws[0]):"-"}+${ws.length}`; }).join(" ")); } L.sort();
-  let h1=0x811c9dc5, h2=0x01000193; for(const t of L){ for(let i=0;i<t.length;i++){ const c=t.charCodeAt(i); h1=Math.imul(h1^c,16777619)>>>0; h2=Math.imul(h2^c,2246822519)>>>0; } h1=Math.imul(h1^10,16777619)>>>0; h2=Math.imul(h2^10,2246822519)>>>0; }
-  return `${L.length}:${h1.toString(16)}${h2.toString(16)}`; }
 function qStatusKo(st){ return st==="limit"?"상한 20,000건까지만":st==="steps"?"계산 중단(전체 아님)":"전체 계산"; }
 /* 블록 화면 */
 function qSel(path,f,opts,cur,label){ return `<label class="qf">${label}<select data-qf="${path}" data-f="${f}"><option value="">아무거나</option>${opts.map(([v,n])=>`<option value="${esc(v)}"${cur===v?" selected":""}>${esc(n)}</option>`).join("")}${cur&&!opts.some(o=>o[0]===cur)?`<option value="${esc(cur)}" selected>${esc(cur.split("|").map(v=>((opts.find(o=>o[0]===v)||[])[1]||v).replace(/ \(.*\)$/,"")).join(" 또는 "))}</option>`:""}</select></label>`; }
@@ -198,7 +142,7 @@ function renderQuery(){ const S=view.st; S.qb ||= (()=>{ const r=qNew("clause");
     else h+=`<p class="lead">Text-Fabric 검색식을 씁니다. 두 칸씩 들여 써서 큰 단위 안에 작은 단위를 둡니다. 조건은 띄어쓰기 없이 <code>sp=verb</code>처럼 씁니다. 범위는 위에서 고른 것을 따릅니다.</p><textarea id="qText" class="qsrc" rows="7" spellcheck="false" dir="ltr">${esc(S.qt||text)}</textarea><div class="row"><button class="btn ghost small" id="qToBlocks">상자로 옮기기</button><button class="btn ghost small" id="qHelp">쓸 수 있는 것</button></div>${S.qHelp?qHelpHTML():""}`;
     if(S.qMode==="blocks") h+=`<div class="qsay"><b>읽어 보면</b> ${qSayAll(S.qb)}</div>`;
     h+=`${hasRes?qChangedNote():""}<div class="row"><button class="btn" id="qRun" style="flex:1">${hasRes?"다시 찾기":"찾기"}</button>${hasRes&&S.qEdit?`<button class="btn ghost small" id="qEditOff">고치기 닫기</button>`:""}<button class="btn ghost small" id="qSave" title="이 검색식을 이름 붙여 보관">보관</button><button class="btn ghost small" id="qSaved">보관함 ${qSavedList().length}</button></div></section>`; }
-  if(R){ h+=`<section class="sec" id="qResults">`; if(R.err) h+=`<p class="${R.loading?"lead":"qerr"}">${esc(R.err)}</p>`; else {
+  if(R){ h+=`<section class="sec" id="qResults">`; if(R.err) h+=`<p class="${R.loading?"lead":"qerr"}">${esc(R.err)}${R.loading&&R.seq!=null?` <button class="btn small ghost" id="qCancel">취소</button>`:""}</p>`; else {
       const cnt=R.limitHit?`<b>${R.n.toLocaleString()}건 이상</b> (처음 20,000건까지만 세었습니다 — 전체 건수가 아닙니다)`:R.stepsHit?`<b>${R.n.toLocaleString()}건까지 찾고 중단</b> (계산이 너무 커서 끝까지 보지 못했습니다 — 범위를 좁히거나 조건을 더 넣으세요)`:`<b>${R.n.toLocaleString()}건</b>`;
       h+=`<p class="lead"><b>${esc(R.range||stRangeLabel())}</b>에서 ${cnt}, ${R.hits.size.toLocaleString()}절 · ${R.ms}ms${R.prev&&R.prev.n!=null&&R.prev.text!==R.text?` · <span class="qdelta">바로 전 조건은 ${R.prev.n.toLocaleString()}건</span>`:""}</p>${distBars(R.hits,stSpans())}`;
       h+=qStepsHTML();
@@ -254,6 +198,7 @@ function qHelpHTML(){ return `<div class="qhelp"><p><b>단위</b> book · chapte
   <p><b>관계</b> 줄 앞에 <code>&lt;</code> 위의 것보다 뒤 · <code>&lt;:</code> 바로 뒤 · <code>=:</code> 맨 앞 · <code>:=</code> 맨 끝 / 이름끼리 <code>w1 &lt; w2</code>, <code>=</code> <code>#</code> <code>&gt;</code> <code>:&gt;</code> <code>::</code> <code>==</code> <code>&amp;&amp;</code> <code>##</code> <code>[[</code> <code>]]</code></p>
   <p><b>아직 안 되는 것</b> 거리 조건(<code>:3:</code> 등), 맨 위 줄 여러 개, 그 밖의 BHSA 조건. 결과는 20,000건까지 셉니다. 히브리어는 끝글자·모음 없이 써도 됩니다.</p></div>`; }
 function bindQuery(m){ const S=view.st; const rr=()=>{ const y=scrollY; render(); scrollTo({top:y}); };
+  m.querySelectorAll("#qCancel").forEach(b=>b.onclick=()=>qCancel());
   m.querySelectorAll("#qPickRange").forEach(b=>b.onclick=()=>{ S.pick=true; S.pk={b:S.R?S.R.b:1,c1:null,c2:null}; render(); scrollTo({top:0}); });
   m.querySelectorAll("#qRerunNote").forEach(b=>b.onclick=()=>{ const Pn=S.qPending; if(!Pn) return; S.qPending=null; S.qFromNote=Pn.from; qExec(); render(); document.getElementById("qResults")?.scrollIntoView({block:"start"}); });
   m.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{ const k=b.dataset.qq; S.qEdit=false; S.qOpenQs=false; if(k==="__custom") qOpenCustom(); else qOpen(k); });
