@@ -1,7 +1,7 @@
 // 검색식 사용성 개편 검증 (지시 6): 첫 화면·질문 실행·조건 설명·단계별 학습·맞은 자리·본문 왕복 복원·조건 변경 안내·상한/중단 구별·왕복 보존·보관함·시나리오 탭 수·대조 건수. 실행: node pipeline/ui_tests/query_g.js <스크린샷 폴더>
 const { chromium, devices } = require('playwright'); const out = process.argv[2] || '.'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
 (async () => { process.on('unhandledRejection', e => { console.log(R.join('\n')); console.log('ERR', e.message.split('\n')[0]); process.exit(1); }); const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); let taps = 0; const tap = async (sel, wait = 350) => { taps++; await pg.click(sel); await pg.waitForTimeout(wait); }; const snap = n => pg.screenshot({ path: `${out}/${n}.png` });
-  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); const x = await pg.$('#sheetX'); if (x) await x.click();
+  await pg.goto('http://localhost:8765/index.html?ux=0', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); const x = await pg.$('#sheetX'); if (x) await x.click();
   // 창 22장으로(책 범위 검색이 창세기만 받는지 보려고)
   await pg.evaluate(() => { setRange({ b: 1, c1: 1, c2: 50 }); view.st.range = 'book'; });
   // ===== 초급: 도움말 없이 질문 하나 → 결과 → 조건 하나 바꿈 → 다시 검색 → 본문 열기 → 돌아오기 → 관찰 기록

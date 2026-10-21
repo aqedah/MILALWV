@@ -86,7 +86,7 @@ function marksToggle(){ try{ localStorage.setItem("milal-marks-hide",marksHidden
 function slotOf(i){ const b=SD.V[SD.vOf[i]][0], bf=SD.V[SD.book[b].a][5]; return SD.bs[b-1]+(i-bf); }
 /* 절 vi 의 낱말마다 적용되는 표시 목록 → [{hl,ul,brOpen,brClose}] */
 function marksForVerse(vi){ if(marksHidden()) return null; const [, , , , ,s,n]=SD.V[vi]; const lo=slotOf(s), hi=slotOf(s+n-1);
-  const M=anList().filter(a=>a.kind==="mark"&&a.anchor.book===SD.V[vi][0]&&a.anchor.word_ids.some(w=>w>=lo&&w<=hi)); if(!M.length) return null;
+  const M=anList().filter(a=>a.kind==="mark"&&!a.anchor.tr&&a.anchor.book===SD.V[vi][0]&&a.anchor.word_ids.some(w=>w>=lo&&w<=hi)); if(!M.length) return null;   /* 번역 글 표시(anchor.tr)는 따로 */
   const per=Array.from({length:n},()=>({hl:null,ul:false,bo:0,bc:0,ids:[]}));
   for(const a of M){ const ws=a.anchor.word_ids.filter(w=>w>=lo&&w<=hi).sort((x,y)=>x-y); if(!ws.length) continue;
     for(const w of ws){ const p=per[w-lo]; if(a.style==="hl") p.hl=markColor(a.color); if(a.style==="ul") p.ul=true; p.ids.push(a.id); }
@@ -103,6 +103,16 @@ function hebSelectable(vi,per){ const H=sHeb(vi), s=SD.V[vi][5]; return H.map((t
 /* 낱말 목록에 표시를 바로 저장(시트 없음) — 저장 형식은 openMarkPicker 와 같다 */
 function markWordsNow(wordIdx,style,color){ wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); if(!wordIdx.length) return Promise.resolve(); const vi=SD.vOf[wordIdx[0]], [b,c,v]=SD.V[vi]; const heb=wordIdx.map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim();
   return anSave({kind:"mark",key:"m:"+anId(),anchor:{book:b,ch:c,vs:v,bhsa:SD.bhsa||"2021",word_ids:wordIdx.map(slotOf),clause_atom_ids:[...new Set(wordIdx.map(j=>SD.can[SD.wa[j]]))],clause_ids:[...new Set(wordIdx.map(j=>String(SD.ccn[SD.wc[j]])))],heb},style,color:color||"",observation:"",interpretation:"",tags:[]}); }
+/* ===== 번역 글(한국어) 표시: anchor.tr={id,from,to,text} — 글자 위치로 저장. word_ids 에는 그 절의 히브리어 낱말 번호를 넣어(자리·규칙 검사용) 같은 저장소·같은 동기화 규칙을 쓴다 ===== */
+const trCur=()=>{ try{ return localStorage.getItem("milal-tr")||"krh"; }catch(e){ return "krh"; } };
+function trMarksForVerse(vi,text){ if(marksHidden()) return []; const [b,c,v]=SD.V[vi]; const tr=trCur();
+  return anList().filter(a=>a.kind==="mark"&&a.anchor.tr&&a.anchor.book===b&&a.anchor.ch===c&&a.anchor.vs===v&&a.anchor.tr.id===tr&&text.slice(a.anchor.tr.from,a.anchor.tr.to)===a.anchor.tr.text); }   /* 번역 본문이 바뀌어 글자가 안 맞으면 그리지 않는다 */
+function korMarked(vi,text){ const L=trMarksForVerse(vi,text); if(!L.length) return esc(text); const cut=new Set([0,text.length]); for(const a of L){ cut.add(a.anchor.tr.from); cut.add(a.anchor.tr.to); } const P=[...cut].sort((x,y)=>x-y); let h="";
+  for(let k=0;k+1<P.length;k++){ const s0=P[k], e0=P[k+1]; const on=L.filter(a=>a.anchor.tr.from<=s0&&a.anchor.tr.to>=e0); const open=L.filter(a=>a.style==="br"&&a.anchor.tr.from===s0).length, close=L.filter(a=>a.style==="br"&&a.anchor.tr.to===e0).length; const t=esc(text.slice(s0,e0));
+    if(!on.length){ h+=t; continue; } const hl=on.find(a=>a.style==="hl"), ul=on.some(a=>a.style==="ul");
+    h+=`${open?`<span class="mkbr" data-mkid="${on.map(a=>a.id).join(",")}">${"⟦".repeat(open)}</span>`:""}<span class="mk usr${ul?" mk-ul":""}" ${hl?`style="background:${markColor(hl.color)}"`:""} data-mkid="${on.map(a=>a.id).join(",")}">${t}</span>${close?`<span class="mkbr" data-mkid="${on.map(a=>a.id).join(",")}">${"⟧".repeat(close)}</span>`:""}`; }
+  return h; }
+function markTrNow(vi,from,to,text,style,color){ const A=anchorVerse(vi); return anSave({kind:"mark",key:"m:"+anId(),anchor:{book:A.book,ch:A.ch,vs:A.vs,bhsa:A.bhsa,word_ids:A.word_ids,clause_atom_ids:A.clause_atom_ids,clause_ids:A.clause_ids,heb:"",tr:{id:trCur(),from,to,text}},style,color:color||"",observation:"",interpretation:"",tags:[]}); }
 function marksForWords(vis){ if(marksHidden()) return null; const out=new Map(); for(const vi of vis){ const per=marksForVerse(vi); if(!per) continue; const s=SD.V[vi][5]; per.forEach((p,j)=>{ if(p.hl||p.ul) out.set(s+j,p); }); } return out.size?out:null; }
 /* 표시 고르기 창: 낱말 번호 목록(앱 번호)에 스타일 적용 */
 function openMarkPicker(wordIdx,label,preset){ if(!wordIdx.length){ toast("먼저 낱말을 고르세요."); return; } wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); /* 고른 순서가 아니라 본문 순서로 */
@@ -146,7 +156,7 @@ function rangeChips(vi){ const [b,c,v]=SD.V[vi]; const L=anList().filter(a=>a.ki
 /* ===================== D-3 기록 탭 통합 =====================
    낱말 메모(옛 저장)와 주석(새 저장)을 한 목록에서 — 저장은 따로, 보기는 같이 */
 function allRecords(){ const W=studyNotes().map(n=>({id:"w:"+n.t,kind:"word",book:n.b,ch:n.c,vs:n.v,heb:n.heb,title:n.gl,observation:n.m||"",interpretation:"",tags:[],updated:n.t,word:n}));
-  const A=anList().map(a=>({id:a.id,kind:a.kind,book:a.anchor.book,ch:a.anchor.ch,vs:a.anchor.vs,heb:a.anchor.heb,title:a.kind==="range"?rangeLabel(a):"",observation:a.observation||"",interpretation:a.interpretation||"",tags:a.tags||[],updated:a.updated,style:a.style,color:a.color,milal_ref:a.milal_ref,a}));
+  const A=anList().map(a=>({id:a.id,kind:a.kind,book:a.anchor.book,ch:a.anchor.ch,vs:a.anchor.vs,heb:a.anchor.tr?"":a.anchor.heb,title:a.kind==="range"?rangeLabel(a):a.anchor.tr?`번역 「${a.anchor.tr.text}」`:"",observation:a.observation||"",interpretation:a.interpretation||"",tags:a.tags||[],updated:a.updated,style:a.style,color:a.color,milal_ref:a.milal_ref,a}));
   return W.concat(A); }
 const KIND_KO={word:"낱말 메모",verse:"절 메모",atom:"절 원자 메모",range:"구간 메모",mark:"표시"};
 function recordsPage(){ const S=view.st; S.rf ||= {kind:"all",tag:"",q:"",sort:"recent"}; const F=S.rf; let L=allRecords();

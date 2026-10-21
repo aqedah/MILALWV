@@ -1,6 +1,6 @@
 // 작업 F: 모바일 표시·구간·상태 점검 (Playwright 에뮬레이션 — 실기기 아님). 실행: node pipeline/ui_tests/mobile_f.js
 const { chromium, devices } = require('playwright');
-const URL0 = 'http://localhost:8765/index.html'; const R = []; const ok = (n, c, info = '') => { R.push((c ? 'PASS ' : 'FAIL ') + n + (c || info ? ' — ' + info : '')); };
+const URL0 = 'http://localhost:8765/index.html?ux=0'; const R = []; const ok = (n, c, info = '') => { R.push((c ? 'PASS ' : 'FAIL ') + n + (c || info ? ' — ' + info : '')); };
 const boot = async (pg) => { await pg.goto(URL0, { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(800); const x = await pg.$('#sheetX'); if (x) await x.click(); await pg.waitForTimeout(200); };
 (async () => {
   const br = await chromium.launch();

@@ -8,7 +8,7 @@ const QS = [
   ['계산 400만 중단', 'clause\n  w1:word\n  w2:word\n  w3:word lex=NOPE_NOPE\nw1 < w2\nw2 < w3\n'] ];
 (async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
   const cdp = await c.newCDPSession(pg); await cdp.send('Performance.enable');
-  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); await pg.evaluate(() => { document.getElementById('sheetRoot').innerHTML = ''; });
+  await pg.goto('http://localhost:8765/index.html?ux=0', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500); await pg.evaluate(() => { document.getElementById('sheetRoot').innerHTML = ''; });
   await pg.evaluate(async () => { await ensureAll(); view.st.wide = true; view.st.mode = 'query'; view.st.qMode = 'text'; view.st.qkey = null; render(); });
   const heap = async () => { const m = await cdp.send('Performance.getMetrics'); return Math.round(m.metrics.find(x => x.name === 'JSHeapUsedSize').value / 1048576); };
   const run = async (text, mode) => pg.evaluate(async ([text, mode]) => { try { localStorage.setItem('milal-q-worker', mode === 'main' ? 'off' : 'on'); } catch (e) { } const S = view.st; S.qt = text; S.qres = null; S.qkey = null; const t0 = performance.now(); qExec(); render();

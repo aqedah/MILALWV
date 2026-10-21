@@ -1,7 +1,7 @@
 // 작업 A-1 전수검사: 욥기 절 원자 2,977개의 'V1 보존 여부' 상태를 세고, 원자료 사본·IF-1 과 대조한다. 실행: node pipeline/ui_tests/native_audit.js
 const { chromium } = require('playwright');
 (async () => { const br = await chromium.launch(); const pg = await br.newPage();
-  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500);
+  await pg.goto('http://localhost:8765/index.html?ux=0', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(2500);
   await pg.evaluate(async () => { setRange({ b: 18, c1: 1, c2: 1 }); view.st.mode='verse'; view.st.rd='struct'; view.st.milalOn = true; render(); await loadBook(18); }); await pg.waitForFunction(() => ML[18] && ML[18].state === 'ok' && ML[18].bhsaNative, null, { timeout: 60000 });
   const R = await pg.evaluate(() => { const st = ML[18]; const a0 = SD.bookA[17], a1 = SD.bookA[18]; const cnt = {}, bad = [], byca = st.bhsaNative; let wrongPreserved = 0;
     for (let aid = a0; aid < a1; aid++) { const ca = SD.can[aid], cid = SD.wc[atomFirstWord(aid)], S = bhsaNativeStatus(st, ca, SD.ccn[cid]); cnt[S.code] = (cnt[S.code] || 0) + 1;

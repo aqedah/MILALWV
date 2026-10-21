@@ -4,7 +4,7 @@
 import re, pathlib
 src = pathlib.Path("index.html").read_text(encoding="utf-8")
 out = src.replace("<title>", "<title>[시안] ", 1)
-out = re.sub(r"(<script>window\.STUDY_V=)", r'<script>window.UX2=true;</script><!-- UX 시안 스위치(지시 10). 운영 index.html 에는 없음 -->\n\1', out, count=1)
+out = re.sub(r"<script>window\.UX2=[^<]*</script>", "<script>window.UX2=true;</script>", out, count=1)
 assert "window.UX2=true" in out
 pathlib.Path("preview.html").write_text(out, encoding="utf-8")
 print("preview.html 생성", len(out), "bytes")

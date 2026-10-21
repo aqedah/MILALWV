@@ -3,7 +3,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
 const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (c ? '' : ' — ' + info));
 (async () => {
   const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
-  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(800); const x = await pg.$('#sheetX'); if (x) await x.click();
+  await pg.goto('http://localhost:8765/index.html?ux=0', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && document.querySelector('.rdv'), null, { timeout: 60000 }); await pg.waitForTimeout(800); const x = await pg.$('#sheetX'); if (x) await x.click();
   await pg.evaluate(() => { setRange({ b: 1, c1: 22, c2: 22 }); view.st.mode = 'tool'; view.st.range = 'chapter'; view.st.tool = '반복'; view.st.entered = true; render(); }); await pg.waitForTimeout(500);
   const cnt = await pg.evaluate(() => [...document.querySelectorAll('#sToolRes .scount b')].map(b => +b.textContent.replace('번', '')));
   ok('E-1a 기본은 많이 나온 순(내림차순)', cnt.length > 3 && cnt.every((v, i) => i === 0 || v <= cnt[i - 1]), JSON.stringify(cnt));

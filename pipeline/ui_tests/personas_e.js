@@ -1,6 +1,6 @@
 // 작업 E: 신학생 세 사람(초급·중급·대학원)의 과제를 화면 단추만 눌러 수행하며 터치 수·화면 이동·막히는 곳을 잰다 (Pixel 5 에뮬레이션, 실제 사용자 아님)
 const { chromium, devices } = require('playwright'); const OUT = (process.argv[2] || '/tmp') + '/';
-const URL0 = 'http://localhost:8765/index.html'; const LOG = []; let taps = 0, screens = 0, shot = 0;
+const URL0 = 'http://localhost:8765/index.html?ux=0'; const LOG = []; let taps = 0, screens = 0, shot = 0;
 const log = (s) => { LOG.push(s); console.log(s); };
 (async () => {
   const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
