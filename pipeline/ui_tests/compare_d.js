@@ -14,10 +14,10 @@ const { chromium, devices } = require('playwright'); const R = []; const ok = (n
   // 기능어 포함 토글
   await pg.click('#cmpFn'); await pg.waitForTimeout(400); const withFn = await pg.evaluate(() => view.st.cmpR.shared.length); await pg.click('#cmpFn'); await pg.waitForTimeout(400); const without = await pg.evaluate(() => view.st.cmpR.shared.length); ok('D5 기능어 포함하면 공통 어휘가 늘어남', withFn > without, withFn + ' > ' + without);
   // ---- 대학원: 욥 32:6 ↔ 34:1 인용 후보 → 공통 연쇄 → 해석 메모 → Markdown
-  taps = 0; await pg.evaluate(() => cmpGo('욥 32:6','욥 34:1','quote')); taps++; await pg.waitForTimeout(350); await pg.waitForFunction(() => /공통 연쇄/.test(document.querySelector('#main').innerText), null, { timeout: 30000 }); await pg.waitForTimeout(300);
-  I = await pg.evaluate(() => { const R = view.st.cmpR; return { runs: R.runs.map(r => r.a.map(w => wHeb(w).trim()).join(' ')), t: view.st.cmp.t, txt: document.querySelector('#main').innerText.includes('앱은 인용이라 단정하지 않습니다') }; });
+  taps = 0; await pg.evaluate(() => cmpGo('욥 32:6','욥 34:1','quote')); taps++; await pg.waitForTimeout(350); await pg.waitForFunction(() => /같은 순서로 이어진 말/.test(document.querySelector('#main').innerText), null, { timeout: 30000 }); await pg.waitForTimeout(300);
+  I = await pg.evaluate(() => { const R = view.st.cmpR; return { runs: R.runs.map(r => r.a.map(w => wHeb(w).trim()).join(' ')), t: view.st.cmp.t, txt: /앱이 정하지 않습니다/.test(document.querySelector('#main').innerText) }; });
   ok('D6 욥 32:6 ↔ 34:1: 공통 연쇄 "וַיַּעַן אֱלִיהוּא" 관찰, 인용 단정 안 함 문구', I.runs.some(r => /יַּעַן אֱלִיהוּא/.test(r)) && I.t === 'quote' && I.txt, JSON.stringify(I));
-  await pg.click('[data-cmpt="restate"]'); await pg.waitForTimeout(300); const diff = await pg.evaluate(() => ({ s: document.querySelectorAll('.cd-s').length, A: document.querySelectorAll('.cd-A').length, B: document.querySelectorAll('.cd-B').length })); taps++;
+  await pg.waitForTimeout(100);   /* 유형 단추 없앰(2026-10-21): 차이 보기는 늘 펼쳐짐 */ const diff = await pg.evaluate(() => ({ s: document.querySelectorAll('.cd-s').length, A: document.querySelectorAll('.cd-A').length, B: document.querySelectorAll('.cd-B').length })); taps++;
   ok('D7 재진술 후보: 차이 보기(공통/A에만/B에만) 표시', diff.s > 0 && diff.A > 0, JSON.stringify(diff));
   await tap('#cmpNote'); await pg.fill('#anInt', '도입 공식이 동사+이름으로 되풀이됨(관찰); 인용 여부는 미정'); await tap('#anSave');
   const md = await pg.evaluate(() => { exportCompare(); return window.__lastExport.txt; }); taps++;
