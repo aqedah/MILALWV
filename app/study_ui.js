@@ -257,7 +257,7 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
   if(t==="화자"){ const C=new Map(); const byBook=!sp||new Set(sp.map(x=>x[0])).size>1;
     forWords(sp,i=>{ const [b,c]=SD.V[SD.vOf[i]]; const k=byBook?b:b*1000+c; const o=C.get(k)||[0,0,0]; const d=SD.domW[i]; o[d===SD.dN?0:d===SD.dQ?1:2]++; C.set(k,o); });
     const L=[...C.entries()].sort((a,b)=>a[0]-b[0]);
-    let h=`<p class="lead">BHSA는 문장마다 서술자의 말인지, 인물이 하는 말(따옴표 안)인지 표시해 둡니다. 막대는 낱말 수의 비율입니다.</p><div class="slegend"><i class="n"></i>서술 <i class="q"></i>인물의 말 <i class="o"></i>율법·시·구분 안 됨</div><div class="sdist">${L.slice(0,80).map(([k,[a,b,c]])=>{ const s=a+b+c||1; return `<div class="amrow"><span class="n">${byBook?esc(PLAN.abbr[k-1]):esc(PLAN.abbr[Math.floor(k/1000)-1]+" "+(k%1000))}</span><span class="bar3"><i class="n" style="width:${a/s*100}%"></i><i class="q" style="width:${b/s*100}%"></i><i class="o" style="width:${c/s*100}%"></i></span><b>${Math.round(b/s*100)}%</b></div>`; }).join("")}</div>`;
+    let h=ux2()&&window.spkHTML&&sp?spkHTML(sp[0]):`<p class="lead">BHSA는 문장마다 서술자의 말인지, 인물이 하는 말(따옴표 안)인지 표시해 둡니다. 막대는 낱말 수의 비율입니다.</p><div class="slegend"><i class="n"></i>서술 <i class="q"></i>인물의 말 <i class="o"></i>율법·시·구분 안 됨</div><div class="sdist">${L.slice(0,80).map(([k,[a,b,c]])=>{ const s=a+b+c||1; return `<div class="amrow"><span class="n">${byBook?esc(PLAN.abbr[k-1]):esc(PLAN.abbr[Math.floor(k/1000)-1]+" "+(k%1000))}</span><span class="bar3"><i class="n" style="width:${a/s*100}%"></i><i class="q" style="width:${b/s*100}%"></i><i class="o" style="width:${c/s*100}%"></i></span><b>${Math.round(b/s*100)}%</b></div>`; }).join("")}</div>`;
     const hn=SD.lexByKey["HNH"]||[]; const hits=new Map(), ex=[]; forWords(sp,i=>{ if(!hn.includes(SD.wl[i])) return; const vi=SD.vOf[i]; if(SD.domW[i]===SD.dN){ if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); } else ex.push([vi,i,SD.domW[i]===SD.dQ?"인물의 말(따옴표 안)의 '보라'":"율법·시 등 서술·인물의 말로 나뉘지 않은 곳의 '보라'"]); });
     h+=`<span class="label" style="margin-top:14px">서술 속의 '보라(힌네)'</span>`+toolRule(`BHSA가 서술자의 말(따옴표 밖)로 표시한 곳의 '힌네'만 모았습니다. (${hits.size}곳)`,`서술자의 '보라'는 흔히 독자를 인물의 눈으로 보게 한다고 읽지만, 늘 그런 것은 아닙니다. 누구의 눈으로 보는지는 앞뒤 문맥에서 확인하세요.`)+toolExcl(`'보라'가 있지만 모으지 않은 곳 ${new Set(ex.map(e=>e[0])).size}곳`,ex)+hitList(hits,S.more,"이 범위의 서술에는 '보라'가 없습니다.");
     return h; }
@@ -373,7 +373,7 @@ function bindStudy(m){
   const S=view.st, rr=()=>{ S.more=1; render(); };
   const r=document.getElementById("sdRetry"); if(r) r.onclick=()=>{ studyLoad(); render(); };
   if(!SD) return;
-  bindQuery(m); if(window.nbBind) nbBind(m); if(view.st.mode==="compare"&&window.bindCompare) bindCompare(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
+  bindQuery(m); if(window.nbBind) nbBind(m); if(window.bindSpk) bindSpk(m); if(view.st.mode==="compare"&&window.bindCompare) bindCompare(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
   const sh=document.getElementById("sHome"); if(sh) sh.onclick=openAddr;
     m.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ setRange(JSON.parse(b.dataset.ar)); S.mode="verse"; render(); scrollTo({top:0}); });
   const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostMenu) bindHostMenu(ha);

@@ -1,0 +1,16 @@
+// 말하는 이 후보 낱말(사람·하나님·무리처럼 '말할 수 있는' 이름) 목록 만들기 → study/speakers.json 의 anim
+// 구약 전체에서 '말하다·대답하다·부르다' 동사가 있는 절의 주어 구에 나온 명사·고유명사를 모은다(자료에서 나온 생물성).
+// 쓰기: (앱 서버를 8765 에 띄운 뒤) node pipeline/speakers_anim.js
+const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
+(async () => { const br = await chromium.launch(); const pg = await br.newPage(); await pg.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} });
+  await pg.goto('http://localhost:8765/index.html'); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L, null, { timeout: 60000 });
+  const r = await pg.evaluate(async () => { await ensureAll(); const SPV = new Set(['>MR[', 'DBR[', '<NH[', 'QR>[', 'Y<Q[', 'Z<Q[', 'JR>[', 'JD<[', '>HB[', 'FN>[', 'BKH[', 'C>L[', 'PLL[', 'BRK[', 'NCQ[', 'CB<[', 'NDR[']);   /* 말하기·부르짖기 + 사람이 하는 마음의 일(두려워하다·알다·사랑하다·미워하다·울다·묻다·기도하다·축복하다·입 맞추다·맹세하다·서원하다) */ const subj = new Set(['Subj', 'PreS'].map(f => SD.FN.indexOf(f)));
+    const SAY = new Set(['>MR[', 'DBR[', '<NH[', 'QR>[', 'Y<Q[', 'Z<Q[']); const spkCl = new Map(); for (let i = 0; i < SD.wl.length; i++) { const k = SD.L[SD.wl[i]][1]; if (SPV.has(k) && SD.M[SD.wm[i]][0] === 'verb') spkCl.set(SD.wc[i], Math.max(spkCl.get(SD.wc[i]) || 0, SAY.has(k) ? 2 : 1)); }   /* 말하기 동사는 2점, 마음의 일 동사는 1점 */
+    const cnt = new Map(); for (let i = 0; i < SD.wl.length; i++) { if (!subj.has(SD.wf[i]) || !spkCl.has(SD.wc[i])) continue; const x = SD.L[SD.wl[i]]; if (x[2] !== 'subs' && x[2] !== 'nmpr') continue; cnt.set(x[1], (cnt.get(x[1]) || 0) + spkCl.get(SD.wc[i])); }
+    /* 사람·하나님·민족으로 풀이된 고유명사도 넣는다(말하는 장면이 없어도 말할 수 있는 이름) */
+    for (const x of SD.L) if (x[2] === 'nmpr' && /\((사람|하나님|민족|사람·지파|족속|사람·민족|민족·나라|천사|왕)/.test(x[9] || '')) cnt.set(x[1], (cnt.get(x[1]) || 0) + 2);
+    const NOT = new Set(['<WN/', '<YM/', '>BDWN/', '>BN/', '>DMH/', '>HL/', '>J/', '>RB</', '>TWN/', '>WN=/', 'BFR/', 'BLJ<L/', 'BVN/', 'CBR/', 'CJRH/', 'CNJM/', 'CQR/', 'DJ/', 'DR</', 'FPH/', 'G>WN/', 'GJ>/', 'GLGL/', 'HKRH/', 'JMJN/', 'JYR/', 'KLJ/', 'KPJS/', 'KSP/', 'KZB/', 'M<FH/', 'M<WZ/', 'MCL/', 'ML>=/', 'MRJ/', 'MVH/', 'MWT/', 'NCTWN/', 'NXC/', 'PRCGN/', 'PRJ/', 'R<W/', 'SP=/', 'THWM/', 'XD=/', 'XKMH/', 'XMC/', 'XMR/', 'XRBH=/', 'XV>T/', 'XYJ/', 'XZW/', 'XZWN/', 'YDQH/', 'YWR/', 'ZR</', 'PNH/', '>XD/', 'R>C/', 'KL/', 'BD/', 'TMJD/', 'J<N/', '<T/', 'QWL/', 'DBR/', 'LB/', 'LBB/', 'JM/', 'NPC/', 'RWX/', '>RY/', 'CMJM/', 'MJM/', 'JD/', 'PH/', 'LCWN/', 'GWRL/', 'JWM/', 'LJLH/', '<JN/', 'XRB/', '>C/', 'MLXMH/', 'BJT/', '<JR/', 'DM/', 'C<R/', 'DRK/', 'MQWM/', 'KBWD/', 'CM/', 'XSD/', '>MT/', 'CLWM/']);   /* 사람이 아닌데 위 동사의 주어로 가끔 쓰이는 말(소리·말씀·마음·바다·바람·땅 …) */
+    return [...cnt.entries()].filter(([k, n]) => n >= 2 && !NOT.has(k)).map(([k]) => k).sort(); });
+  const f = path.join(__dirname, '../study/speakers.json'); let D = {}; try { D = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) {}
+  D.v = 1; D.anim = r; D.cur ||= {}; D.note = '말하는 이 판정 자료. anim: 말할 수 있는 이름 낱말(구약에서 말하기 동사의 주어로 나온 명사·고유명사 + 사람·하나님·민족 고유명사). cur: 목사님이 확인한 말한 차례(책 번호별, 첫 낱말의 BHSA 번호로 찾음).';
+  fs.writeFileSync(f, JSON.stringify(D)); console.log('anim', r.length, r.slice(0, 30).join(' ')); await br.close(); })();
