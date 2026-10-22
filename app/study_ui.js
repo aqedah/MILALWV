@@ -35,7 +35,7 @@ const R_TABS=[["flow","흐름 관찰","wave"],["find","낱말·문법 찾기","u
 const R_FLOWT=[["tool:반복","반복","되풀이되는 말","repeat"],["tool:화자","화자","서술과 인물의 말","speak"],["tool:장면","장면","장면이 바뀌는 단서","scene"],["tool:전환","전환","서술 흐름이 바뀌는 단서","shift"],["tool:인물","인물","주어로 나온 이름","person"],["theory","바탕이 되는 생각","내러티브 비평으로 읽기","book"]];
 const R_FINDT=[["usage","낱말의 다른 용례","한 낱말이 구약 어디에(책별로)","usage"],["query","문법·문장 모양","조건 카드로 묶어 찾기","cards"],["compare","두 본문 비교","같은 순서로 이어진 말·드문 낱말","compare"],["adv","고급 검색","Text-Fabric 검색식 직접 쓰기","code"]];
 const rTile=([k,t,d,ic])=>`<button class="rtile" data-rstart="${k}">${RI(R_ICON[ic])}<b>${esc(t)}</b><small>${esc(d)}</small></button>`;
-function rChLabel(){ const R=view.st.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rChLabel(){ const R=view.st.R; if(!R) return ""; if(rHasV(R)) return rTxt(R); const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
 function rTab(){ const S=view.st; if(!S.rtab){ try{ S.rtab=localStorage.getItem("milal-rtab")||"flow"; }catch(e){ S.rtab="flow"; } } return R_TABS.some(t=>t[0]===S.rtab)?S.rtab:"flow"; }
 function renderResearchStart(){ const S=view.st, tab=rTab();
   let h=`<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2>${window.nbStartHTML?nbStartHTML():""}<div class="rtabs" role="tablist">${R_TABS.map(([k,n,ic])=>`<button role="tab" aria-selected="${tab===k}" data-rtab="${k}">${RI(R_ICON[ic])}<span>${n}</span></button>`).join("")}</div>`;
@@ -45,7 +45,7 @@ function renderResearchStart(){ const S=view.st, tab=rTab();
   return h+`</section>`; }
 /* UX 시안: 낱말 찾기 첫 화면에 이 범위에서 자주 나오는 낱말 5개를 보기로 — 누르면 바로 그 낱말의 용례 */
 const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);
-function topWordsHTML(){ const S=view.st, sp=S.R?[[S.R.b,S.R.c1,S.R.c2]]:null; const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
+function topWordsHTML(){ const S=view.st, sp=S.R?[rSpan(S.R)]:null; const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
   const top=[...M].sort((a,b)=>b[1]-a[1]).slice(0,5); if(!top.length) return "";
   return `<div class="topw"><span class="label">${esc(rLabel(S.R))}에서 자주 나오는 낱말 — 누르면 구약 전체에서의 쓰임을 책별로 봅니다</span><div class="qqs">${top.map(([li,n])=>`<button class="qq" data-slex="${li}"><b><span class="heb">${esc(SD.L[li][0])}</span> ${esc(lexGloss(li))}</b><small>이 범위에서 ${n}번 · ${esc(SP_K[SD.L[li][2]]||SD.L[li][2])}</small></button>`).join("")}</div><p class="lead" style="margin-top:6px">다른 낱말은 위 칸에 뜻·히브리어·음역으로 찾습니다.</p></div>`; }
 /* ===== UX 시안: 본문에서 낱말을 긁어 고르면 뜨는 작은 창(형광펜 색 4·밑줄·괄호·복사·메모). 한 절 안의 낱말만 받는다 ===== */
@@ -76,13 +76,14 @@ function selPopAct(k){ const S=view.st, W=S.selW; if(!W) return; const [st,co]=k
 const sfzHTML=()=>`<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div>`;
 /* ===== 연구 탭의 '찾는 곳' — 범위를 정하는 곳은 여기 하나(새 화면). 모든 도구가 이것만 따른다 ===== */
 function rBookLast(b){ const B=SD.book[b]; return B?Math.max(...B.chs):1; }
-function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||(S.mode==="start"&&rTab()==="find"))) return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||(S.mode==="start"&&rTab()==="find"))) return "구약 전체"; const R=S.R; if(!R) return ""; if(rHasV(R)) return rTxt(R); const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
 function rScopeHTML(){ return ""; /* 2026-10-21: 범위는 위 주소 단추에서(연구 탭에서는 '이 장/이 책 전체/구약 전체' 고르기) */ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
 function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)?S.vc:R.c1, last=rBookLast(b), u=b===19?"편":"장"; const tool=S.mode==="tool";
-  sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>${window.qcJobHTML?qcJobHTML():""}`);
+  sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["verse",`절까지 정하기… — ${PLAN.full[b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}의 몇 절부터 몇 절까지`],["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>${window.qcJobHTML?qcJobHTML():""}`);
   document.querySelectorAll("#sheetRoot [data-rjob]").forEach(x=>x.onclick=()=>{ document.getElementById("sheetRoot").innerHTML=""; const [a,z]=x.dataset.rjob.split("-").map(Number); qcJob(a,z); });
   document.querySelectorAll("#sheetRoot [data-rsc]").forEach(x=>x.onclick=()=>{ const k=x.dataset.rsc; document.getElementById("sheetRoot").innerHTML="";
     if(k==="pick"){ S.pick=true; S.pk={b,c1:null,c2:null}; render(); scrollTo({top:0}); return; }
+    if(k==="verse"){ S.pick=true; S.pk={b,c1:R.c1,c2:R.c2,v1:R.v1||null,v2:R.v2||null}; render(); setTimeout(()=>document.getElementById("pkV1")?.scrollIntoView({block:"center"}),50); return; }
     if(k==="all"){ S.wide=true; } else { S.wide=false; setRange(k==="ch"?{b,c1:c,c2:c}:{b,c1:1,c2:last}); } render(); }); }
 /* 본문에서 '이 원어로 검색' → 다 보면 본문의 그 자리로 돌아간다(✕·'본문으로' 단추·휴대전화 뒤로 가기) */
 function wordFromText(li){ const S=view.st; if(S.mode==="verse") S.fromText={R:{...S.R},vc:S.vc,rv:S.rv,rw:S.rw,rd:S.rd,y:scrollY,ref:S.rw!=null&&SD.vOf?sRef(SD.vOf[S.rw]):rLabel(S.R)};
@@ -171,8 +172,15 @@ function morphFull(mi){ const [sp,vs,vt,ps,gn,nu,st,pp,pg,pn]=SD.M[mi]; const o=
   if(pp&&pp!=="NA"&&pp!=="unknown"){ o.push("인칭 접미어 "+[PS_K[pp]?PS_K[pp]+"인칭":"",GN_K[pg]?GN_K[pg]+"성":"",NU_K[pn]?NU_K[pn]+"수":""].filter(Boolean).join(" ")); }
   return o.join(" · "); }
 /* 범위: [[책, 장 시작, 장 끝]] 또는 null(구약 전체) */
-function stSpans(){ const S=view.st; if(ux2()&&S.mode==="word") return null;   /* 새 화면: 낱말의 다른 용례는 늘 구약 전체 */ if(S.wide&&(S.mode==="word"||S.mode==="query")) return null; const R=S.R; return R?[[R.b,R.c1,R.c2]]:null; }
-const rLabel=R=>R?`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${R.b===19?"편":"장"}`:"";
+function stSpans(){ const S=view.st; if(ux2()&&S.mode==="word") return null;   /* 새 화면: 낱말의 다른 용례는 늘 구약 전체 */ if(S.wide&&(S.mode==="word"||S.mode==="query")) return null; const R=S.R; return R?[rSpan(R)]:null; }
+/* 장:절 범위(2026-10-22 목사님): R={b,c1,c2} 에 v1(시작 장의 첫 절)·v2(끝 장의 끝 절)를 더할 수 있다. 없으면 장 전체 */
+const rHasV=R=>!!R&&(R.v1!=null||R.v2!=null);
+const rSpan=R=>R?(rHasV(R)?[R.b,R.c1,R.c2,R.v1||1,R.v2||999]:[R.b,R.c1,R.c2]):null;
+function rTxt(R,abbr){ if(!R) return ""; const bn=abbr?PLAN.abbr[R.b-1]:PLAN.full[R.b-1], u=R.b===19?"편":"장";
+  if(rHasV(R)){ const v2=R.v2||rLastVerse(R.b,R.c2); return `${bn} ${R.c1}:${R.v1||1}–${R.c1===R.c2?"":R.c2+":"}${v2}`; }
+  return `${bn} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rLastVerse(b,c){ const L=SD&&SD.ch&&SD.ch.get(b+"-"+c); return L&&L.length?SD.V[L[L.length-1]][2]:999; }
+const rLabel=R=>rTxt(R);
 function stRangeLabel(){ const sp=stSpans(); if(!sp) return "구약 전체"; return rLabel(view.st.R); }
 /* 오늘 본문 가운데 구약 첫 책의 장 범위 */
 function todayOT(){ return null; } /* 통독 일정이 없으므로 늘 없음 */
@@ -208,7 +216,7 @@ function openStudyInfo(){ sheet("장 구조 보는 법",`<div class="theory"><p>
   <p>줄마다 BHSA 2021의 절 원자 노드 번호를 간직하고 있어, MILAL이 판정한 관계를 그대로 받아 겹쳐 보일 수 있습니다(준비 중). 낱말을 누르면 뜻·꼴·문장 속 역할이 나옵니다. 오른쪽 끝 숫자는 절 번호입니다. 이 구분은 ETCBC(탈스트라)와 니카치의 본문언어학을 따른 참고 표시입니다.</p></div>`); }
 
 function inSpan(vi,sp){ if(!sp) return true; const [b,c]=SD.V[vi]; for(const [B,a,z] of sp) if(b===B&&c>=a&&c<=z) return true; return false; }
-function spanVerses(sp){ if(!sp) return null; const out=[]; for(const [B,a,z] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1]; if(c>=a&&c<=z) out.push(vi); } } return out; }
+function spanVerses(sp){ if(!sp) return null; const out=[]; for(const [B,a,z,v1,v2] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1], v=SD.V[vi][2]; if(c>=a&&c<=z&&!(v1!=null&&c===a&&v<v1)&&!(v2!=null&&c===z&&v>v2)) out.push(vi); } } return out; }
 function forWords(sp,fn){ if(!sp){ if(SD.allLoaded){ const N=SD.wl.length; for(let i=0;i<N;i++) fn(i); return; } for(const b of SD.loaded){ const z=SD.book[b].z, end=SD.V[z][5]+SD.V[z][6]; for(let i=SD.V[SD.book[b].a][5];i<end;i++) fn(i); } return; } for(const vi of spanVerses(sp)){ const [,,,,,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++) fn(j); } }
 /* 공통 결과 목록: hits = Map(vi → Set(낱말 번호)) */
 function hitList(hits,more,emptyMsg){
@@ -307,7 +315,11 @@ function pickerHTML(){ const S=view.st, pk=S.pk ||= {b:null,c1:null,c2:null};
   return `<section class="sec">${back}<button class="pktitle pkbookbtn" id="pkBook" title="다른 책 고르기">${esc(PLAN.full[pk.b-1])} <i>▾</i><small>책 바꾸기</small></button><p class="lead" style="margin:0 0 8px">시작 ${u} → 끝 ${u}을 차례로 누르세요. 같은 ${u}을 두 번 누르면 그 한 ${u}만 고릅니다.</p>
    <div class="pkchs">${chs.map(c=>`<button data-pkc="${c}" class="${c===lo||c===hi?"end":lo!=null&&hi!=null&&c>lo&&c<hi?"mid":""}">${c}</button>`).join("")}</div>
    ${lo!=null?`<p class="pksel">고른 범위 · <b>${esc(PLAN.full[pk.b-1])} ${pk.c2==null?lo+u+" (끝 "+u+"을 누르세요)":(lo===hi?lo:lo+"–"+hi)+u}</b></p>`:""}
+   ${lo!=null?pkVerseHTML(pk,lo,hi==null?lo:hi,u):""}
    <button class="sbtn" id="pkGo"${lo==null?" disabled":""}>이 범위로 연구</button><p class="lead" style="font-size:12px">한 번에 한 책 안에서 고릅니다. 다른 책은 위의 책 이름을 누르세요.</p>${S.R?`<button class="sbtn ghost" data-pkcancel="1">돌아가기</button>`:""}</section>`; }
+/* 장을 고른 뒤 절까지 좁히기(선택): 시작 장의 첫 절 ~ 끝 장의 끝 절. 40절·50절이 넘는 장은 절을 한정해 보는 편이 낫다 */
+function pkVerseHTML(pk,lo,hi,u){ const n1=rLastVerse(pk.b,lo), n2=rLastVerse(pk.b,hi), v1=pk.v1||1, v2=Math.min(pk.v2||n2,n2); const opt=(n,cur)=>Array.from({length:n},(_,i)=>i+1).map(v=>`<option value="${v}"${v===cur?" selected":""}>${v}</option>`).join("");
+  return `<div class="pkverse"><span class="label">절까지 좁히기 <small>(선택 — 그대로 두면 ${u} 전체)</small></span><div class="pkvrow"><label>시작 <b>${lo}${u}</b> <select id="pkV1">${opt(n1,v1)}</select>절</label><span>~</span><label>끝 <b>${hi}${u}</b> <select id="pkV2">${opt(n2,v2)}</select>절</label></div>${n1>=40||n2>=40?`<p class="lead" style="margin:4px 0 0;font-size:12.5px">이 ${u}은 ${Math.max(n1,n2)}절이나 됩니다. 단락 하나만 보려면 절을 좁혀 보세요.</p>`:""}</div>`; }
 function gateHTML(){ const L=lastRange(), RC=recentRanges(); let h=`<section class="sec">`;
   h+=`<div class="scard"><small>BIBLIA HEBRAICA · BHSA</small><h3>어디로 갈까요</h3><p class="lead">책과 장을 고르면 히브리어 원문을 읽기·구조·낱말·검색식으로 살핍니다.</p><button class="sbtn" id="sOther">책 → 장 고르기</button></div>`;
   if(RC.length) h+=`<div class="pkgrp">최근 본 곳</div><div class="achips">${RC.map(R=>`<button class="achip" data-ar='${JSON.stringify(R)}'>${esc(rLabel(R))}</button>`).join("")}</div>`;
@@ -371,10 +383,13 @@ function bindStudy(m){
   const so=document.getElementById("sOther"); if(so) so.onclick=()=>{ S.pick=true; S.pk=null; render(); scrollTo({top:0}); };
   const srg=document.getElementById("sRange"); if(srg) srg.onclick=()=>{ S.pick=true; S.pk={b:S.R.b,c1:S.R.c1,c2:S.R.c2}; render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-pkb]").forEach(b=>b.onclick=()=>{ S.pk={b:+b.dataset.pkb,c1:null,c2:null}; render(); scrollTo({top:0}); });
-  m.querySelectorAll("[data-pkc]").forEach(b=>b.onclick=()=>{ const c=+b.dataset.pkc, pk=S.pk; if(pk.c1==null||pk.c2!=null){ pk.c1=c; pk.c2=null; } else pk.c2=c; pkS(); });
+  m.querySelectorAll("[data-pkc]").forEach(b=>b.onclick=()=>{ const c=+b.dataset.pkc, pk=S.pk; if(pk.c1==null||pk.c2!=null){ pk.c1=c; pk.c2=null; } else pk.c2=c; pk.v1=pk.v2=null; pkS(); });
   const pb=document.getElementById("pkBook"); if(pb) pb.onclick=()=>{ S.pk={b:null,c1:null,c2:null}; render(); };
   m.querySelectorAll("[data-pkcancel]").forEach(b=>b.onclick=()=>{ S.pick=false; S.pk=null; render(); scrollTo({top:0}); });
-  const pkg=document.getElementById("pkGo"); if(pkg) pkg.onclick=()=>{ const pk=S.pk; if(pk.c1==null) return; const c2=pk.c2==null?pk.c1:pk.c2; setRange({b:pk.b,c1:Math.min(pk.c1,c2),c2:Math.max(pk.c1,c2)}); render(); scrollTo({top:0}); };
+  const pv1=document.getElementById("pkV1"), pv2=document.getElementById("pkV2"); if(pv1) pv1.onchange=()=>{ S.pk.v1=+pv1.value; }; if(pv2) pv2.onchange=()=>{ S.pk.v2=+pv2.value; };
+  const pkg=document.getElementById("pkGo"); if(pkg) pkg.onclick=()=>{ const pk=S.pk; if(pk.c1==null) return; const c2=pk.c2==null?pk.c1:pk.c2, lo=Math.min(pk.c1,c2), hi=Math.max(pk.c1,c2), R={b:pk.b,c1:lo,c2:hi};
+    if(pv1&&pv2){ const v1=+pv1.value, v2=+pv2.value; if(lo===hi&&v2<v1){ toast("끝 절이 시작 절보다 앞입니다."); return; } if(v1>1) R.v1=v1; if(v2<rLastVerse(pk.b,hi)) R.v2=v2; }
+    setRange(R); render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-swide]").forEach(b=>b.onclick=()=>{ S.wide=!!b.dataset.swide; rr(); });
   m.querySelectorAll("[data-smode]").forEach(b=>b.onclick=()=>{ S.mode=b.dataset.smode; if(S.mode==="tool"&&S.range==="all") S.range="book"; rr(); });
   m.querySelectorAll("[data-srange]").forEach(b=>b.onclick=()=>{ S.range=b.dataset.srange; rr(); });

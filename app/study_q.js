@@ -20,12 +20,12 @@ function qRoundTrip(text){ const P=qParse(text); if(P.err) return {ok:false,err:
   /* 상자 화면으로 '고칠 수는 없고 보기만' 되는 것: 이름 관계, 상자 메뉴에 없는 관계 기호, =·~·값 있음 조건(칩) */
   const readonly=[]; (function walk(n){ if(n.op&&!["","<","<:","=:",":="].includes(n.op)) readonly.push(`관계 기호 ${n.op}(${n.t})`); n.conds.forEach(c=>{ if(c.o!=="="||c.f==="lex_utf8") readonly.push(`${n.t} 조건 ${c.f}${c.o}${Array.isArray(c.v)?c.v.join("|"):c.v}`); }); n.ch.forEach(walk); })(P.root); P.rels.forEach(r=>readonly.push(`이름 관계 ${r.a} ${r.op} ${r.b}`));
   return {ok,block:b,back,lost,readonly}; }
-function qWrapRange(text){ const sp=stSpans(); if(!sp) return text; const books=[...new Set(sp.map(x=>x[0]))]; if(books.length!==1) return text;
+function qWrapRange(text){ const sp=stSpans(); if(!sp) return text; const vNote=sp[0].length>3?`% 앱에서는 ${rTxt(view.st.R)}(절 범위)로 찾았습니다. 아래 식은 장 단위입니다.\n`:""; const books=[...new Set(sp.map(x=>x[0]))]; if(books.length!==1) return text;
   const b=books[0], chs=[...new Set(sp.flatMap(([B,a,z])=>{ const all=[...SD.book[B].chs].sort((x,y)=>x-y); return all.filter(c=>c>=a&&c<=z); }))];
   const full=chs.length===SD.book[b].chs.size; const ind=s=>s.split("\n").filter(Boolean).map(l=>"  "+l).join("\n");
   /* 개역개정 장 번호를 히브리어 장 번호로(대부분 같음) */
   const hc=[...new Set(SD.V.filter((x,vi)=>x[0]===b&&chs.includes(x[1])).map(x=>x[3]))];
-  return `book book=${SD.BK[b-1]}\n`+(full?ind(text):`  chapter chapter=${hc.join("|")}\n`+ind(ind(text))); }
+  return vNote+`book book=${SD.BK[b-1]}\n`+(full?ind(text):`  chapter chapter=${hc.join("|")}\n`+ind(ind(text))); }
 /* 준비된 검색식 */
 const Q_RECIPES={
   "전환a":"clause typ=NmCl|AjCl domain=N\n",
@@ -62,7 +62,7 @@ function qResearchHints(P){ const Hs=[]; const Q=qExampleLive()?Q_QUESTIONS.find
   if(!Q||!Q.hints){ if(has("lex")) Hs.push("이 낱말이 나올 때 바로 앞 절과 뒤 절을 함께 읽고, 늘 같은 역할을 하는지 적어 보세요."); if(has("typ")) Hs.push("문장 종류가 같아도 쓰임이 같은지 몇 곳을 골라 견주어 보세요."); if(has("domain")) Hs.push("서술자의 말과 인물의 말에서 같은 모양이 다르게 쓰이는지 보세요."); if(has("function")) Hs.push("그 구가 문장 앞에 오는지 뒤에 오는지(어순)를 적어 보세요."); }
   Hs.push("한 책이나 한 장에 몰려 있다면 그 장을 구조 화면에서 열어 흐름 속에서 보세요."); return Hs.slice(0,4); }
 /* ===== 실행: 워커가 있으면 워커에서(화면이 멈추지 않음), 없거나 실패하면 주 스레드에서 같은 엔진으로 ===== */
-const Q_WORKER_URL="app/study_qw.js", Q_ENGINE_V="2";
+const Q_WORKER_URL="app/study_qw.js", Q_ENGINE_V="3";
 function qWorkerOn(){ try{ if(localStorage.getItem("milal-q-worker")==="off") return false; }catch(e){} return typeof Worker!=="undefined"&&!window.__qWorkerBroken; }
 function qWorkerGet(){ const S=view.st; if(S.qw) return S.qw; try{ const w=new Worker(Q_WORKER_URL+"?v="+Q_ENGINE_V,{name:Q_ENGINE_V}); w.key=null; w.onmessage=ev=>qWorkerMsg(ev.data); w.onerror=e=>{ console.warn("검색 워커 오류",e.message); window.__qWorkerBroken=true; const seq=S.qSeq; qWorkerDrop(); if(S.qres&&S.qres.loading&&S.qres.seq===seq){ qExecSync(); render(); } }; S.qw=w; return w; }catch(e){ window.__qWorkerBroken=true; return null; } }
 function qWorkerDrop(){ const S=view.st; if(S.qw){ try{ S.qw.terminate(); }catch(e){} S.qw=null; } }
@@ -293,10 +293,12 @@ function qCurrentText(){ const S=view.st; return S.qMode==="text"?(S.qt||""):qGe
 function qBookChs(b){ const B=SD.book&&SD.book[b]; return B&&B.chs?Math.max(...B.chs):null; }
 /* 저장값은 실제 검색 대상(stSpans)에서 만든다: wide → all(구약 전체) / R 이 그 책의 1장~끝장 → book(책 전체) / 그 밖 → chapter(장·장 범위). 옛 S.range 는 쓰지 않는다 */
 function qRangeOf(){ const S=view.st; const sp=stSpans(); if(!sp) return {range:"all",R:S.R?{b:S.R.b,c1:S.R.c1,c2:S.R.c2}:null,v:3};
-  const [b,c1,c2]=sp[0]; const last=qBookChs(b); return {range:c1===1&&last&&c2===last?"book":"chapter",R:{b,c1,c2},v:3}; }
+  const [b,c1,c2,v1,v2]=sp[0]; const last=qBookChs(b); const R={b,c1,c2}; if(v1!=null){ R.v1=v1; R.v2=v2; }
+  return {range:v1==null&&c1===1&&last&&c2===last?"book":"chapter",R,v:3}; }
 /* 보관된 범위를 그대로 되살린다. 옛 기록(v 없음)은 all 이 없으므로 책·장 범위로 복원(그때 S.wide 가 켜져 있었는지는 알 수 없음 — 목록에 '옛 기록' 표시) */
 function qApplyRange(q){ const S=view.st; if(q.range==="book"&&q.R&&q.v>=3){ const last=qBookChs(q.R.b); setRange({b:q.R.b,c1:1,c2:last||q.R.c2}); } else if(q.R) setRange(q.R); S.wide=q.range==="all"; }
 function qRangeLabel(q){ if(q.range==="all") return "구약 전체"; if(!q.R) return "범위 없음"; const R=q.R; if(!q.v||q.v<3) return `${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}`;   /* 옛 기록: 실제 장 범위만 적고 '책 전체'라 하지 않는다 */
+  if(rHasV(R)) return rTxt(R,true);
   return q.range==="book"?`${PLAN.full[R.b-1]} 전체 (1–${R.c2}장)`:`${PLAN.abbr[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}장`; }
 function qSaveCurrent(){ const text=qCurrentText().trim(); if(!text){ toast("먼저 검색식을 만드세요."); return; } const P=qParse(text); if(P.err){ toast("검색식에 문제가 있어 보관하지 않았습니다: "+P.err); return; }
   const rg=qRangeOf(); sheet("검색식 보관",`<p class="lead">이름을 붙여 두면 보관함에서 다시 실행할 수 있습니다. 범위(${esc(qRangeLabel(rg))})도 함께 저장됩니다.</p><input id="qsName" type="text" placeholder="예: 창 22장 봐이크톨+주어" style="width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);box-sizing:border-box"><pre class="qsrc" style="margin:8px 0;white-space:pre-wrap">${esc(text)}</pre><button class="sbtn" id="qsGo">보관하기</button>`);

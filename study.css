@@ -483,3 +483,6 @@ h3{font-size:14px;margin:14px 0 4px}
 .mapsrc{font-size:11.5px;margin-top:8px}
 .pkbookbtn{display:inline-flex;width:auto;max-width:100%;align-items:baseline;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:4px 12px;cursor:pointer;margin:8px 0 6px}
 .pkbookbtn i{font-style:normal;font-size:14px}.pkbookbtn small{font-family:var(--f-ui,inherit);font-size:12px;color:var(--muted);font-weight:400}
+.pkverse{margin:10px 0 8px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px}
+.pkvrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:6px;font-size:14px}
+.pkvrow select{font:inherit;font-size:15px;padding:6px 8px;border:1px solid var(--accent);border-radius:8px;background:var(--card);color:var(--ink);margin:0 4px}

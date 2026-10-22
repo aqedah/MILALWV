@@ -23,7 +23,7 @@ function renderMapTab(){ const S=view.st; if(!S.R) return "";
   if(!PLD){ plLoad().then(()=>{ if(view.st.mode==="start") render(); }).catch(()=>{ PLD={err:1}; render(); }); return `<p class="lead">지도 자료를 받는 중…</p>`; }
   if(PLD.err) return `<p class="lead">지도 자료를 받지 못했습니다. 인터넷 연결을 확인해 주세요.</p>`;
   if(!SD.loaded.has(S.R.b)) return `<p class="lead">본문 자료를 받는 중…</p>`;
-  const sp=[[S.R.b,S.R.c1,S.R.c2]], A=plInRange(sp), RT=plRoutes(S.R), P=PLD.P;
+  const sp=[rSpan(S.R)], A=plInRange(sp), RT=plRoutes(S.R), P=PLD.P;
   let h=`<p class="lead" style="margin:0 0 8px">${esc(rScopeLabel())}의 히브리어 원문에 나오는 지명을 지도에 찍었습니다. 다른 본문은 위의 주소 단추에서 고릅니다.</p>`;
   if(!A.pts.length&&!RT.length) return h+`<p class="lead">이 본문에는 지도에 표시할 곳이 나오지 않습니다.</p>${A.none.length?`<p class="lead">위치 자료가 없는 지명: ${esc(A.none.map(x=>x[0]).join(", "))}</p>`:""}`;
   h+=`<div class="mapbox"><div id="lmap" role="region" aria-label="이 본문에 나오는 곳 지도"></div><div class="cap"><span class="mleg"><i class="dot"></i>위치 확실 <i class="dot est"></i>추정 위치</span>${RT.length?`<span class="rleg">${RT.map((r,i)=>`<span><i style="border-color:${PL_RC[i%PL_RC.length]}"></i>${esc(r.n)}</span>`).join("")}</span>`:""}<span>점을 누르면 나오는 절을 봅니다 · 두 손가락으로 움직입니다</span></div></div>`;

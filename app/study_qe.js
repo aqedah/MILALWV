@@ -1,7 +1,7 @@
 /* ===== 검색식 엔진(계산부) — 주 스레드와 Web Worker 가 같은 파일을 쓴다. UI 를 건드리지 않는 순수 계산만 둔다.
    전역 SD(자료)와 PLAN(책 이름)에만 의존한다. 워커에서는 메시지로 받은 자료를 self.SD/self.PLAN 에 놓고 importScripts 로 이 파일을 읽는다. ===== */
 /* 워커에는 study_ui 의 spanVerses·annots 의 slotOf 가 없으므로 같은 계산을 여기서도 제공한다(주 스레드에서는 기존 함수가 있으면 그것을 쓴다) */
-const qeSpanVerses=sp=>{ if(typeof spanVerses==="function") return spanVerses(sp); if(!sp) return null; const out=[]; for(const [B,a,z] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1]; if(c>=a&&c<=z) out.push(vi); } } return out; };
+const qeSpanVerses=sp=>{ if(typeof spanVerses==="function") return spanVerses(sp); if(!sp) return null; const out=[]; for(const [B,a,z,v1,v2] of sp){ const bk=SD.book[B]; if(!bk) continue; for(let vi=bk.a;vi<=bk.z;vi++){ const c=SD.V[vi][1], v=SD.V[vi][2]; if(c>=a&&c<=z&&!(v1!=null&&c===a&&v<v1)&&!(v2!=null&&c===z&&v>v2)) out.push(vi); } } return out; };   /* [책, 시작 장, 끝 장, (시작 절), (끝 절)] */
 const qeSlotOf=i=>{ if(typeof slotOf==="function") return slotOf(i); const b=SD.V[SD.vOf[i]][0], bf=SD.V[SD.book[b].a][5]; return SD.bs[b-1]+(i-bf); };
 const qeNow=()=>(typeof performance!=="undefined"?performance.now():Date.now());
 const QT_ORDER=["book","chapter","verse","sentence","clause","phrase","word"];
