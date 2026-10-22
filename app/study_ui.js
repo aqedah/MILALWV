@@ -246,10 +246,13 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
     forWords(sp,i=>{ tot++; const li=SD.wl[i]; C.set(li,(C.get(li)||0)+1); if(SD.domW[i]===SD.dN) CN.set(li,(CN.get(li)||0)+1); });
     const NT=SD.wl.length, skip=new Set(["W","H","L","B","K","M",">T","MN","<L",">L",">CR","KJ","KL/","L>","HJH[",">MR[","ZH","HW>","JHWH/",">LHJM/"]);
     /* 두 가지 정렬: '많이 나온 순'(단순 횟수) / '두드러진 순'(구약 평균 대비 몰림 점수 c·log(c/기대)). 후보 집합과 점수 계산은 같다 */
-    const srt=S.repSort||"count";
-    const R0=[...C.entries()].filter(([li,c])=>c>=3&&!skip.has(SD.L[li][1])&&["subs","verb","adjv","nmpr","advb"].includes(SD.L[li][2])).map(([li,c])=>{ const e=SD.L[li][7]/NT*tot; return [li,c,c*Math.log(c/Math.max(e,0.5)),e]; }).filter(x=>x[2]>0);
+    const U2=ux2(), srt=U2?"count":(S.repSort||"count");   /* 새 화면(2026-10-22 목사님): '많이 나온 순'만 — 본문에 집중. 대신 이 범위 낱말 가운데 몇 %인지 */
+    const R0=[...C.entries()].filter(([li,c])=>c>=3&&!skip.has(SD.L[li][1])&&["subs","verb","adjv","nmpr","advb"].includes(SD.L[li][2])).map(([li,c])=>{ const e=SD.L[li][7]/NT*tot; return [li,c,c*Math.log(c/Math.max(e,0.5)),e]; }).filter(x=>U2||x[2]>0);
     const R=R0.sort(srt==="count"?((a,b)=>b[1]-a[1]||b[2]-a[2]):((a,b)=>b[2]-a[2])).slice(0,15);
     const seg=`<div class="seg sseg mseg" style="margin:4px 0 8px">${[["count","많이 나온 순"],["salient","이 범위에서 두드러진 순"]].map(([k,n])=>`<button aria-checked="${srt===k}" data-repsort="${k}">${n}</button>`).join("")}</div>`;
+    const pct=c=>{ const p=c/tot*100; return (p>=10?Math.round(p):p.toFixed(1))+"%"; };
+    if(U2){ if(!R.length) return `<p class="lead">범위가 짧아 세 번 이상 나오는 낱말이 없습니다. 범위를 넓혀 보세요.</p>`; const mx2=Math.max(...R.map(x=>x[1]));
+      return `<p class="lead">이 범위의 낱말 <b>${tot.toLocaleString()}</b>개 가운데 <b>세 번 이상</b> 나온 낱말을 <b>나온 횟수</b>대로 늘어놓았습니다(흔한 기능어는 뺌). %는 범위 전체 낱말 가운데 그 낱말이 차지하는 비율입니다. 누르면 나오는 곳을 봅니다.</p>`+R.map(([li,c])=>{ const n=CN.get(li)||0; return lexRow(li,`<span class="scount"><b>${c}번 <em class="spct">${pct(c)}</em></b><small>서술 ${n} · 그 밖 ${c-n}</small><span class="bar"><i style="width:${c/mx2*100}%"></i></span></span>`); }).join(""); }
     if(!R.length) return seg+`<p class="lead">범위가 짧아 세 번 이상 나오는 낱말이 없습니다. 범위를 넓혀 보세요.</p>`;
     const mx=Math.max(...R.map(x=>x[1]));
     const expl=srt==="count"?"이 범위에서 <b>세 번 이상</b> 나온 낱말을 <b>나온 횟수</b>대로 늘어놓았습니다(흔한 기능어는 뺌). 누르면 나오는 곳을 봅니다.":"같은 낱말들을 <b>구약 전체 평균에 견주어 이 범위에 얼마나 몰려 있는지</b>로 늘어놓았습니다 — 횟수가 적어도 구약에서 드문 말이면 위로 옵니다. 횟수만 보려면 '많이 나온 순'.";
