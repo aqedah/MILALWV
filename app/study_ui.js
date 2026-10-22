@@ -11,12 +11,15 @@ const R_START=[
   {k:"usage",t:"낱말의 다른 용례 찾기",d:"한 낱말이 구약 전체에서 어디에(책별로) 쓰였는지",go:{mode:"word"}},
   {k:"compare",t:"두 본문 비교하기",d:"관계가 있다고 보는 두 본문의 언어 근거 — 같은 순서로 이어진 말·드물게 함께 쓰인 낱말",go:{mode:"compare"}},
   {k:"query",t:"문법·문장 모양으로 찾기",d:"낱말의 형태, 절의 종류, 한 절 안의 여러 낱말을 조건 카드로 묶어 찾기 · 고급 검색(TF 검색식)도 여기서",go:{mode:"query"}}];
-const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 열리는 곳"],["전환","흐름이 멈추는 문장"],["인물","누가 주어인가"]];
+const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 바뀌는 단서"],["전환","서술 흐름이 바뀌는 단서"],["인물","주어로 나온 이름"]];
+/* 흐름 도구 결과 위의 공통 상자: 앱이 무슨 규칙으로 찾았는지(사실)와, 그 뜻은 본문에서 판단할 일임을 나눠 적는다 */
+const toolRule=(rule,judge)=>`<div class="trule"><p><b>찾은 규칙</b> ${rule}</p><p><b>판단은 본문에서</b> ${judge}</p></div>`;
+const toolExcl=(title,items)=>items.length?`<details class="mdet"><summary>${title} — 왜 뺐는지</summary><ul class="sexl">${items.slice(0,60).map(([vi,wj,why])=>`<li><button class="qlink" data-svi="${vi}" data-swj="${wj}">${esc(sRef(vi))}</button> ${esc(why)}</li>`).join("")}${items.length>60?`<li>… ${items.length-60}곳 더</li>`:""}</ul></details>`:"";
 function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
-  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 <b>현재 ${esc(rScopeLabel())}</b>입니다.</p>
+  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 <b>현재 ${esc(rScopeLabel())}</b>입니다.</p>${window.nbStartHTML?nbStartHTML():""}
     <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
     <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
-    <p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
+    ${window.nbGuideHTML&&S.R?nbGuideHTML(S.R.b,S.R.c1,3,rScopeLabel()):""}<p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
 /* UX 시안: 낱말 찾기 첫 화면에 이 범위에서 자주 나오는 낱말 5개를 보기로 — 누르면 바로 그 낱말의 용례 */
 const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);
 function topWordsHTML(){ const S=view.st, sp=S.R?[[S.R.b,S.R.c1,S.R.c2]]:null; const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
@@ -64,7 +67,7 @@ function wordFromText(li){ const S=view.st; if(S.mode==="verse") S.fromText={R:{
 function returnToText(){ const S=view.st, F=S.fromText; if(!F) return false; S.fromText=null; setRange(F.R); S.mode="verse"; S.rd=F.rd; S.vc=F.vc; S.rv=F.rv; S.rw=F.rw; render(); scrollTo({top:F.y}); requestAnimationFrame(()=>scrollTo({top:F.y})); return true; }
 function leaveWordToText(){ try{ if(history.state&&history.state.milal==="word"){ history.back(); return; } }catch(e){} returnToText(); }
 if(!window.__wordPop){ window.__wordPop=true; addEventListener("popstate",()=>{ const S=view.st; if(S.fromText&&(S.mode==="word"||S.mode==="query")) returnToText(); }); }
-function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 모양으로 찾기",compare:"두 본문 비교",theory:"바탕이 되는 생각"})[m]||""; }
+function rModeName(m){ return ({tool:"본문의 흐름",word:"낱말의 다른 용례",query:"문법·문장 모양으로 찾기",compare:"두 본문 비교",theory:"바탕이 되는 생각",study:"본문 연구 노트"})[m]||""; }
 let SD=null, SDload=null, SDerr="";
 view.st ||= {mode:"verse",vMode:"struct",range:"day",rb:1,rc1:1,rc2:0,lex:null,dom:"",vs:"",vt:"",vi:0,sel:-1,tool:"",more:1,q:""};
 const SP_K={verb:"동사",subs:"명사",nmpr:"고유명사",adjv:"형용사",advb:"부사",prep:"전치사",conj:"접속사",prps:"인칭대명사",prde:"지시대명사",prin:"의문대명사",intj:"감탄사",nega:"부정어",inrg:"의문사",art:"관사"};
@@ -206,7 +209,7 @@ function distBars(hits,sp){ const C=new Map(); for(const [vi,set] of hits){ cons
   return `<div class="sdist">${L.map(([k,n])=>`<div class="amrow"><span class="n">${byBook?esc(PLAN.abbr[k-1]):esc(PLAN.abbr[Math.floor(k/1000)-1]+" "+(k%1000))}</span><span class="bar"><i style="width:${Math.max(4,n/mx*100)}%"></i></span><b>${n}</b></div>`).join("")}</div>`; }
 function lexRow(li,extra,attr){ const x=SD.L[li]; return `<button class="slex" ${attr||`data-slex="${li}"`}><span class="heb">${esc(x[0])}</span><span class="sl"><b>${esc(lexGloss(li))}</b><small>${esc(x[6])}${x[3]?` · H${x[3]}`:""} · ${SP_K[x[2]]||x[2]}${x[8]?" · 아람어":""}</small></span>${extra||`<i>${x[7].toLocaleString()}</i>`}</button>`; }
 /* 일곱 도구 연결 */
-const ST_TOOLS=[["반복","되풀이되는 말","이 범위에서 유난히 자주 나오는 낱말"],["화자","서술과 인물의 말","누가 말하는지, 서술자가 '보라'로 인물의 눈을 빌리는 곳"],["장면","장면이 열리는 곳","'그리고 ~ 일이 있었다(봐예히)', 때를 앞세운 문장"],["전환","흐름이 멈추는 문장","이야기 사이에 끼어든 설명·배경·대조"],["인물","누가 주어인가","주어로 나오는 인물, 하나님이 하시는 일"]];
+const ST_TOOLS=[["반복","되풀이되는 말","이 범위에서 유난히 자주 나오는 낱말"],["화자","서술과 인물의 말","서술과 인물의 말의 비율, 서술 속의 '보라'"],["장면","장면이 바뀌는 단서","'그리고 ~ 일이 있었다(봐예히)', 때를 앞세운 문장"],["전환","서술 흐름이 바뀌는 단서","봐이크톨 줄을 끊는 명사문·완료형·분사문"],["인물","주어로 나온 이름","주어 자리에 직접 나온 이름, 하나님이 주어인 동사"]];
 function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
   if(t==="반복"){ const C=new Map(), CN=new Map(); let tot=0;
     forWords(sp,i=>{ tot++; const li=SD.wl[i]; C.set(li,(C.get(li)||0)+1); if(SD.domW[i]===SD.dN) CN.set(li,(CN.get(li)||0)+1); });
@@ -224,8 +227,8 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
     forWords(sp,i=>{ const [b,c]=SD.V[SD.vOf[i]]; const k=byBook?b:b*1000+c; const o=C.get(k)||[0,0,0]; const d=SD.domW[i]; o[d===SD.dN?0:d===SD.dQ?1:2]++; C.set(k,o); });
     const L=[...C.entries()].sort((a,b)=>a[0]-b[0]);
     let h=`<p class="lead">BHSA는 문장마다 서술자의 말인지, 인물이 하는 말(따옴표 안)인지 표시해 둡니다. 막대는 낱말 수의 비율입니다.</p><div class="slegend"><i class="n"></i>서술 <i class="q"></i>인물의 말 <i class="o"></i>율법·시·구분 안 됨</div><div class="sdist">${L.slice(0,80).map(([k,[a,b,c]])=>{ const s=a+b+c||1; return `<div class="amrow"><span class="n">${byBook?esc(PLAN.abbr[k-1]):esc(PLAN.abbr[Math.floor(k/1000)-1]+" "+(k%1000))}</span><span class="bar3"><i class="n" style="width:${a/s*100}%"></i><i class="q" style="width:${b/s*100}%"></i><i class="o" style="width:${c/s*100}%"></i></span><b>${Math.round(b/s*100)}%</b></div>`; }).join("")}</div>`;
-    const hn=SD.lexByKey["HNH"]||[]; const hits=new Map(); forWords(sp,i=>{ if(hn.includes(SD.wl[i])&&SD.domW[i]===SD.dN){ const vi=SD.vOf[i]; if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); } });
-    h+=`<span class="label" style="margin-top:14px">서술 속 '보라(힌네)': 인물의 눈으로 보는 곳</span><p class="lead">서술자가 '보라'를 쓰면, 독자는 그 순간 인물이 본 것을 함께 봅니다. 따옴표 밖의 '힌네'만 모았습니다. (${hits.size}곳)</p>`+hitList(hits,S.more,"이 범위의 서술에는 '보라'가 없습니다.");
+    const hn=SD.lexByKey["HNH"]||[]; const hits=new Map(), ex=[]; forWords(sp,i=>{ if(!hn.includes(SD.wl[i])) return; const vi=SD.vOf[i]; if(SD.domW[i]===SD.dN){ if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); } else ex.push([vi,i,SD.domW[i]===SD.dQ?"인물의 말(따옴표 안)의 '보라'":"율법·시 등 서술·인물의 말로 나뉘지 않은 곳의 '보라'"]); });
+    h+=`<span class="label" style="margin-top:14px">서술 속의 '보라(힌네)'</span>`+toolRule(`BHSA가 서술자의 말(따옴표 밖)로 표시한 곳의 '힌네'만 모았습니다. (${hits.size}곳)`,`서술자의 '보라'는 흔히 독자를 인물의 눈으로 보게 한다고 읽지만, 늘 그런 것은 아닙니다. 누구의 눈으로 보는지는 앞뒤 문맥에서 확인하세요.`)+toolExcl(`'보라'가 있지만 모으지 않은 곳 ${new Set(ex.map(e=>e[0])).size}곳`,ex)+hitList(hits,S.more,"이 범위의 서술에는 '보라'가 없습니다.");
     return h; }
   if(t==="장면"){ const ex=[]; const hits=new Map(), add=i=>{ const vi=SD.vOf[i]; if(!hits.has(vi)) hits.set(vi,new Set()); hits.get(vi).add(i); };
     const hy=new Set(SD.lexByKey["HJH["]||[]), tm=SD.FN.indexOf("Time");
@@ -233,19 +236,19 @@ function toolResult(){ const S=view.st, sp=stSpans(), t=S.tool;
       const j=SD.L[SD.wl[i]][1]==="W"?i+1:i; if(hy.has(SD.wl[j])&&SD.M[SD.wm[j]][2]==="wayq"){ const a=SD.wa[i], W=[]; for(let x=i;x<i+12&&x<SD.wl.length&&SD.wa[x]===a;x++) W.push(x); const N=[]; for(let x=W[W.length-1]+1;x<W[W.length-1]+6&&x<SD.wl.length&&SD.wa[x]===SD.wa[W[W.length-1]+1];x++) N.push(x); if(markerKind(W,N,SD.TY[SD.ay[a]])) add(j); else { const fns=new Set(W.map(fnk)); ex.push([j,["Subj","PreC","Cmpl","Modi","Objc"].some(f=>fns.has(f))?"주어·보어가 붙어 실제로 무엇이 '있었다'는 문장 — 이야기 줄기로 봄":"뒤에 때·'키'·곳을 알리는 말이 이어지지 않음"]); } return; }
       if(SD.wf[i]===tm&&SD.domW[i]===SD.dN) add(i);
       else if(SD.TY[SD.ct[SD.wc[i]]]==="MSyn") add(i); });
-    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(봐예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(봐예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 봐예히는 뺐습니다. (${hits.size}곳)</p><p class="lead"><b>이 도구가 세는 봐예히</b>: 주어가 따로 없이 뒤에 <b>때</b>(그때, 베/케+부정사)나 <b>'키'</b>나 <b>곳</b>이 이어져 새 장면을 여는 것만 셉니다. '여호와의 말씀이 <i>있었다</i>'처럼 주어가 붙은 봐예히는 실제로 일이 생긴 문장이라 이야기 줄기로 봅니다.</p>${ex.length?`<details class="mdet"><summary>봐예히가 있지만 세지 않은 곳 ${new Set(ex.map(e=>SD.vOf[e[0]])).size}곳 — 왜 뺐는지</summary><ul class="sexl">${ex.map(([j,why])=>`<li><button class="qlink" data-svi="${SD.vOf[j]}" data-swj="${j}">${esc(sRef(SD.vOf[j]))}</button> ${esc(why)}</li>`).join("")}</ul></details>`:""}`+hitList(hits,S.more); }
+    return `<p class="lead">이야기에서 새 장면은 흔히 '그리고 ~ 일이 있었다(봐예히)'나 때를 알리는 말로 시작합니다. ETCBC가 '이야기 표지(MSyn)'로 분류한 문장(봐예히·보라·이제 등이 홀로 선 것)도 함께 모았습니다. 인물의 말 속의 봐예히는 뺐습니다. (${hits.size}곳)</p><p class="lead"><b>찾은 규칙 — 이 도구가 세는 봐예히</b>: 주어가 따로 없이 뒤에 <b>때</b>(그때, 베/케+부정사)나 <b>'키'</b>나 <b>곳</b>이 이어져 새 장면을 여는 것만 셉니다. '여호와의 말씀이 <i>있었다</i>'처럼 주어가 붙은 봐예히는 실제로 일이 생긴 문장이라 이야기 줄기로 봅니다.</p><p class="lead"><b>판단은 본문에서</b> 이것은 장면이 바뀔 수 있다는 언어 단서입니다. 실제로 장면(때·곳·인물)이 바뀌는지는 본문을 읽고 판단하세요.</p>${ex.length?`<details class="mdet"><summary>봐예히가 있지만 세지 않은 곳 ${new Set(ex.map(e=>SD.vOf[e[0]])).size}곳 — 왜 뺐는지</summary><ul class="sexl">${ex.map(([j,why])=>`<li><button class="qlink" data-svi="${SD.vOf[j]}" data-swj="${j}">${esc(sRef(SD.vOf[j]))}</button> ${esc(why)}</li>`).join("")}</ul></details>`:""}`+hitList(hits,S.more); }
   if(t==="전환"){ const G={a:["상태·설명",["NmCl","AjCl","WXNm"],"동사 없이 상태나 정체를 말하는 문장"],b:["앞선 일·대조",["XQtl","WXQt","xQtX","xQt0","WxQ0","WxQX","ZQt0","ZQtX"],"주어나 다른 말이 앞에 나오고 완료형이 따르는 문장. 이야기 진행을 멈추고 배경·이전 일·대조를 알립니다"],c:["진행 중인 일",["Ptcp"],"분사로 그때 벌어지고 있던 일을 보여 주는 문장"]};
     const hits={a:new Map(),b:new Map(),c:new Map()}; const T2G={}; for(const k in G) G[k][1].forEach(t=>T2G[SD.TY.indexOf(t)]=k);
     forWords(sp,i=>{ if(SD.domW[i]!==SD.dN) return; const g=T2G[SD.ct[SD.wc[i]]]; if(!g) return; const vi=SD.vOf[i]; const H=hits[g]; if(!H.has(vi)) H.set(vi,new Set()); H.get(vi).add(i); });
-    const sel=S.sub&&G[S.sub]?S.sub:"b";
-    return `<p class="lead">이야기는 '봐이크톨' 동사(그리고 ~했다)가 줄지어 나아갑니다. 그 줄이 끊기는 문장은 서술자가 잠시 멈춰 무언가를 알려 주는 자리입니다. 서술 부분만 모았습니다.</p><div class="seg sseg">${Object.entries(G).map(([k,g])=>`<button aria-checked="${k===sel}" data-ssub="${k}">${g[0]} <small>${hits[k].size}</small></button>`).join("")}</div><p class="lead">${G[sel][2]}</p>`+hitList(hits[sel],S.more,"이 범위의 서술에는 해당 문장이 없습니다."); }
+    const sel=S.sub&&G[S.sub]?S.sub:"b"; const ex=[]; forWords(sp,i=>{ if(SD.domW[i]===SD.dN) return; const g=T2G[SD.ct[SD.wc[i]]]; if(g!==sel) return; const vi=SD.vOf[i]; if(ex.length&&ex[ex.length-1][0]===vi) return; ex.push([vi,i,SD.domW[i]===SD.dQ?"같은 종류의 문장이지만 인물의 말 안에 있음":"같은 종류의 문장이지만 율법·시 등 서술이 아닌 곳"]); });
+    return `<p class="lead">이야기는 '봐이크톨' 동사(그리고 ~했다)가 줄지어 나아갑니다. 그 줄이 끊기는 문장은 서술자가 잠시 멈춰 무언가를 알려 줄 수 있는 자리입니다.</p>`+toolRule(`서술(따옴표 밖)에 있는 절 가운데, ETCBC가 매긴 절의 종류가 아래 갈래에 드는 것만 모았습니다. 갈래 이름(상태·설명, 앞선 일·대조, 진행 중인 일)은 그 문장 형태가 흔히 하는 일입니다.`,`그 문장이 정말 배경을 넣는지, 앞선 일을 말하는지, 대조하는지는 문장마다 다릅니다. 본문에서 확인하세요.`)+`<div class="seg sseg">${Object.entries(G).map(([k,g])=>`<button aria-checked="${k===sel}" data-ssub="${k}">${g[0]} <small>${hits[k].size}</small></button>`).join("")}</div><p class="lead">${G[sel][2]}</p>`+toolExcl(`같은 종류이지만 서술이 아니라 모으지 않은 절 ${ex.length}곳`,ex)+hitList(hits[sel],S.more,"이 범위의 서술에는 해당 문장이 없습니다."); }
   if(t==="인물"){ const subj=new Set(["Subj","PreS","IntS","ModS","ExsS","PrcS"].map(f=>SD.FN.indexOf(f)).filter(x=>x>=0)), pred=new Set(["Pred","PreO","PreS","PreC","PtcO"].map(f=>SD.FN.indexOf(f)).filter(x=>x>=0));
-    const P=new Map(), godCl=new Set();
-    forWords(sp,i=>{ if(!subj.has(SD.wf[i])) return; const x=SD.L[SD.wl[i]]; if(x[2]==="nmpr"||GOD_LEX.has(x[1])){ P.set(SD.wl[i],(P.get(SD.wl[i])||0)+1); if(GOD_LEX.has(x[1])) godCl.add(SD.wc[i]); } });
+    const P=new Map(), godCl=new Set(); let prn=0;
+    forWords(sp,i=>{ if(!subj.has(SD.wf[i])) return; const x=SD.L[SD.wl[i]]; if(x[2]==="prps") prn++; if(x[2]==="nmpr"||GOD_LEX.has(x[1])){ P.set(SD.wl[i],(P.get(SD.wl[i])||0)+1); if(GOD_LEX.has(x[1])) godCl.add(SD.wc[i]); } });
     const V=new Map(); forWords(sp,i=>{ if(godCl.has(SD.wc[i])&&pred.has(SD.wf[i])&&SD.M[SD.wm[i]][0]==="verb"){ const li=SD.wl[i]; V.set(li,(V.get(li)||0)+1); } });
     const PL=[...P.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10), VL=[...V.entries()].sort((a,b)=>b[1]-a[1]).slice(0,15);
     const m1=Math.max(1,...PL.map(x=>x[1])), m2=Math.max(1,...VL.map(x=>x[1]));
-    return `<span class="label">주어로 나오는 이름</span><p class="lead">문장의 주어 자리에 이름이 직접 나온 횟수입니다(동사에 숨은 주어 '그가'는 세지 않습니다).</p>${PL.map(([li,c])=>lexRow(li,`<span class="scount"><b>${c}번</b><span class="bar"><i style="width:${c/m1*100}%"></i></span></span>`)).join("")||`<p class="lead">없습니다.</p>`}
+    return `<span class="label">주어로 나온 이름</span>`+toolRule(`주어 구 안에 고유명사나 하나님 이름(여호와·하나님)이 직접 나온 횟수입니다.`,`동사에 숨은 주어('그가 갔다')와 대명사 주어(이 범위 ${prn}번)는 세지 않았으므로, 이 수가 그 인물이 한 일 전부는 아닙니다. 누가 이야기를 이끄는지는 본문에서 보세요.`)+`${PL.map(([li,c])=>lexRow(li,`<span class="scount"><b>${c}번</b><span class="bar"><i style="width:${c/m1*100}%"></i></span></span>`)).join("")||`<p class="lead">없습니다.</p>`}
       <span class="label" style="margin-top:14px">하나님(여호와)이 주어인 동사</span><p class="lead">'여호와'나 '하나님'이 주어로 나온 문장의 동사입니다. 누르면 그 동사가 나오는 곳을 봅니다.</p>${VL.map(([li,c])=>lexRow(li,`<span class="scount"><b>${c}번</b><span class="bar"><i style="width:${c/m2*100}%"></i></span></span>`,`data-sgod="${li}"`)).join("")||`<p class="lead">이 범위에는 없습니다.</p>`}
       ${S.godv!=null?`<span class="label" style="margin-top:14px">하나님이 '${esc(lexGloss(S.godv))}' 하신 곳</span>`+hitList((()=>{ const H=new Map(); forWords(sp,i=>{ if(SD.wl[i]===S.godv&&godCl.has(SD.wc[i])&&pred.has(SD.wf[i])){ const vi=SD.vOf[i]; if(!H.has(vi)) H.set(vi,new Set()); H.get(vi).add(i); } }); return H; })(),S.more):""}`; }
   return ""; }
@@ -301,9 +304,11 @@ function renderStudy(){
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(ux2()&&["start","tool","query"].includes(S.mode)?rScopeLabel():`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
+  if(window.nbBarHTML&&(S.mode==="verse"||RESEARCH_MODES.includes(S.mode))) h+=nbBarHTML();
   if(ux2()&&S.mode==="start") return h+renderResearchStart();
   if(RESEARCH_MODES.includes(S.mode)) h+=ux2()?`<div class="rback"><button class="mtog back" id="rStart">← 연구 시작</button> <b>${esc(S.mode==="tool"&&S.tool?S.tool+" · "+(ST_TOOLS.find(x=>x[0]===S.tool)||[])[1]:rModeName(S.mode))}</b></div>${["tool","word","query"].includes(S.mode)?rScopeHTML():""}`:`<div class="seg smode rseg" role="tablist">${[["tool","도구"],["word","낱말"],["query","검색식"],["compare","비교"],["theory","이론"]].map(([k,n])=>`<button role="tab" aria-checked="${S.mode===k}" data-smode="${k}">${n}</button>`).join("")}</div>`;
   if(S.mode==="theory") return h+renderTheory();
+  if(S.mode==="study") return h+(window.nbPage?nbPage():"");
   if(S.mode==="notes") return h+notesPage();
   if(S.mode==="verse"){ const chs=[...SD.book[S.R.b].chs].filter(c=>c>=S.R.c1&&c<=S.R.c2).sort((x,y)=>x-y); const vc=chs.includes(S.vc)?S.vc:chs[0]; S.vc=vc; const k=chs.indexOf(vc), multi=chs.length>1, u=S.R.b===19?"편":"장", rd=rdMode();
     h+=`<section class="sec"><div class="schrow">${multi?`<button class="iconbtn" id="sVcP" aria-label="앞 장"${k<=0?" disabled":""}>‹</button>`:""}${ux2()&&!multi?"":`<h3 class="sch">${esc(PLAN.full[S.R.b-1])} ${vc}${u}${multi?` <small>${k+1} / ${chs.length}</small>`:""}</h3>`}${multi?`<button class="iconbtn" id="sVcN" aria-label="다음 장"${k>=chs.length-1?" disabled":""}>›</button>`:""}</div>
@@ -332,7 +337,7 @@ function bindStudy(m){
   const S=view.st, rr=()=>{ S.more=1; render(); };
   const r=document.getElementById("sdRetry"); if(r) r.onclick=()=>{ studyLoad(); render(); };
   if(!SD) return;
-  bindQuery(m); if(view.st.mode==="compare"&&window.bindCompare) bindCompare(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
+  bindQuery(m); if(window.nbBind) nbBind(m); if(view.st.mode==="compare"&&window.bindCompare) bindCompare(m); m.querySelectorAll("[data-sqopen]").forEach(b=>b.onclick=()=>qOpen(b.dataset.sqopen));
   const sh=document.getElementById("sHome"); if(sh) sh.onclick=openAddr;
     m.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ setRange(JSON.parse(b.dataset.ar)); S.mode="verse"; render(); scrollTo({top:0}); });
   const ha=document.getElementById("hostAcct"); if(ha&&window.bindHostMenu) bindHostMenu(ha);
@@ -602,7 +607,7 @@ function saveStudyNotes(L){ try{ localStorage.setItem(SN_KEY,JSON.stringify(L));
 function openNoteSheet(wi){ const vi=SD.vOf[wi], [b,c,v]=SD.V[vi], li=SD.wl[wi], x=SD.L[li];
   sheet("원어 메모",`<div class="rdh2"><span class="heb">${esc(wHeb(wi).trim())}</span><span class="rdp">${esc(wHan(wi))}</span><b>${esc(lexGloss(li))}</b></div><p class="lead" style="margin:4px 0 8px">${esc(sRef(vi))}${x[3]?` · H${x[3]}`:""}</p><textarea id="rnMemo" rows="4" placeholder="이 낱말에서 본 것을 짧게 적어 두세요 (비워 두어도 됩니다)" style="width:100%"></textarea><button class="sbtn" id="rnSave">메모 저장</button><p class="lead" style="margin-top:6px">${window.noteStoreHint?esc(noteStoreHint()):"원어 메모는 이 기기에만 저장됩니다."}</p>`);
   const root=document.getElementById("sheetRoot");
-  root.querySelector("#rnSave").onclick=()=>{ const L=studyNotes(); L.unshift({t:Date.now(),b,c,v,heb:wHeb(wi).trim(),lex:x[0],han:wHan(wi),gl:lexGloss(li),st:x[3]||0,m:root.querySelector("#rnMemo").value.trim()}); saveStudyNotes(L.slice(0,500)); root.innerHTML=""; toast("원어 메모에 넣었습니다."); }; }
+  root.querySelector("#rnSave").onclick=()=>{ const L=studyNotes(); L.unshift({t:Date.now(),b,c,v,heb:wHeb(wi).trim(),lex:x[0],han:wHan(wi),gl:lexGloss(li),st:x[3]||0,m:root.querySelector("#rnMemo").value.trim()}); saveStudyNotes(L.slice(0,500)); const ns=window.nbActive&&nbActive(); if(ns) nbAddWord(L[0].t); root.innerHTML=""; toast(ns?`원어 메모에 넣고 연구 노트 '${ns.title}'에 담았습니다.`:"원어 메모에 넣었습니다."); if(ns) render(); }; }
 function notesPage(){ const S=view.st, L=studyNotes(); const show=view.snAll?L:L.slice(0,30); S.nseg ||= "mine";
   if(S.nseg==="annots") S.nseg="mine";
   let h=`<div class="seg smode rseg" role="tablist">${[["mine","내 기록"],["shared","나눔"]].map(([k,n])=>`<button role="tab" aria-checked="${S.nseg===k}" data-nseg="${k}">${n}</button>`).join("")}</div>`;

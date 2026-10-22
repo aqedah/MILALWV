@@ -48,7 +48,7 @@ function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._ne
   sheet((isNew?"메모 쓰기":"메모 고치기")+" · "+where,`<p class="lead" style="margin:0 0 4px">${kind==="atom"?"절 원자":kind==="range"?`구간 · 절 원자 ${anchor.clause_atom_count||anchor.clause_atom_ids.length}개 · 낱말 ${anchor.span?anchor.span.words:""}개`:"절"} · BHSA clause_atom ${kind==="range"?anchor.clause_atom_ids[0]+" … "+anchor.clause_atom_ids[anchor.clause_atom_ids.length-1]:anchor.clause_atom_ids.join(", ")}</p><p class="heb svheb" style="margin:0 0 8px">${esc(anchor.heb)}</p>
     <label class="anlab">관찰 <small>본 것 — 본문·문법·표지에서 확인한 사실</small></label><textarea id="anObs" rows="3" placeholder="예: 봐이크톨이 끊기고 명사문이 온다">${esc(ex.observation||"")}</textarea>
     <label class="anlab">해석 <small>내 결론 — 관찰에서 이끌어 낸 뜻</small></label><textarea id="anInt" rows="3" placeholder="예: 서술자가 장면을 멈추고 배경을 알린다">${esc(ex.interpretation||"")}</textarea>
-    <label class="anlab">표시 <small>쉼표로</small></label><input id="anTags" type="text" value="${esc((ex.tags||[]).join(", "))}" placeholder="전환, 반복">
+    <label class="anlab">표시 <small>쉼표로</small></label><input id="anTags" type="text" value="${esc(anTagsInit(ex,isNew).join(", "))}" placeholder="전환, 반복">${isNew&&window.nbActiveTag&&nbActiveTag()?`<p class="lead" style="margin:2px 0 0;font-size:12.5px">지금 연구 중인 노트에 담깁니다(표시 '${esc(nbActiveTag())}'). 담지 않으려면 그 표시를 지우세요.</p>`:""}
     ${milal?`<label class="anchk"><input type="checkbox" id="anRef" checked> 보고 있던 MILAL 관계 ${milal.relation_ids.length}개를 참조로 함께 저장 (${esc(milal.stage)}${milal.file_status==="TEST_ONLY"?" · 시험 자료":""}) — 참조일 뿐, MILAL 판정을 바꾸지 않습니다</label>`:ex.milal_ref?`<p class="lead">MILAL 참조: ${esc(ex.milal_ref.stage)} · 관계 ${ex.milal_ref.relation_ids.length}개</p>`:""}
     <div class="row" style="justify-content:space-between"><span>${!isNew?`<button class="btn small ghost" id="anDel">지우기</button>`:""}</span><button class="sbtn" id="anSave" style="width:auto;margin:0;padding:10px 18px">저장</button></div>`);
   const root=document.getElementById("sheetRoot");
@@ -57,6 +57,8 @@ function openAnnotEditor(kind,ref,existing){ const isNew=!existing||existing._ne
     if(milal&&root.querySelector("#anRef")&&root.querySelector("#anRef").checked) a.milal_ref=milal;
     anSave(a).then(()=>{ root.innerHTML=""; toast(isNew?"메모를 저장했습니다.":"메모를 고쳤습니다."); render(); }).catch(e=>toast("저장하지 못했습니다: "+e.message)); };
   const d=root.querySelector("#anDel"); if(d) d.onclick=()=>{ if(!confirm("이 메모를 지울까요?")) return; anDelete(ex.id).then(()=>{ root.innerHTML=""; toast("지웠습니다."); render(); }).catch(e=>toast("지우지 못했습니다: "+e.message)); }; }
+/* 연구 노트가 켜져 있으면 새 메모에 그 연구 표시를 미리 넣는다 */
+function anTagsInit(ex,isNew){ const T=(ex.tags||[]).slice(); const t=isNew&&window.nbActiveTag?nbActiveTag():""; if(t&&!T.includes(t)) T.push(t); return T; }
 /* 상세 창·읽기 화면에 끼우는 목록 */
 function annotListHTML(kind,key,ref){ const L=anFor(kind,key);
   return `<div class="src3"><span class="label">내 메모 <small>(내 기록 — MILAL 판정과 별개)</small></span>${L.map(a=>`<div class="anitem"><div>${a.observation?`<p><b>관찰</b> ${esc(a.observation)}</p>`:""}${a.interpretation?`<p><b>해석</b> ${esc(a.interpretation)}</p>`:""}${a.tags&&a.tags.length?`<small>${a.tags.map(t=>"#"+esc(t)).join(" ")}</small>`:""}</div><button class="btn small ghost" data-anedit="${a.id}">고치기</button></div>`).join("")}<button class="btn small" data-annew="${kind}:${ref}">${kind==="atom"?"이 절 원자에":"이 절에"} 관찰·해석 쓰기</button></div>`; }
@@ -217,7 +219,7 @@ function exportRecords(fmt){ const S=view.st, F=S.rf||{kind:"all",tag:"",q:"",so
          rev 가 같은데 내용이 다르면 기존 것을 두고 들어온 것을 '복원 충돌 사본'으로 따로 보존한다(아무것도 잃지 않음). */
 function anAllRaw(){ return anTx("readonly",st=>st.getAll()).then(L=>L||[]); }
 function backupObject(){ return anAllRaw().then(L=>({schema:"MILALWV-BACKUP-1",exported_at:new Date().toISOString(),app_data_version:window.STUDY_V||"",bhsa:(window.SD&&SD.bhsa)||"2021",device:AN_DEVICE,
-  counts:{annots:L.length,annots_deleted:L.filter(a=>a.deleted).length,word_notes:studyNotes().length},annots:L,word_notes:studyNotes()})); }
+  counts:{annots:L.length,annots_deleted:L.filter(a=>a.deleted).length,word_notes:studyNotes().length,studies:window.nbLoad?nbLoad().length:0},annots:L,word_notes:studyNotes(),studies:window.nbLoad?nbLoad():[]})); }
 function exportBackup(){ return backupObject().then(B=>{ const txt=JSON.stringify(B,null,1), name=`milal-백업-${B.exported_at.slice(0,10)}.json`; const url=URL.createObjectURL(new Blob([txt],{type:"application/json"}));
   const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500); window.__lastBackup={name,txt}; toast(`백업을 내려받았습니다 (기록 ${B.counts.annots}건, 낱말 메모 ${B.counts.word_notes}건).`); return B; }); }
 const AN_KINDS=["word","verse","atom","range","note","mark"];
@@ -239,13 +241,14 @@ function restorePlan(B){ if(!B||B.schema!=="MILALWV-BACKUP-1"||!Array.isArray(B.
       if(anBody(a)===anBody(c)) plan.same.push(a);
       else { const h=anHash(anBody(a)); if(haveConflict.has(a.id+"@"+a.rev+":"+h)) plan.conflict_dup.push(a); else plan.conflict.push({a,c,hash:h}); } }
     const have=new Set(studyNotes().map(n=>n.t)); for(const n of (B.word_notes||[])){ if(n&&Number.isInteger(n.t)&&n.b&&!have.has(n.t)) plan.word_add.push(n); }
+    plan.studies=Array.isArray(B.studies)?B.studies:[];
     return plan; }); }
 function anHash(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))|0; return (h>>>0).toString(36); }
 /* 복원 적용: 들어온 기록은 dirty 로 표시해 (동기화가 켜져 있으면) 서버와 병합 절차를 다시 거치게 한다 — 옛 srv_rev 를 믿지 않음 */
 function restoreApply(plan){ const now=Date.now(); const writes=[...plan.add,...plan.update].map(a=>Object.assign({},a,{dirty:true}));
   for(const {a,c,hash} of plan.conflict){ const cp=Object.assign({},a,{id:a.id+"~r"+now.toString(36)+anHash(a.id+hash).slice(0,4),key:a.key,rev:1,device:AN_DEVICE,created:a.created||now,updated:now,deleted:false,dirty:true,srv_rev:undefined,base:undefined,tags:[...(a.tags||[]),"복원충돌"],conflict_of:{id:a.id,rev:a.rev,hash},
       observation:`⟪복원 충돌 사본 · 원본 id ${a.id} · rev ${a.rev} 같음, 내용 다름 · ${new Date(now).toLocaleString("ko-KR")}⟫\n`+(a.observation||"")}); delete cp.srv_rev; delete cp.base; writes.push(cp); }
-  return anTx("readwrite",st=>{ for(const w of writes) st.put(w); }).then(()=>{ if(plan.word_add.length) saveStudyNotes(studyNotes().concat(plan.word_add)); return anAll(); }).then(()=>{ if(writes.length&&window.onAnnotSaved) try{ onAnnotSaved(writes[0]); }catch(e){} return {written:writes.length,word_added:plan.word_add.length}; }); }
+  return anTx("readwrite",st=>{ for(const w of writes) st.put(w); }).then(()=>{ if(plan.word_add.length) saveStudyNotes(studyNotes().concat(plan.word_add)); if(plan.studies&&plan.studies.length&&window.nbMerge) plan.studies_merged=nbMerge(plan.studies); return anAll(); }).then(()=>{ if(writes.length&&window.onAnnotSaved) try{ onAnnotSaved(writes[0]); }catch(e){} return {written:writes.length,word_added:plan.word_add.length}; }); }
 function restoreBackupText(txt){ let B; try{ B=JSON.parse(txt); }catch(e){ toast("JSON 을 읽지 못했습니다."); return Promise.resolve(); }
   return restorePlan(B).then(plan=>new Promise(res=>{ const n=k=>plan[k].length;
     sheet("백업 복원 — 미리 보기",`<p class="lead">백업한 때: ${esc(B.exported_at?new Date(B.exported_at).toLocaleString("ko-KR"):"?")} · 기록 ${B.annots.length}건 · 낱말 메모 ${(B.word_notes||[]).length}건${B.device&&B.device!==AN_DEVICE?" · 다른 기기에서 만든 백업":""}</p>

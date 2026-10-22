@@ -188,7 +188,7 @@ function qHitList(R,more){ const hits=R.hits; const vs=[...hits.keys()].sort((a,
   let h=`<div class="shits">`+vs.slice(0,lim).map(vi=>{ const H=sHeb(vi), set=hits.get(vi);
     const heb=H.map((t,j)=>{ const wi=SD.V[vi][5]+j; return set.has(wi)?`<mark>${esc(t.trimEnd())}</mark>${t.endsWith(" ")?" ":""}`:esc(t); }).join("");
     const words=[...set].map(wi=>{ const j=wi-SD.V[vi][5]; return `${esc(sHan(vi)[j])}`; }).join(", ");
-    return `<div class="qhit"><button class="shit" data-svi="${vi}" data-swj="${[...set][0]}"><small>${esc(sRef(vi))}${words?` · ${words}`:""}</small><span class="heb">${heb}</span><span class="kr">${esc(krvText(vi))}</span></button><div class="qhitb"><button class="btn small ghost" data-qwhy="${vi}">맞은 자리</button><button class="btn small ghost" data-qmemo="${vi}">메모</button></div><div class="qwhy" id="qwhy-${vi}" hidden></div></div>`; }).join("")+`</div>`;
+    return `<div class="qhit"><button class="shit" data-svi="${vi}" data-swj="${[...set][0]}"><small>${esc(sRef(vi))}${words?` · ${words}`:""}</small><span class="heb">${heb}</span><span class="kr">${esc(krvText(vi))}</span></button><div class="qhitb"><button class="btn small ghost" data-qwhy="${vi}">맞은 자리</button><button class="btn small ghost" data-qmemo="${vi}">${window.nbActive&&nbActive()?"노트에 담기":"메모"}</button></div><div class="qwhy" id="qwhy-${vi}" hidden></div></div>`; }).join("")+`</div>`;
   if(vs.length>lim) h+=`<button class="morebtn" data-smore="1">${vs.length-lim}절 더 보기 ▾</button>`; return h; }
 /* 맞은 자리: 이 절에 걸린 묶음(튜플)마다 조건 → 실제로 맞은 본문 */
 /* 조건 하나를 쉬운 말로: 자료가 판정한 범위만 말한다(조건 없는 단위는 '아무 절'처럼) */

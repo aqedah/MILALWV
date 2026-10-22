@@ -18,12 +18,12 @@ function bibleLoad(){ return trApply(trId()); } /* app/menu.js: 고른 번역본
 
 /* 도움 함수 */
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function render(){ const m=document.getElementById("main"); m.innerHTML=renderStudy(); bindStudy(m); navSync(); }
+function render(){ const m=document.getElementById("main"); m.innerHTML=renderStudy(); bindStudy(m); navSync(); if(window.nbAside) nbAside(); }
 
 /* ===== 하단 탭 4개: 본문 · 구조 · 연구 · 기록 =====
    본문·구조 = mode "verse"(rd read/struct) · 연구 = mode tool/word/query/theory · 기록 = mode "notes"
    탭을 바꿔도 보고 있던 책·장(view.st.R, vc)은 그대로입니다. */
-const RESEARCH_MODES=["tool","word","query","compare","theory","start"];   /* start: UX 시안(preview.html)의 연구 시작 화면 — 운영에서는 쓰이지 않음 */
+const RESEARCH_MODES=["tool","word","query","compare","theory","start","study"];   /* start: UX 시안(preview.html)의 연구 시작 화면 — 운영에서는 쓰이지 않음 */
 function navOf(){ const S=view.st; if(S.pick||!S.entered||!S.R) return "";
   if(S.mode==="notes") return "notes"; if(RESEARCH_MODES.includes(S.mode)) return "research";
   return (typeof rdMode==="function"?rdMode():"read")==="struct"?"struct":"text"; }

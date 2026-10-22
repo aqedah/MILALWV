@@ -69,8 +69,10 @@ function renderCompare2(){ const S=view.st; S.cmp ||= {a:null,b:null,fn:false,t:
   h+=V.warnings.filter(w=>!/서로 다른 책/.test(w)).map(w=>`<p class="lead warn">⚠ ${esc(w)}</p>`).join("");
   const G=cmpSignals(C), R=G.R; S.cmpR=R; S.cmpG=G; const va=V.va, vb=V.vb; const sel=C.sel!=null&&(G.short?G.RR:R).byLi.has(C.sel)?C.sel:null; C.sel=sel;
   const nA=R.fa.length, nB=R.fb.length;
-  const verdict=G.level==="strong"?`<b>뚜렷한 언어 신호가 있습니다.</b>`:G.level==="weak"?`<b>약한 언어 신호가 있습니다</b> — 아래 근거를 직접 보세요.`:G.level==="short"?`<b>본문이 짧아(내용어 ${Math.min(nA,nB)}개) 신호의 세기를 말하기 어렵습니다</b> — 겹친 말을 직접 보세요(기능어까지 보입니다).`:`<b>두 본문을 잇는 뚜렷한 언어 신호는 없습니다.</b> 주제·사상의 연결은 이 방법으로 잡히지 않습니다.`;
-  h+=`<div class="cmpsum lv-${G.level}"><p>${verdict}</p><p class="cmpnums">같은 순서로 이어진 말 <b>${G.runs.length}곳</b>${G.maxRun?` (가장 긴 것 ${G.maxRun}낱말)`:""} · 드물게 함께 쓰인 낱말 <b>${G.rare.length}개</b></p><p class="lead" style="margin:2px 0 0">기준: ${G.short?"짧은 본문이라 2낱말 이상":`내용어 ${CMP_RUN_MIN}개 이상`}이 같은 순서 · 구약 전체에서 ${CMP_RARE_MAX}번 미만 나오는 낱말. 판정이 아니라 관찰 근거입니다.</p></div>`;
+  /* 앱이 센 사실(겹친 표현)과 사용자의 판단(인용·암시·재진술인지)을 나눠 적는다 */
+  const verdict=G.level==="strong"?`<b>두 본문에 같은 표현이 많이 겹칩니다.</b>`:G.level==="weak"?`<b>같은 표현이 조금 겹칩니다</b> — 아래 근거를 직접 보세요.`:G.level==="short"?`<b>본문이 짧아(내용어 ${Math.min(nA,nB)}개) 얼마나 겹치는지 말하기 어렵습니다</b> — 겹친 말을 직접 보세요(기능어까지 보입니다).`:`<b>같은 순서로 이어진 말이나 드문 낱말이 거의 겹치지 않습니다.</b> 주제·사상의 연결은 이 방법으로 잡히지 않습니다.`;
+  const judgeNote=G.level==="none"?"":`<p class="cmpjudge">이 겹침이 <b>인용·암시·재진술의 증거인지는 판단이 필요합니다</b> — 같은 전승, 흔한 관용구, 같은 문체에서도 말은 겹칠 수 있습니다. 판단은 아래 '내 판단'에 남기세요.</p>`;
+  h+=`<div class="cmpsum lv-${G.level}"><p>${verdict}</p><p class="cmpnums">같은 순서로 이어진 말 <b>${G.runs.length}곳</b>${G.maxRun?` (가장 긴 것 ${G.maxRun}낱말)`:""} · 드물게 함께 쓰인 낱말 <b>${G.rare.length}개</b></p><p class="lead" style="margin:2px 0 0">기준: ${G.short?"짧은 본문이라 2낱말 이상":`내용어 ${CMP_RUN_MIN}개 이상`}이 같은 순서 · 구약 전체에서 ${CMP_RARE_MAX}번 미만 나오는 낱말. 앱이 센 관찰 근거입니다.</p>${judgeNote}</div>`;
   /* 본문: 신호가 된 낱말만 칠한다(이어진 말 = 노랑 · 드문 낱말 = 파랑 · 고른 낱말 = 테두리) */
   const runW=new Set(G.runsAll.flatMap(r=>[...r.a,...r.b])), rareL=new Set(G.rare.map(x=>x.li)); const markOf=src=>{ const M=new Map(); for(const [wi,m] of src){ if(runW.has(wi)) M.set(wi,Object.assign({},m,{bg:"#F6E27A"})); else if(rareL.has(m.li)) M.set(wi,Object.assign({},m,{bg:"#BBD6F3"})); else if(sel!=null&&m.li===sel) M.set(wi,Object.assign({},m,{bg:"transparent"})); } return M; };
   const SR=G.short?G.RR:R; const MA=markOf(SR.markA), MB=markOf(SR.markB);
