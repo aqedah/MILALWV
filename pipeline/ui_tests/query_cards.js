@@ -7,7 +7,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   await pg.evaluate(async () => { await loadBook(32); setRange({ b: 32, c1: 1, c2: 1 }); view.st.wide = false; render(); }); await pg.click('.bnav [data-nav="research"]'); await W(400);
   const s0 = await pg.evaluate(() => ({ lead: document.querySelector('.qtitle + .lead, h2.qtitle ~ p.lead') && document.querySelector('.sec .lead').textContent }));
   ok('연구 첫 화면 안내: "살펴볼 곳은 현재 요나 1장입니다"', /살펴볼 곳은 현재 요나 1장입니다/.test(s0.lead || ''), s0.lead);
-  await pg.click('[data-rstart="query"]'); await W(500);
+  await pg.evaluate(() => { view.st.rtab = 'find'; render(); }); await pg.click('[data-rstart="query"]'); await W(500);
   const c0 = await pg.evaluate(() => ({ mode: view.st.mode, tgt: document.querySelectorAll('[data-qctgt]').length, card: document.querySelectorAll('.qcard').length, say: (document.querySelector('.qsay') || {}).textContent, adv: (document.querySelector('.qadv') || {}).textContent, opt0: (document.querySelector('[data-qcs] option') || {}).textContent, anywhere: /안 어디든|아무거나/.test(document.querySelector('#sMain, main, body').textContent) }));
   ok('검색 첫 화면 = 조건 카드: "무엇을 찾으시나요? 낱말/절", 카드 1, 읽어 보면, 고급 검색 상자, 기본값 "조건 없음"("아무거나·안 어디든" 없음)', c0.mode === 'query' && c0.tgt === 2 && c0.card === 1 && /읽어 보면/.test(c0.say) && /고급 검색/.test(c0.adv) && /Text-Fabric/.test(c0.adv) && c0.opt0 === '조건 없음' && !c0.anywhere, JSON.stringify(c0));
   await pg.screenshot({ path: OUT + 'qc_start.png', fullPage: true });

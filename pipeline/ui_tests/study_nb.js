@@ -1,11 +1,11 @@
 // 본문 연구 노트 + 도구 문구 정리 + 장르별 질문 + 옆 노트 검증 (2026-10-22). 쓰기: node study_nb.js <스크린샷 폴더>
 const { chromium, devices } = require('playwright'); const OUT = (process.argv[2] || '.') + '/'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
-(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); await c.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} });
+(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); await c.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); localStorage.setItem('milal-nb-on', '1'); localStorage.setItem('milal-rtab', 'flow'); } catch (e) {} });
   const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); const W = ms => pg.waitForTimeout(ms);
   await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L && typeof anList === 'function', null, { timeout: 60000 }); await W(800);
   await pg.evaluate(async () => { await loadBook(32); setRange({ b: 32, c1: 1, c2: 1 }); view.st.wide = false; render(); }); await pg.click('.bnav [data-nav="research"]'); await W(400);
   // 1. 문구
-  const st = await pg.evaluate(() => ({ flow: [...document.querySelectorAll('.rflow .stool b')].map(x => x.textContent), nb: (document.querySelector('.nbstart') || {}).textContent, guide: (document.querySelector('.nbguide .label') || {}).textContent, gq: document.querySelectorAll('.nbguide .nbq').length }));
+  const st = await pg.evaluate(() => ({ flow: [...document.querySelectorAll('.rtile[data-rstart^="tool:"] small')].map(x => x.textContent).slice(1), nb: (document.querySelector('.nbstart') || {}).textContent, guide: (document.querySelector('.nbguide .label') || {}).textContent, gq: document.querySelectorAll('.nbguide .nbq').length }));
   ok('흐름 도구 이름: 장면이 바뀌는 단서 · 서술 흐름이 바뀌는 단서 · 주어로 나온 이름', st.flow.join('|') === '서술과 인물의 말|장면이 바뀌는 단서|서술 흐름이 바뀌는 단서|주어로 나온 이름', st.flow.join('|'));
   ok('연구 첫 화면: 본문 연구 노트 입구 + "무엇을 관찰해 볼까요? · 요나 1장 = 이야기" 질문 3개', /본문 연구 노트/.test(st.nb) && /이야기/.test(st.guide) && st.gq === 3, JSON.stringify(st));
   const tool = async t => pg.evaluate(async t => { const S = view.st; S.mode = 'tool'; S.tool = t; S.sub = ''; S.rmode = 'tool'; render(); await new Promise(r => setTimeout(r, 200)); return (document.querySelector('#sToolRes') || {}).textContent || ''; }, t);
@@ -67,7 +67,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   const bk = await pg.evaluate(async () => { const B = await backupObject(); const n0 = nbLoad().length; const copy = JSON.parse(JSON.stringify(B.studies)); copy[0].updated += 1000; copy[0].concl = '복원본'; const m = nbMerge(copy); return { has: B.studies.length, cnt: B.counts.studies, n0, m, concl: nbActive().concl }; });
   ok('백업 파일에 연구 노트가 들어가고, 복원 때 더 새 판으로 합쳐짐', bk.has === 1 && bk.cnt === 1 && bk.m === 1 && bk.concl === '복원본', JSON.stringify(bk));
   // 넓은 화면: 옆 노트
-  const c2 = await br.newContext({ viewport: { width: 1360, height: 900 } }); await c2.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} }); const p2 = await c2.newPage(); p2.on('pageerror', e => errs.push('wide: ' + e.message));
+  const c2 = await br.newContext({ viewport: { width: 1360, height: 900 } }); await c2.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); localStorage.setItem('milal-nb-on', '1'); } catch (e) {} }); const p2 = await c2.newPage(); p2.on('pageerror', e => errs.push('wide: ' + e.message));
   const store = await pg.evaluate(() => ({ s: localStorage.getItem('milal-studies'), a: localStorage.getItem('milal-study-active') }));
   await p2.goto('http://localhost:8765/index.html'); await p2.evaluate(st => { localStorage.setItem('milal-studies', st.s); localStorage.setItem('milal-study-active', st.a); }, store); await p2.reload(); await p2.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L, null, { timeout: 60000 }); await p2.waitForTimeout(800);
   await p2.evaluate(async () => { await loadBook(32); setRange({ b: 32, c1: 1, c2: 1 }); view.st.mode = 'verse'; view.st.rd = 'read'; render(); }); await p2.click('.bnav [data-nav="text"]'); await p2.waitForTimeout(500);

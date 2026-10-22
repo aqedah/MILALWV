@@ -1,0 +1,40 @@
+// 연구 첫 화면 세 탭 + 지도 검증 (2026-10-22). 쓰기: node research_tabs.js <스크린샷 폴더>
+const { chromium, devices } = require('playwright'); const OUT = (process.argv[2] || '.') + '/'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
+(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); await c.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} });
+  const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); const W = ms => pg.waitForTimeout(ms);
+  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L, null, { timeout: 60000 }); await W(800);
+  await pg.evaluate(async () => { await loadBook(32); setRange({ b: 32, c1: 1, c2: 1 }); view.st.wide = false; render(); }); await pg.click('.bnav [data-nav="research"]'); await W(400);
+  const t0 = await pg.evaluate(() => ({ tabs: [...document.querySelectorAll('[data-rtab]')].map(b => b.textContent.trim()), sel: (document.querySelector('[data-rtab][aria-selected="true"]') || {}).textContent, tiles: [...document.querySelectorAll('.rgrid .rtile b')].map(b => b.textContent), svg: document.querySelectorAll('.rgrid .rtile svg').length, lead: document.querySelector('.rlead').textContent, nb: !!document.querySelector('.nbstart'), cols: getComputedStyle(document.querySelector('.rgrid')).gridTemplateColumns.split(' ').length }));
+  ok('연구 첫 화면: 탭 3개(흐름 관찰·낱말·문법 찾기·지도에서 보기), 처음은 흐름 관찰', t0.tabs.join('|') === '흐름 관찰|낱말·문법 찾기|지도에서 보기' && t0.sel.trim() === '흐름 관찰', JSON.stringify(t0.tabs));
+  ok('흐름 관찰: 반복·화자·장면·전환·인물·바탕이 되는 생각 6칸(그림 포함), 2칸 배열(휴대전화)', t0.tiles.join('|') === '반복|화자|장면|전환|인물|바탕이 되는 생각' && t0.svg === 6 && t0.cols === 2, JSON.stringify(t0));
+  ok('흐름 관찰 안내: "살펴볼 곳은 현재 요나 1장입니다. 다른 본문을 보려면 여기를…"', /살펴볼 곳은 현재 요나 1장입니다\. 다른 본문을 보려면 여기를 눌러 고르세요/.test(t0.lead), t0.lead);
+  ok('본문 연구 노트는 숨김(입구 없음)', !t0.nb);
+  await pg.screenshot({ path: OUT + 'rt_flow.png', fullPage: true });
+  await pg.click('[data-rtab="find"]'); await W(300);
+  const t1 = await pg.evaluate(() => ({ tiles: [...document.querySelectorAll('.rgrid .rtile b')].map(b => b.textContent), cols: getComputedStyle(document.querySelector('.rgrid')).gridTemplateColumns.split(' ').length, lead: document.querySelector('.rlead').textContent, kept: localStorage.getItem('milal-rtab') }));
+  ok('낱말·문법 찾기: 田자 4칸(낱말의 다른 용례·문법·문장 모양·두 본문 비교·고급 검색)', t1.tiles.join('|') === '낱말의 다른 용례|문법·문장 모양|두 본문 비교|고급 검색' && t1.cols === 2 && t1.kept === 'find', JSON.stringify(t1));
+  ok('안내: "살펴볼 곳은 현재 요나 1장입니다. 자유롭게 연구하고 싶으면 여기를 눌러 시작하세요."', /살펴볼 곳은 현재 요나 1장입니다\. 자유롭게 연구하고 싶으면 여기를 눌러 시작하세요\./.test(t1.lead), t1.lead);
+  await pg.screenshot({ path: OUT + 'rt_find.png', fullPage: true });
+  await pg.click('#rFree'); await W(400); const f = await pg.evaluate(() => ({ mode: view.st.mode, wide: view.st.wide, lead: document.querySelector('.qtitle + .lead').textContent, cards: document.querySelectorAll('.qcard').length, lex: JSON.stringify(view.st.qc) }));
+  ok('"여기" → 범위 없는(구약 전체) 빈 조건 카드에서 시작', f.mode === 'query' && f.wide && /구약 전체/.test(f.lead) && f.cards === 1 && /"c":\{\}/.test(f.lex), JSON.stringify(f));
+  await pg.click('#rStart'); await W(300); const f2 = await pg.evaluate(() => document.querySelector('.rlead').textContent); ok('돌아오면 "살펴볼 곳은 구약 전체입니다(범위 없음). 요나 1장만 보려면 여기"', /구약 전체/.test(f2) && /요나 1장만 보려면/.test(f2), f2);
+  await pg.click('#rFreeOff'); await W(200); await pg.click('[data-rstart="adv"]'); await W(300);
+  ok('"고급 검색" 칸 → 고급 검색(TF 식) 화면', await pg.evaluate(() => view.st.qui === 'adv' && !!document.querySelector('.qadvhd .qadvb') && !!document.querySelector('#qText')));
+  await pg.click('#rStart'); await W(300); await pg.evaluate(() => { view.st.qui = 'card'; });
+  // 지도
+  await pg.click('[data-rtab="map"]'); await pg.waitForFunction(() => window.__lmap && document.querySelectorAll('.leaflet-interactive').length > 0, null, { timeout: 30000 }); await W(800);
+  const m1 = await pg.evaluate(() => ({ rows: [...document.querySelectorAll('.plrow')].map(b => b.textContent), lbl: [...document.querySelectorAll('.mlbl')].map(x => x.textContent), dash: [...document.querySelectorAll('path.leaflet-interactive')].filter(p => p.getAttribute('stroke-dasharray')).length, src: (document.querySelector('.mapsrc') || {}).textContent, leaflet: [...document.scripts].map(s => s.src).filter(s => /leaflet/.test(s)) }));
+  ok('지도(요나 1장): 니느웨·욥바·다시스 — 다시스는 추정 위치(42%)·지도 밖(서쪽), 점선 표시', m1.rows.some(r => /^니느웨/.test(r) && /위치 확실/.test(r)) && m1.rows.some(r => /^욥바/.test(r)) && m1.rows.some(r => /^다시스/.test(r) && /추정 위치 · 확실성 42%/.test(r) && /지도 밖/.test(r)) && m1.dash >= 1, JSON.stringify(m1.rows));
+  ok('지도 프로그램은 저장소 안의 vendor/leaflet(인터넷 CDN 아님), 출처(OpenBible CC BY 4.0·CBSR) 표기', m1.leaflet.length === 1 && /vendor\/leaflet\/leaflet\.js/.test(m1.leaflet[0]) && /OpenBible\.info .*CC BY 4\.0/.test(m1.src) && /CBSR/.test(m1.src), JSON.stringify(m1.leaflet));
+  await pg.screenshot({ path: OUT + 'rt_map_jonah1.png', fullPage: true });
+  await pg.click('.plrow >> text=다시스'); await W(300); const sh = await pg.evaluate(() => document.getElementById('sheetRoot').textContent);
+  ok('지명 누르기 → 히브리어·확실성·지도 밖 안내·나오는 절(욘 1:3)·OpenBible 근거 링크', /תַּרְשִׁישׁ|תרשיש/.test(sh) && /추정 위치/.test(sh) && /지도 그림 밖/.test(sh) && /서쪽 지도 밖/.test(sh) && /욘 1:3/.test(sh) && /OpenBible/.test(sh), sh.slice(0, 200));
+  await pg.click('#sheetRoot [data-plv]'); await W(500); ok('나오는 절 → 본문 그 절로', await pg.evaluate(() => view.st.mode === 'verse' && view.st.R.b === 32));
+  // 경로가 있는 장(창 12) + 아벡 구별(삼상 4 vs 왕상 20)
+  await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 12, c2: 12 }); view.st.mode = 'start'; view.st.rmode = 'start'; render(); }); await pg.click('.bnav [data-nav="research"]'); await W(300);
+  await pg.waitForFunction(() => window.__lmap && document.querySelectorAll('.rarrow').length > 0, null, { timeout: 30000 }); const g12 = await pg.evaluate(() => ({ rleg: (document.querySelector('.rleg') || {}).textContent, rows: [...document.querySelectorAll('.plrow b')].map(b => b.textContent) }));
+  ok('창 12: CBSR 이동 경로(아브람)와 나오는 곳(세겜·벧엘·애굽 …)', /아브람/.test(g12.rleg || '') && g12.rows.includes('세겜') && g12.rows.includes('애굽'), JSON.stringify(g12));
+  const ap = await pg.evaluate(async () => { await loadBook(9); await loadBook(11); const f = (b, c) => { const A = plInRange([[b, c, c]]); return A.pts.filter(e => PLD.P[e.pi][0] === '아벡').map(e => PLD.P[e.pi].slice(1, 3).join(',')); }; return { s4: f(9, 4), k20: f(11, 20) }; });
+  ok('같은 이름 다른 곳: 삼상 4장의 아벡(샤론 평야)과 왕상 20장의 아벡(골란)은 다른 점', ap.s4.length === 1 && ap.k20.length === 1 && ap.s4[0] !== ap.k20[0], JSON.stringify(ap));
+  ok('페이지 오류 없음', errs.length === 0, errs.join(' | '));
+  console.log(R.join('\n')); console.log(`\n${R.filter(x => x.startsWith('PASS')).length}/${R.length} PASS`); await br.close(); })();

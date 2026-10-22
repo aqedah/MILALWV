@@ -15,11 +15,34 @@ const R_FLOW=[["화자","서술과 인물의 말"],["장면","장면이 바뀌�
 /* 흐름 도구 결과 위의 공통 상자: 앱이 무슨 규칙으로 찾았는지(사실)와, 그 뜻은 본문에서 판단할 일임을 나눠 적는다 */
 const toolRule=(rule,judge)=>`<div class="trule"><p><b>찾은 규칙</b> ${rule}</p><p><b>판단은 본문에서</b> ${judge}</p></div>`;
 const toolExcl=(title,items)=>items.length?`<details class="mdet"><summary>${title} — 왜 뺐는지</summary><ul class="sexl">${items.slice(0,60).map(([vi,wj,why])=>`<li><button class="qlink" data-svi="${vi}" data-swj="${wj}">${esc(sRef(vi))}</button> ${esc(why)}</li>`).join("")}${items.length>60?`<li>… ${items.length-60}곳 더</li>`:""}</ul></details>`:"";
-function renderResearchStart(){ const S=view.st; const rg=rLabel(S.R);
-  return `<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2><p class="lead" style="margin:0 0 8px">살펴볼 곳은 <b>현재 ${esc(rScopeLabel())}</b>입니다.</p>${window.nbStartHTML?nbStartHTML():""}
-    <div class="qqs">${R_START.map(x=>`<button class="qq" data-rstart="${x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join("")}</div>
-    <span class="label" style="margin-top:12px">본문의 흐름 살펴보기</span><div class="stools rflow">${R_FLOW.map(([t,n])=>`<button class="stool" data-rstart="tool:${t}"><i class="tool">${t}</i><b>${n}</b></button>`).join("")}</div>
-    ${window.nbGuideHTML&&S.R?nbGuideHTML(S.R.b,S.R.c1,3,rScopeLabel()):""}<p class="lead" style="margin-top:10px"><button class="mtog" data-rstart="theory">이 도구들의 바탕이 되는 생각 ⓘ</button> · <button class="mtog" id="rSaved">보관한 검색식</button></p></section>`; }
+/* 연구 첫 화면(2026-10-22 목사님): 방법에 따라 세 탭 — ① 흐름 관찰(내러티브 비평) ② 낱말·문법 찾기(BHSA·Text-Fabric) ③ 지도에서 보기.
+   단추는 그림(직접 그린 선 그림 — 기종마다 모양이 같음)과 함께 칸으로 배열 */
+const RI=(d)=>`<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const R_ICON={
+  repeat:'<path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4"/>',
+  speak:'<path d="M4 5h16v10H10l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>',
+  scene:'<path d="M5 21V4h9v17M14 4l5 2v15M3 21h18"/><path d="M11 12h.5"/>',
+  shift:'<path d="M3 7h7M3 12h5M3 17h7M14 6v12M18 6v12"/>',
+  person:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c1.3-3.8 4-5.6 7-5.6s5.7 1.8 7 5.6"/>',
+  book:'<path d="M3 5.5c3-1.3 6-1.3 9 .7 3-2 6-2 9-.7V19c-3-1.3-6-1.3-9 .7-3-2-6-2-9-.7z"/><path d="M12 6.2v13.5"/>',
+  usage:'<circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5-5M8 10.5h5"/>',
+  compare:'<rect x="3" y="4" width="7.5" height="16" rx="1.2"/><rect x="13.5" y="4" width="7.5" height="16" rx="1.2"/><path d="M5.5 9h2.5M5.5 13h2.5M16 9h2.5M16 13h2.5"/>',
+  cards:'<rect x="7" y="3" width="13" height="9" rx="1.5"/><rect x="4" y="9" width="13" height="10" rx="1.5"/><path d="M7 13h7M7 16h4"/>',
+  code:'<path d="M9 4c-2 0-3 1-3 3v2.5c0 1.3-.8 2.5-2 2.5 1.2 0 2 1.2 2 2.5V17c0 2 1 3 3 3M15 4c2 0 3 1 3 3v2.5c0 1.3.8 2.5 2 2.5-1.2 0-2 1.2-2 2.5V17c0 2-1 3-3 3"/>',
+  pin:'<path d="M12 21s-6.5-6.4-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.6 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/>',
+  wave:'<path d="M3 9c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0"/>'};
+const R_TABS=[["flow","흐름 관찰","wave"],["find","낱말·문법 찾기","usage"],["map","지도에서 보기","pin"]];
+const R_FLOWT=[["tool:반복","반복","되풀이되는 말","repeat"],["tool:화자","화자","서술과 인물의 말","speak"],["tool:장면","장면","장면이 바뀌는 단서","scene"],["tool:전환","전환","서술 흐름이 바뀌는 단서","shift"],["tool:인물","인물","주어로 나온 이름","person"],["theory","바탕이 되는 생각","내러티브 비평으로 읽기","book"]];
+const R_FINDT=[["usage","낱말의 다른 용례","한 낱말이 구약 어디에(책별로)","usage"],["query","문법·문장 모양","조건 카드로 묶어 찾기","cards"],["compare","두 본문 비교","같은 순서로 이어진 말·드문 낱말","compare"],["adv","고급 검색","Text-Fabric 검색식 직접 쓰기","code"]];
+const rTile=([k,t,d,ic])=>`<button class="rtile" data-rstart="${k}">${RI(R_ICON[ic])}<b>${esc(t)}</b><small>${esc(d)}</small></button>`;
+function rChLabel(){ const R=view.st.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rTab(){ const S=view.st; if(!S.rtab){ try{ S.rtab=localStorage.getItem("milal-rtab")||"flow"; }catch(e){ S.rtab="flow"; } } return R_TABS.some(t=>t[0]===S.rtab)?S.rtab:"flow"; }
+function renderResearchStart(){ const S=view.st, tab=rTab();
+  let h=`<section class="sec"><h2 class="qtitle">무엇을 살펴볼까요?</h2>${window.nbStartHTML?nbStartHTML():""}<div class="rtabs" role="tablist">${R_TABS.map(([k,n,ic])=>`<button role="tab" aria-selected="${tab===k}" data-rtab="${k}">${RI(R_ICON[ic])}<span>${n}</span></button>`).join("")}</div>`;
+  if(tab==="flow") h+=`<p class="lead rlead">살펴볼 곳은 <b>현재 ${esc(rChLabel())}</b>입니다. 다른 본문을 보려면 <button class="rhere" id="rPickText">여기</button>를 눌러 고르세요.</p><p class="lead rsub">이야기를 읽는 눈(내러티브 비평)으로 — 되풀이, 말하는 이, 장면, 흐름, 인물을 봅니다.</p><div class="rgrid g3">${R_FLOWT.map(rTile).join("")}</div>${window.nbGuideHTML&&S.R?nbGuideHTML(S.R.b,S.R.c1,3,rChLabel()):""}`;
+  else if(tab==="find") h+=`<p class="lead rlead">${S.wide?`살펴볼 곳은 <b>구약 전체</b>입니다(범위 없음). ${esc(rChLabel())}만 보려면 <button class="rhere" id="rFreeOff">여기</button>를 누르세요.`:`살펴볼 곳은 <b>현재 ${esc(rChLabel())}</b>입니다. 자유롭게 연구하고 싶으면 <button class="rhere" id="rFree">여기</button>를 눌러 시작하세요.`}</p><p class="lead rsub">원문 자료(BHSA)에서 낱말·형태·문장 모양을 찾습니다.</p><div class="rgrid g2">${R_FINDT.map(rTile).join("")}</div><p class="lead" style="margin-top:10px"><button class="mtog" id="rSaved">보관한 검색식</button></p>`;
+  else h+=window.renderMapTab?renderMapTab():"";
+  return h+`</section>`; }
 /* UX 시안: 낱말 찾기 첫 화면에 이 범위에서 자주 나오는 낱말 5개를 보기로 — 누르면 바로 그 낱말의 용례 */
 const UX_FN=new Set(["art","prep","conj","prps","prde","prin","nega","inrg","intj"]);
 function topWordsHTML(){ const S=view.st, sp=S.R?[[S.R.b,S.R.c1,S.R.c2]]:null; const V=sp?spanVerses(sp):null; if(!V||!V.length) return ""; const M=new Map(); for(const vi of V){ const [, , , , ,s,n]=SD.V[vi]; for(let j=s;j<s+n;j++){ const li=SD.wl[j]; if(UX_FN.has(SD.L[li][2])) continue; M.set(li,(M.get(li)||0)+1); } }
@@ -53,7 +76,7 @@ function selPopAct(k){ const S=view.st, W=S.selW; if(!W) return; const [st,co]=k
 const sfzHTML=()=>`<div class="sfz"><button class="s" data-sfz="-1" aria-label="글씨 작게"${sFs()<=0.8?" disabled":""}>가−</button><button class="l" data-sfz="1" aria-label="글씨 크게"${sFs()>=1.5?" disabled":""}>가+</button></div>`;
 /* ===== 연구 탭의 '찾는 곳' — 범위를 정하는 곳은 여기 하나(새 화면). 모든 도구가 이것만 따른다 ===== */
 function rBookLast(b){ const B=SD.book[b]; return B?Math.max(...B.chs):1; }
-function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||S.mode==="start")) return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
+function rScopeLabel(){ const S=view.st; if(S.wide&&(S.mode==="query"||(S.mode==="start"&&rTab()==="find"))) return "구약 전체"; const R=S.R; if(!R) return ""; const u=R.b===19?"편":"장"; return R.c1===1&&R.c2===rBookLast(R.b)?`${PLAN.full[R.b-1]} 전체`:`${PLAN.full[R.b-1]} ${R.c1===R.c2?R.c1:R.c1+"–"+R.c2}${u}`; }
 function rScopeHTML(){ return ""; /* 2026-10-21: 범위는 위 주소 단추에서(연구 탭에서는 '이 장/이 책 전체/구약 전체' 고르기) */ const S=view.st; return `<div class="rscope"><button class="rscopeb" id="rScope">찾는 곳: <b>${esc(rScopeLabel())}</b> ▾</button>${S.mode==="tool"&&S.wide?`<small>흐름 도구는 한 책 안에서만 봅니다</small>`:""}</div>`; }
 function rScopeOpen(){ const S=view.st, R=S.R, b=R.b, c=(S.vc>=R.c1&&S.vc<=R.c2)?S.vc:R.c1, last=rBookLast(b), u=b===19?"편":"장"; const tool=S.mode==="tool";
   sheet("찾는 곳",`<div class="snlist">${[["ch",`이 ${u}만 — ${PLAN.full[b-1]} ${c}${u}`],["book",`이 책 전체 — ${PLAN.full[b-1]} 1–${last}${u}`],...(tool?[]:[["all","구약 전체 — 39권"]]),["pick","다른 책·장 고르기…"]].map(([k,n])=>`<button class="snjump" data-rsc="${k}"><b>${esc(n)}</b></button>`).join("")}</div><p class="lead" style="margin-top:8px">낱말 찾기·자세한 검색·흐름 도구가 모두 이 범위를 씁니다.</p>${window.qcJobHTML?qcJobHTML():""}`);
@@ -330,7 +353,7 @@ function renderStudy(){
   else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`${ux2()&&S.tool==="반복"?`<div class="cmppreg" style="margin:0 0 8px"><small>예시 — 한 본문 안에서 이야기를 끌고 가는 말</small><button class="achip" data-rpex="룻 1:6-22">예시 · 룻 1:6–22 — '돌아가다(슈브)'</button></div>`:""}<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">검색식으로 비슷하게 찾아보기 ›</button>${S.tool==="장면"?`<small class="qlinknote">검색식은 봐예히를 조건 없이 모두 찾으므로 이 도구보다 결과가 많습니다.</small>`:""}`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
-  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다.</p></section>`;
+  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다. · 지도: 지명 위치·확실성 OpenBible.info Bible Geocoding Data(CC BY 4.0), 지형 그림·이동 경로 CBSR(AWS Terrain Tiles·Natural Earth), 지도 프로그램 Leaflet(BSD-2).</p></section>`;
   return h; }
 function sugHTML(q){ if(!SD||!q) return ""; const L=lexSuggest(q); if(!L.length) return `<p class="lead">찾는 낱말이 없습니다. 다른 말로 넣어 보세요.</p>`; return L.map(li=>lexRow(li)).join(""); }
 function bindStudy(m){
@@ -390,7 +413,12 @@ function bindStudy(m){
   m.querySelectorAll("[data-rpex]").forEach(b=>b.onclick=()=>{ const r=window.cmpParse&&cmpParse(b.dataset.rpex); if(!r||r.err) return; const go=()=>{ setRange({b:r.b,c1:r.c1,c2:r.c2}); S.mode="tool"; S.tool="반복"; render(); scrollTo({top:0}); }; if(SD.loaded.has(r.b)) go(); else loadBook(r.b).then(go); });
   m.querySelectorAll("[data-wbk]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.wbk; S.wbook=S.wbook===k?null:k; S.more=1; const y=scrollY; render(); scrollTo({top:y}); });
   const rs=m.querySelector("#rStart"); if(rs) rs.onclick=()=>{ S.mode="start"; S.rmode="start"; render(); scrollTo({top:0}); };
-  m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });
+  m.querySelectorAll("[data-rtab]").forEach(b=>b.onclick=()=>{ S.rtab=b.dataset.rtab; try{ localStorage.setItem("milal-rtab",S.rtab); }catch(e){} render(); });
+  const rf=m.querySelector("#rFree"); if(rf) rf.onclick=()=>{ S.wide=true; S.qc=qcNew("word"); qcSync(); S.qui="card"; S.qres=null; S.qkey=null; S.qEdit=false; S.mode="query"; S.rmode="query"; render(); scrollTo({top:0}); };
+  const rfo=m.querySelector("#rFreeOff"); if(rfo) rfo.onclick=()=>{ S.wide=false; render(); };
+  const rpt=m.querySelector("#rPickText"); if(rpt) rpt.onclick=()=>{ S.pick=true; S.pk={b:S.R?S.R.b:1,c1:null,c2:null}; render(); scrollTo({top:0}); };
+  if(S.mode==="start"&&window.bindMapTab) bindMapTab(m);
+  m.querySelectorAll("[data-rstart]").forEach(b=>b.onclick=()=>{ const k=b.dataset.rstart; if(k==="adv"){ S.qui="adv"; S.qEdit=true; S.qMode="text"; S.qt=S.qt||"clause\n  word\n"; S.qkey=null; S.qres=null; S.mode="query"; S.rmode="query"; render(); scrollTo({top:0}); return; } if(k.startsWith("tool:")){ S.mode="tool"; S.tool=k.slice(5); S.sub=""; S.godv=null; } else if(k==="theory"){ S.mode="theory"; } else { const x=R_START.find(y=>y.k===k); S.mode=x.go.mode; if(x.go.tool){ S.tool=x.go.tool; S.sub=""; S.godv=null; } } if(S.mode==="tool"&&S.range==="all") S.range="book"; S.rmode=S.mode; render(); scrollTo({top:0}); });
   const rsv=m.querySelector("#rSaved"); if(rsv) rsv.onclick=()=>{ S.mode="query"; S.rmode="query"; render(); if(window.qOpenSaved) qOpenSaved(); };
   m.querySelectorAll("[data-sat]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openAtomSheet(S.R.b,+b.dataset.sat); });
   m.querySelectorAll(".umap [data-mgo]").forEach(b=>b.onclick=()=>gotoAtom(S.R.b,+b.dataset.mgo));

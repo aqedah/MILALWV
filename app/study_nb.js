@@ -4,12 +4,14 @@
    · 메모와의 연결: 이미 있는 '표시(태그)' 칸에 "연구: 제목"을 단다 → 기록 형식·Firestore 규칙을 바꾸지 않는다. 낱말 메모(이 기기 전용)는 노트가 번호를 기억한다.
    · 앱은 근거를 모아 줄 뿐, 해석·결론·적용은 사용자가 쓴다(자동 생성 없음). ===== */
 const NB_KEY="milal-studies", NB_ACT="milal-study-active", NB_SIDE="milal-nb-side";
+/* 2026-10-22 목사님: UI·UX 를 마칠 때까지 숨겨 둔다(코드·저장된 노트는 그대로). 다시 켜기: localStorage "milal-nb-on" = "1" 또는 이 값을 true 로 */
+const NB_ON=(()=>{ try{ return localStorage.getItem("milal-nb-on")==="1"; }catch(e){ return false; } })();
 function nbLoad(){ try{ const L=JSON.parse(localStorage.getItem(NB_KEY)||"[]"); return Array.isArray(L)?L.filter(s=>s&&s.id):[]; }catch(e){ return []; } }
 function nbSave(L){ try{ localStorage.setItem(NB_KEY,JSON.stringify(L)); return true; }catch(e){ toast("연구 노트를 저장하지 못했습니다(저장 공간)."); return false; } }
 function nbActiveId(){ try{ return localStorage.getItem(NB_ACT)||""; }catch(e){ return ""; } }
 function nbSetActive(id){ try{ if(id) localStorage.setItem(NB_ACT,id); else localStorage.removeItem(NB_ACT); }catch(e){} }
 function nbGet(id){ return nbLoad().find(s=>s.id===id)||null; }
-function nbActive(){ const id=nbActiveId(); return id?nbGet(id):null; }
+function nbActive(){ if(!NB_ON) return null; const id=nbActiveId(); return id?nbGet(id):null; }
 function nbPut(s){ const L=nbLoad(); s.updated=Date.now(); const i=L.findIndex(x=>x.id===s.id); if(i>=0) L[i]=s; else L.unshift(s); return nbSave(L); }
 const nbTagOf=s=>"연구: "+s.title;
 function nbActiveTag(){ const s=nbActive(); return s?nbTagOf(s):""; }
@@ -73,7 +75,7 @@ function nbGo(key){ const [g,i]=key.split("|"), a=(NB_Q[g]||[])[+i]; if(!a) retu
 /* ===== 화면 ===== */
 function nbItemHTML(it,part){ const txt=part==="int"?it.int:it.obs; return `<div class="nbit"><div class="nbith"><button class="qlink" data-nbgo="${it.b}-${it.c}-${it.v}">${esc(it.ref)}</button><small>${esc(it.kind)}${it.extra?" · "+esc(it.extra):""}${it.heb?` · <span class="heb">${esc(it.heb)}</span> ${esc(it.gl)}`:""}</small>${it.id?`<button class="btn small ghost" data-anedit="${it.id}">고치기</button>`:""}</div><p>${esc(txt).replace(/\n/g,"<br>")}</p></div>`; }
 function nbField(k,label,hint,val,rows){ return `<label class="anlab nbl">${label} <small>${hint}</small></label><textarea class="nbta" data-nbf="${k}" rows="${rows||3}">${esc(val||"")}</textarea>`; }
-function nbStartHTML(){ const s=nbActive(), n=nbLoad().length;
+function nbStartHTML(){ if(!NB_ON) return ""; const s=nbActive(), n=nbLoad().length;
   return s?`<div class="nbstart on"><span><small>지금 연구 중</small><b>${esc(s.title)}</b><small>${esc(nbRangeText(s))} · 근거 ${nbCount(s)}</small></span><button class="btn small" data-nbopen="${s.id}">노트 이어서</button></div>`
     :`<div class="nbstart"><span><b>본문 연구 노트</b><small>한 본문을 한 질문으로 — 관찰·해석·중간 결론·적용을 한곳에 모읍니다</small></span><button class="btn small ghost" data-nbopen="">${n?`내 연구 ${n} · 새 연구`:"새 연구 시작"}</button></div>`; }
 function nbPage(){ const S=view.st; const s=S.nbView?nbGet(S.nbView):null; if(s&&s.ranges.some(r=>!SD.loaded.has(r.b))){ nbEnsure(s).then(()=>render()); return `<section class="sec"><p class="lead">본문 자료를 받는 중…</p></section>`; }
