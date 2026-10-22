@@ -7,7 +7,7 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   // 1. 문구
   const st = await pg.evaluate(() => ({ flow: [...document.querySelectorAll('.rtile[data-rstart^="tool:"] small')].map(x => x.textContent).slice(1), nb: (document.querySelector('.nbstart') || {}).textContent, guide: (document.querySelector('.nbguide .label') || {}).textContent, gq: document.querySelectorAll('.nbguide .nbq').length }));
   ok('흐름 도구 이름: 장면이 바뀌는 단서 · 서술 흐름이 바뀌는 단서 · 주어로 나온 이름', st.flow.join('|') === '서술과 인물의 말|장면이 바뀌는 단서|서술 흐름이 바뀌는 단서|주어로 나온 이름', st.flow.join('|'));
-  ok('연구 첫 화면: 본문 연구 노트 입구 + "무엇을 관찰해 볼까요? · 요나 1장 = 이야기" 질문 3개', /본문 연구 노트/.test(st.nb) && /이야기/.test(st.guide) && st.gq === 3, JSON.stringify(st));
+  ok('연구 첫 화면: 본문 연구 노트 입구 (흐름 관찰 탭에는 중복되던 "무엇을 관찰해 볼까요?" 단락 없음)', /본문 연구 노트/.test(st.nb) && st.gq === 0, JSON.stringify(st));
   const tool = async t => pg.evaluate(async t => { const S = view.st; S.mode = 'tool'; S.tool = t; S.sub = ''; S.rmode = 'tool'; render(); await new Promise(r => setTimeout(r, 200)); return (document.querySelector('#sToolRes') || {}).textContent || ''; }, t);
   await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 18, c2: 22 }); });
   const t1 = await tool('화자'); ok('화자: "서술 속의 \'보라\'" + 찾은 규칙/판단은 본문에서 + 모으지 않은 \'보라\'(인물의 말) 목록', /서술 속의 '보라/.test(t1) && /찾은 규칙/.test(t1) && /판단은 본문에서/.test(t1) && /모으지 않은 곳 \d+곳/.test(t1) && !/인물의 눈으로 보는 곳/.test(t1), t1.slice(0, 160));
