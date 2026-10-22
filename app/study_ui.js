@@ -300,13 +300,14 @@ function rangeBox(){ const S=view.st; if(ux2()) return ""; if(!(S.mode==="word"|
   return `<div class="seg sseg swide">${[["","이 범위 · "+(S.R?`${PLAN.abbr[S.R.b-1]} ${S.R.c1}–${S.R.c2}`:"")],["1","구약 전체"]].map(([k,n])=>`<button aria-checked="${(S.wide?"1":"")===k}" data-swide="${k}">${esc(n)}</button>`).join("")}</div>`; }
 const BOOK_GRP=[["율법서",1,5],["역사서",6,17],["시가서",18,22],["선지서",23,39]];
 function pickerHTML(){ const S=view.st, pk=S.pk ||= {b:null,c1:null,c2:null};
-  if(!pk.b) return `<section class="sec"><p class="lead">살펴볼 책을 고르세요.</p>${BOOK_GRP.map(([g,a,z])=>`<div class="pkgrp">${g}</div><div class="pkbooks">${Array.from({length:z-a+1},(_,i)=>a+i).map(b=>`<button data-pkb="${b}">${esc(PLAN.full[b-1])}</button>`).join("")}</div>`).join("")}${S.R?`<button class="sbtn ghost" id="pkCancel">돌아가기</button>`:""}</section>`;
+  const back=S.R?`<button class="sback" data-pkcancel="1">← 돌아가기</button>`:"";
+  if(!pk.b) return `<section class="sec">${back}<p class="lead">살펴볼 책을 고르세요.</p>${BOOK_GRP.map(([g,a,z])=>`<div class="pkgrp">${g}</div><div class="pkbooks">${Array.from({length:z-a+1},(_,i)=>a+i).map(b=>`<button data-pkb="${b}">${esc(PLAN.full[b-1])}</button>`).join("")}</div>`).join("")}${S.R?`<button class="sbtn ghost" data-pkcancel="1">돌아가기</button>`:""}</section>`;
   const chs=[...SD.book[pk.b].chs].sort((a,b)=>a-b), u=pk.b===19?"편":"장";
   const lo=pk.c1!=null&&pk.c2!=null?Math.min(pk.c1,pk.c2):pk.c1, hi=pk.c1!=null&&pk.c2!=null?Math.max(pk.c1,pk.c2):pk.c1;
-  return `<section class="sec"><button class="sback" id="pkBook">← 책 다시 고르기</button><h3 class="pktitle">${esc(PLAN.full[pk.b-1])}</h3><p class="lead" style="margin:0 0 8px">시작 ${u} → 끝 ${u}을 차례로 누르세요. 같은 ${u}을 두 번 누르면 그 한 ${u}만 고릅니다.</p>
+  return `<section class="sec">${back}<button class="pktitle pkbookbtn" id="pkBook" title="다른 책 고르기">${esc(PLAN.full[pk.b-1])} <i>▾</i><small>책 바꾸기</small></button><p class="lead" style="margin:0 0 8px">시작 ${u} → 끝 ${u}을 차례로 누르세요. 같은 ${u}을 두 번 누르면 그 한 ${u}만 고릅니다.</p>
    <div class="pkchs">${chs.map(c=>`<button data-pkc="${c}" class="${c===lo||c===hi?"end":lo!=null&&hi!=null&&c>lo&&c<hi?"mid":""}">${c}</button>`).join("")}</div>
    ${lo!=null?`<p class="pksel">고른 범위 · <b>${esc(PLAN.full[pk.b-1])} ${pk.c2==null?lo+u+" (끝 "+u+"을 누르세요)":(lo===hi?lo:lo+"–"+hi)+u}</b></p>`:""}
-   <button class="sbtn" id="pkGo"${lo==null?" disabled":""}>이 범위로 연구</button><p class="lead" style="font-size:12px">한 번에 한 책 안에서 고릅니다.</p></section>`; }
+   <button class="sbtn" id="pkGo"${lo==null?" disabled":""}>이 범위로 연구</button><p class="lead" style="font-size:12px">한 번에 한 책 안에서 고릅니다. 다른 책은 위의 책 이름을 누르세요.</p>${S.R?`<button class="sbtn ghost" data-pkcancel="1">돌아가기</button>`:""}</section>`; }
 function gateHTML(){ const L=lastRange(), RC=recentRanges(); let h=`<section class="sec">`;
   h+=`<div class="scard"><small>BIBLIA HEBRAICA · BHSA</small><h3>어디로 갈까요</h3><p class="lead">책과 장을 고르면 히브리어 원문을 읽기·구조·낱말·검색식으로 살핍니다.</p><button class="sbtn" id="sOther">책 → 장 고르기</button></div>`;
   if(RC.length) h+=`<div class="pkgrp">최근 본 곳</div><div class="achips">${RC.map(R=>`<button class="achip" data-ar='${JSON.stringify(R)}'>${esc(rLabel(R))}</button>`).join("")}</div>`;
@@ -372,7 +373,7 @@ function bindStudy(m){
   m.querySelectorAll("[data-pkb]").forEach(b=>b.onclick=()=>{ S.pk={b:+b.dataset.pkb,c1:null,c2:null}; render(); scrollTo({top:0}); });
   m.querySelectorAll("[data-pkc]").forEach(b=>b.onclick=()=>{ const c=+b.dataset.pkc, pk=S.pk; if(pk.c1==null||pk.c2!=null){ pk.c1=c; pk.c2=null; } else pk.c2=c; pkS(); });
   const pb=document.getElementById("pkBook"); if(pb) pb.onclick=()=>{ S.pk={b:null,c1:null,c2:null}; render(); };
-  const pc=document.getElementById("pkCancel"); if(pc) pc.onclick=()=>{ S.pick=false; S.pk=null; render(); };
+  m.querySelectorAll("[data-pkcancel]").forEach(b=>b.onclick=()=>{ S.pick=false; S.pk=null; render(); scrollTo({top:0}); });
   const pkg=document.getElementById("pkGo"); if(pkg) pkg.onclick=()=>{ const pk=S.pk; if(pk.c1==null) return; const c2=pk.c2==null?pk.c1:pk.c2; setRange({b:pk.b,c1:Math.min(pk.c1,c2),c2:Math.max(pk.c1,c2)}); render(); scrollTo({top:0}); };
   m.querySelectorAll("[data-swide]").forEach(b=>b.onclick=()=>{ S.wide=!!b.dataset.swide; rr(); });
   m.querySelectorAll("[data-smode]").forEach(b=>b.onclick=()=>{ S.mode=b.dataset.smode; if(S.mode==="tool"&&S.range==="all") S.range="book"; rr(); });
