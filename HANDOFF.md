@@ -82,7 +82,7 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 |---|---|---|
 | **aqedah/MILAL** | 욥기 논문용 분석 장치(파이썬). 규칙을 만들고 검증·확정 | **MILALWV 작업에서 손대지 않는다.** 규칙이 확정되면 JSON 파일 하나로 내보내는 출구만 MILAL 쪽 일정에 맞춰 만든다 |
 | **aqedah/MILALWV** (새로 만듦) | 히브리어 원문 읽기·낱말 풀이·장 구조·검색식 웹앱 | MILAL이 내보낸 JSON을 받아 화면에 보여 준다 |
-| **aqedah/CBSR** | 성도용 통독·QT 앱. 지금은 성경연구 탭이 이 안에 들어 있음 | MILALWV가 자리 잡으면 CBSR은 MILALWV의 묶음을 불러다 쓰거나 지금 판을 그대로 둔다(나중에 결정) |
+| **aqedah/CBSR** | 성도용 통독·QT 앱. 2026-10-23부터 성경연구 탭을 내리고 메뉴에 MILALWV 배너만 둠 | **CBSR main 가지는 빌드 결과물 — 직접 고치지 않는다.** CBSR에 넣을 것(지명 등)은 CBSR `source` 가지의 원본(`app/gaz.json` 등)을 고쳐 source 가지에만 커밋한다. CBSR 대화가 다음 배포 때 받아 빌드한다(CBSR 저장소의 CLAUDE.md 참고) |
 
 두 저장소(MILAL ↔ MILALWV)는 **JSON 파일 형식 하나로만** 이어진다. 그래서 논문 쪽 규칙이 바뀌어도 웹앱 코드는 거의 바뀌지 않는다.
 
