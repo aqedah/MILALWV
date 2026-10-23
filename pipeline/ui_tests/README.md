@@ -20,3 +20,4 @@
 - `node pipeline/ui_tests/research_tabs.js <스크린샷 폴더>` — 연구 첫 화면 세 탭(흐름 관찰·낱말·문법 찾기·지도에서 보기)·그림 칸·자유 시작·지도 16건
 - `node pipeline/ui_tests/verse_range.js <스크린샷 폴더>` — 장:절 범위 10건(절까지 정하기, 장 넘는 절 범위, 도구·검색·워커·보관 범위)
 - `node pipeline/ui_tests/speakers.js <스크린샷 폴더>` — 누가 말하나 11건(요나 13곳·아가 16곳 기대값, 안쪽 인용, 고치기·보내기·공용 자료)
+- `node pipeline/ui_tests/translations.js <스크린샷 폴더>` — 번역본 고르기 7건(개역개정 기본·새번역 각주·개역한글·절 번호·출처)

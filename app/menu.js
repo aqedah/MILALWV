@@ -1,16 +1,18 @@
 /* ===== 우상단 메뉴: 계정 · 번역본 · 주야간 · 홈 화면에 추가 · 튜토리얼 · MILAL 소개 · 자료 출처 ===== */
 
 /* --- 번역본 --- */
-const TR_LIST=[{id:"krh",dir:"study/bible/krh",name:"개역한글"},{id:"none",name:"원문만 (번역 숨김)"}];
+/* 2026-10-23 목사님: 개역개정·새번역(대한성서공회, 사용 허락) 추가 — 개역한글은 당분간 함께 둔다. 처음 쓰는 사람은 개역개정 */
+const TR_LIST=[{id:"krv",dir:"study/bible/krv",name:"개역개정"},{id:"rnksv",dir:"study/bible/rnksv",name:"새번역"},{id:"krh",dir:"study/bible/krh",name:"개역한글"},{id:"none",name:"원문만 (번역 숨김)"}];
 const TR_CACHE={}; /* id → {info, books:{b: [...]}} */
-function trId(){ try{ const v=localStorage.getItem("milal-tr"); return TR_LIST.some(t=>t.id===v)?v:"krh"; }catch(e){ return "krh"; } }
+function trId(){ try{ const v=localStorage.getItem("milal-tr"); return TR_LIST.some(t=>t.id===v)?v:"krv"; }catch(e){ return "krv"; } }
 function trApply(id){ const t=TR_LIST.find(x=>x.id===id)||TR_LIST[0]; try{ localStorage.setItem("milal-tr",t.id); }catch(e){}
-  if(!t.dir){ window.BIBLE=null; TR_INFO.tr.name=""; TR_INFO.tr.src=""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
-  const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books;
+  if(!t.dir){ window.BIBLE=null; window.BIBLE_NOTES=null; TR_INFO.tr.name=""; TR_INFO.tr.src=""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
+  const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books; window.BIBLE_NOTES=C.notes ||= new Array(39);
   const info=C.info?Promise.resolve(C.info):fetch(t.dir+"/info.json?v="+(window.STUDY_V||"1")).then(r=>r.json()).then(j=>{ C.info=j; return j; }).catch(()=>({name:t.name}));
   return info.then(j=>{ TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; const b=(typeof view!=="undefined"&&view.st.R)?view.st.R.b:(lastRange()||{b:1}).b; return bibleBook(b); }); }
 /* 번역 본문 책 하나 (보고 있는 책만 받는다) */
-function bibleBook(b){ const t=TR_LIST.find(x=>x.id===trId()); if(!t||!t.dir) return Promise.resolve(); const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books;
+function bibleBook(b){ const t=TR_LIST.find(x=>x.id===trId()); if(!t||!t.dir) return Promise.resolve(); const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books; window.BIBLE_NOTES=C.notes ||= new Array(39);
+  if(C.info&&C.info.notes&&!C.notes[b-1]&&!C.pend["n"+b]) C.pend["n"+b]=fetch(`${t.dir}/notes/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>r.ok?r.json():{}).then(j=>{ C.notes[b-1]=j; delete C.pend["n"+b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend["n"+b]; });
   if(C.books[b-1]) return Promise.resolve(); if(C.pend[b]) return C.pend[b];
   return C.pend[b]=fetch(`${t.dir}/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ C.books[b-1]=j; delete C.pend[b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend[b]; }); }
 
@@ -74,7 +76,7 @@ function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId
   const acct=!window.FIREBASE_CONFIG?"":u?`<div class="mrow"><span class="micon">${u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-replace">`:"👤"}</span><span class="mtxt"><b>${esc(u.displayName||"")}</b><small>로그인 중 · 메모가 기기끼리 맞춰집니다</small></span><button class="btn small ghost" id="mOut">로그아웃</button></div>`
     :`<div class="mrow"><span class="micon">👤</span><span class="mtxt"><b>로그인</b><small>Google · 원어 메모를 기기끼리 맞추고 나눌 때만 필요합니다</small></span><button class="btn small" id="mIn"${A.ready?"":" disabled"}>로그인</button></div>`;
   drawer("메뉴",`${acct}
-   <div class="mgrp">번역본</div><div class="seg sseg mseg">${TR_LIST.map(t=>`<button aria-checked="${tr===t.id}" data-mtr="${t.id}">${esc(t.name.replace(/ \(.*\)/,""))}</button>`).join("")}</div><p class="lead" style="margin:2px 0 0">개역개정은 준비되는 대로 넣습니다.</p>
+   <div class="mgrp">번역본</div><div class="seg sseg mseg">${TR_LIST.map(t=>`<button aria-checked="${tr===t.id}" data-mtr="${t.id}">${esc(t.name.replace(/ \(.*\)/,""))}</button>`).join("")}</div><p class="lead" style="margin:2px 0 0">개역개정·새번역: 대한성서공회 사용 허락. 개역한글은 당분간 함께 둡니다. 새번역의 각주는 절 아래에 작게 보입니다.</p>
    <div class="mgrp">밝기</div><div class="seg sseg mseg">${[["auto","기기 설정대로"],["light","밝게"],["dark","어둡게"]].map(([k,n])=>`<button aria-checked="${th===k}" data-mth="${k}">${n}</button>`).join("")}</div>
    <div class="mlist">
      <button class="mitem" id="mInstall"><span>📲</span>홈 화면에 추가</button>

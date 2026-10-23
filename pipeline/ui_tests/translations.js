@@ -1,0 +1,23 @@
+// 번역본 고르기(개역개정·새번역·개역한글) 검증 — 2026-10-23. 쓰기: node translations.js <스크린샷 폴더>
+const { chromium, devices } = require('playwright'); const OUT = (process.argv[2] || '.') + '/'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
+(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); await c.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} });
+  const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); const W = ms => pg.waitForTimeout(ms);
+  await pg.goto('http://localhost:8765/index.html', { waitUntil: 'domcontentloaded' }); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L, null, { timeout: 60000 });
+  await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 1, c2: 1 }); view.st.mode = 'verse'; view.st.rd = 'read'; render(); }); await pg.click('.bnav [data-nav="text"]');
+  await pg.waitForFunction(() => document.querySelector('.kt'), null, { timeout: 20000 }); await W(500);
+  const k0 = await pg.evaluate(() => ({ id: trId(), name: TR_INFO.tr.name, v1: document.querySelector('.kt').textContent, v2: document.querySelectorAll('.kt')[1].textContent }));
+  ok('처음 쓰는 사람은 개역개정(창 1:2 "하나님의 영은 수면 위에 운행하시니라")', k0.id === 'krv' && k0.name === '개역개정' && /하나님의 영은 수면 위에 운행하시니라/.test(k0.v2), JSON.stringify(k0));
+  await pg.click('#mBtn, .menubtn, [aria-label="메뉴"]').catch(() => {}); await W(300);
+  const btns = await pg.evaluate(() => [...document.querySelectorAll('[data-mtr]')].map(b => b.textContent));
+  ok('메뉴의 번역본: 개역개정 · 새번역 · 개역한글 · 원문만', btns.join('|') === '개역개정|새번역|개역한글|원문만', JSON.stringify(btns));
+  await pg.evaluate(() => trApply('rnksv')); await pg.waitForFunction(() => document.querySelector('.trnote') && /태초에 하나님이 천지를 창조하셨다/.test(document.querySelector('.kt').textContent), null, { timeout: 20000 }); await W(300);
+  const n1 = await pg.evaluate(() => ({ v1: document.querySelector('.kt').textContent, note: document.querySelector('.trnote').textContent, cnt: document.querySelectorAll('.trnote').length, src: TR_INFO.tr.src }));
+  ok('새번역: 본문 + 절 아래 각주(창 1:1 "①또는 \'태초에…\'")', /①태초에 하나님이 천지를 창조하셨다/.test(n1.v1) && /^①또는/.test(n1.note) && n1.cnt >= 2 && /새번역/.test(n1.src), JSON.stringify(n1).slice(0, 220));
+  await pg.screenshot({ path: OUT + 'tr_rnksv.png' });
+  await pg.evaluate(() => trApply('krh')); await pg.waitForFunction(() => /하나님의 신은 수면에 운행하시니라/.test(document.querySelectorAll('.kt')[1].textContent), null, { timeout: 20000 });
+  ok('개역한글도 그대로 고를 수 있음(창 1:2 "하나님의 신은…"), 각주 없음', await pg.evaluate(() => !document.querySelector('.trnote') && localStorage.getItem('milal-tr') === 'krh'));
+  const ver = await pg.evaluate(async () => { await trApply('krv'); await loadBook(9); setRange({ b: 9, c1: 30, c2: 30 }); await bibleBook(9); render(); await new Promise(r => setTimeout(r, 400)); const L = spanVerses([[9, 30, 30]]); return { n: L.length, last: krvText(L[L.length - 1]) }; });
+  ok('개역개정 절 번호가 앱의 장·절과 같음(삼상 30장 31절까지)', ver.n === 31 && /다윗과 그의 사람들이 왕래하던 모든 곳에 보내었더라/.test(ver.last), JSON.stringify(ver));
+  const src = await pg.evaluate(() => document.querySelector('.ssrc') && document.querySelector('.ssrc').textContent); ok('자료 출처에 "성경전서 개역개정판 (대한성서공회, 사용 허락)"', /개역개정판 \(대한성서공회, 사용 허락\)/.test(src || ''), (src || '').slice(0, 120));
+  ok('페이지 오류 없음', errs.length === 0, errs.join(' | '));
+  console.log(R.join('\n')); console.log(`\n${R.filter(x => x.startsWith('PASS')).length}/${R.length} PASS`); await br.close(); })();

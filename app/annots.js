@@ -106,7 +106,7 @@ function hebSelectable(vi,per){ const H=sHeb(vi), s=SD.V[vi][5]; return H.map((t
 function markWordsNow(wordIdx,style,color){ wordIdx=[...new Set(wordIdx)].sort((a,b)=>a-b); if(!wordIdx.length) return Promise.resolve(); const vi=SD.vOf[wordIdx[0]], [b,c,v]=SD.V[vi]; const heb=wordIdx.map(j=>{ const vj=SD.vOf[j]; return sHeb(vj)[j-SD.V[vj][5]]; }).join("").trim();
   return anSave({kind:"mark",key:"m:"+anId(),anchor:{book:b,ch:c,vs:v,bhsa:SD.bhsa||"2021",word_ids:wordIdx.map(slotOf),clause_atom_ids:[...new Set(wordIdx.map(j=>SD.can[SD.wa[j]]))],clause_ids:[...new Set(wordIdx.map(j=>String(SD.ccn[SD.wc[j]])))],heb},style,color:color||"",observation:"",interpretation:"",tags:[]}); }
 /* ===== 번역 글(한국어) 표시: anchor.tr={id,from,to,text} — 글자 위치로 저장. word_ids 에는 그 절의 히브리어 낱말 번호를 넣어(자리·규칙 검사용) 같은 저장소·같은 동기화 규칙을 쓴다 ===== */
-const trCur=()=>{ try{ return localStorage.getItem("milal-tr")||"krh"; }catch(e){ return "krh"; } };
+const trCur=()=>{ try{ return localStorage.getItem("milal-tr")||"krv"; }catch(e){ return "krv"; } };
 function trMarksForVerse(vi,text){ if(marksHidden()) return []; const [b,c,v]=SD.V[vi]; const tr=trCur();
   return anList().filter(a=>a.kind==="mark"&&a.anchor.tr&&a.anchor.book===b&&a.anchor.ch===c&&a.anchor.vs===v&&a.anchor.tr.id===tr&&text.slice(a.anchor.tr.from,a.anchor.tr.to)===a.anchor.tr.text); }   /* 번역 본문이 바뀌어 글자가 안 맞으면 그리지 않는다 */
 function korMarked(vi,text){ const L=trMarksForVerse(vi,text); if(!L.length) return esc(text); const cut=new Set([0,text.length]); for(const a of L){ cut.add(a.anchor.tr.from); cut.add(a.anchor.tr.to); } const P=[...cut].sort((x,y)=>x-y); let h="";

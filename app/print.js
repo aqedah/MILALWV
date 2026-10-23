@@ -2,7 +2,7 @@
    PDF 생성 엔진을 만들지 않고 브라우저 인쇄(Chrome: '인쇄 → PDF로 저장')를 쓴다. 화면 위에 인쇄용 문서(#printRoot)를 그리고 window.print() 를 부른다.
    담는 것: 제목·범위 · 히브리어 원문(RTL, 절 단위) + 사용자 표시(형광펜·밑줄·괄호) · 관찰/해석 구분 · 비교 결과 표(비교 화면에서 부를 때) · MILAL 관계·근거 참조(메모에 붙은 것) · 자료 출처·판.
    원칙: MILAL 판정과 사용자 해석을 같은 칸에 섞지 않는다. 시험 자료(TEST_ONLY) 참조는 '시험 자료'로 표시한다. */
-const PR_SRC=()=>`BHSA ${SD.bhsa||"2021"}(ETCBC, CC BY-NC 4.0) · 번역 ${esc((window.TR_INFO&&TR_INFO.tr&&TR_INFO.tr.name)||"개역한글")} · MILALWV ${esc(window.STUDY_V||"")} · 인쇄 ${new Date().toISOString().slice(0,10)}`;
+const PR_SRC=()=>`BHSA ${SD.bhsa||"2021"}(ETCBC, CC BY-NC 4.0) · 번역 ${esc((window.TR_INFO&&TR_INFO.tr&&TR_INFO.tr.name)||"번역 없음")} · MILALWV ${esc(window.STUDY_V||"")} · 인쇄 ${new Date().toISOString().slice(0,10)}`;
 function prVerse(vi,withMarks){ const per=withMarks&&typeof marksForVerse==="function"?marksForVerse(vi):null; const heb=per?hebMarked(vi,per):esc(sHeb(vi).join("").trim());
   return `<div class="prv"><span class="prref">${esc(sRef(vi))}</span><p class="heb prheb" dir="rtl" lang="he">${heb}</p>${krvText(vi)?`<p class="prk">${esc(krvText(vi))}</p>`:""}</div>`; }
 function prNote(r){ const m=r.milal_ref||(r.a&&r.a.milal_ref); const mil=m?`<div class="prmil"><b>MILAL 참조</b> ${esc(m.stage)} ${m.file_status==="TEST_ONLY"?'<em class="prtest">시험 자료 — 실제 판정 아님</em>':"(MILAL 출력, 연구자 승인 전)"} · 관계 ${esc((m.relation_ids||[]).join(", "))} · sha ${esc((m.network_sha256||"").slice(0,12))}</div>`:"";
@@ -29,7 +29,7 @@ function printCompare(){ const S=view.st, C=S.cmp, R=S.cmpR; if(!C||!C.a||!R) re
   openPrint(`본문 비교 — ${C.a.label}${C.b?" ↔ "+C.b.label:" (한 구간 안 반복)"}`,body); }
 function openPrint(title,body){ let root=document.getElementById("printRoot"); if(!root){ root=document.createElement("div"); root.id="printRoot"; document.body.appendChild(root); }
   root.innerHTML=`<div class="prpage"><div class="prbar noprint"><button class="btn small" id="prGo">인쇄 · PDF로 저장</button><button class="btn small ghost" id="prX">닫기</button><span class="lead">Chrome 인쇄 창에서 대상을 'PDF로 저장'으로 고르세요. 용지 A4 세로, 여백 기본.</span></div>
-    <header class="prhead"><h1>${esc(title)}</h1><div class="prsrc">${PR_SRC()}</div></header>${body}<footer class="prfoot">자료 출처: BHSA(ETCBC) CC BY-NC 4.0 · 개역한글(대한성서공회, 저작재산권 만료) · MILALWV 무료·비영리 · github.com/aqedah/MILALWV</footer></div>`;
+    <header class="prhead"><h1>${esc(title)}</h1><div class="prsrc">${PR_SRC()}</div></header>${body}<footer class="prfoot">자료 출처: BHSA(ETCBC) CC BY-NC 4.0 · ${esc((window.TR_INFO&&TR_INFO.tr&&TR_INFO.tr.src)||"번역 없음")} · MILALWV 무료·비영리 · github.com/aqedah/MILALWV</footer></div>`;
   document.body.classList.add("printing"); root.querySelector("#prGo").onclick=()=>window.print(); root.querySelector("#prX").onclick=closePrint; scrollTo({top:0}); }
 function closePrint(){ const root=document.getElementById("printRoot"); if(root) root.innerHTML=""; document.body.classList.remove("printing"); }
 window.addEventListener("afterprint",()=>{});

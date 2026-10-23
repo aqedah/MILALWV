@@ -161,6 +161,8 @@ const sHeb=vi=>SD.hv[vi] ||= (SD.heb[vi]||"").split("\t");
 const sHan=vi=>SD.hn[vi] ||= (SD.han[vi]||"").split("\t");
 const lexGloss=li=>{ const x=SD.L[li]; return x[9]||lexKo(li).split(/\s*[\/,;]\s*/).slice(0,2).join(", ")||x[5]; };
 const sRef=vi=>{ const [b,c,v]=SD.V[vi]; return `${PLAN.abbr[b-1]} ${c}:${v===0?"표제":v}`; };
+/* 번역 각주(새번역): 절 아래에 작게 */
+const trNote=vi=>{ const N=window.BIBLE_NOTES, [b,c,v]=SD.V[vi]; return N&&N[b-1]?(N[b-1][c+":"+v]||""):""; };
 const krvText=vi=>{ const [b,c,v]=SD.V[vi]; if(!window.BIBLE||!BIBLE[b-1]) return ""; if(v===0) return "(시편 표제 — 이 번역에는 따로 없습니다)"; try{ return BIBLE[b-1][c-1][v-1]||""; }catch(e){ return ""; } };
 function morphShort(mi){ const m=SD.M[mi]; const sp=m[0];
   if(sp==="verb") return ["동사",VS_K[m[1]]||m[1],VT_S[m[2]]||""].filter(Boolean).join(" ");
@@ -593,7 +595,7 @@ function readView(b,c){ const S=view.st, vis=SD.ch.get(b+"-"+c)||[]; const hid=w
   for(const vi of vis){ const kv=SD.V[vi][2], k=SD.V[vi][1]+":"+kv, first=k!==lastK; lastK=k;
     let kt=""; if(first&&kv>0){ try{ kt=BIBLE[b-1][c-1][kv-1]||""; }catch(e){} }
     const open=S.rv===vi, num=kv===0?"표제":kv, per=window.marksForVerse?marksForVerse(vi):null, rs=S.rangeMode&&S.rangeStart===vi;
-    h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b><span class="kt" data-kv="${vi}">${window.korMarked?korMarked(vi,kt):esc(kt)}</span></p>`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${ux2()?hebSelectable(vi,per):per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p>${ux2()?`<button class="vinfo${open?" on":""}" data-vinfo="${vi}" aria-label="원어·문법 보기">${open?"원어 닫기 ▴":"원어 ▾"}</button>`:""}</div>`;
+    h+=`<div class="rdvs${open?" on":""}${rs?" rsel":""}" data-rdv="${vi}" id="stv-${vi}">${window.rangeChips?rangeChips(vi):""}${kt?`<p class="rdk"><b>${num}</b><span class="kt" data-kv="${vi}">${window.korMarked?korMarked(vi,kt):esc(kt)}</span></p>${trNote(vi)?`<p class="trnote">${esc(trNote(vi))}</p>`:""}`:""}<p class="rdh" lang="he" dir="rtl"><b>${num}</b>${ux2()?hebSelectable(vi,per):per?hebMarked(vi,per):esc(sHeb(vi).join("").trim())}</p>${ux2()?`<button class="vinfo${open?" on":""}" data-vinfo="${vi}" aria-label="원어·문법 보기">${open?"원어 닫기 ▴":"원어 ▾"}</button>`:""}</div>`;
     if(open&&!S.rangeMode) h+=stripHTML(vi); }
   return h+`</div>`; }
 function stripHTML(vi){ const S=view.st, G=vGroups(vi); if(S.rw==null||SD.vOf[S.rw]!==vi) S.rw=gMain(G[0]);
