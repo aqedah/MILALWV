@@ -10,13 +10,15 @@ function trApply(id){ const t=TR_LIST.find(x=>x.id===id)||TR_LIST[0]; try{ local
   if(!t.dir){ window.BIBLE=null; window.BIBLE_NOTES=null; window.BIBLE_HEADS=null; window.BIBLE_LANG=""; TR_INFO.tr.name=""; TR_INFO.tr.src=""; if(typeof SD!=="undefined"&&SD) render(); return Promise.resolve(); }
   const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books; window.BIBLE_NOTES=C.notes ||= new Array(39); window.BIBLE_HEADS=C.heads ||= new Array(39); window.BIBLE_LANG=t.lang||"ko";
   const info=C.info?Promise.resolve(C.info):fetch(t.dir+"/info.json?v="+(window.STUDY_V||"1")).then(r=>r.json()).then(j=>{ C.info=j; return j; }).catch(()=>({name:t.name}));
-  return info.then(j=>{ TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; const b=(typeof view!=="undefined"&&view.st.R)?view.st.R.b:(lastRange()||{b:1}).b; return bibleBook(b); }); }
+  /* 2026-10-23: 번역을 빨리 여러 번 바꾸면 늦게 온 응답이 앞 번역으로 되돌리거나, 이미 받아 둔 번역은 다시 그리지 않아 본문이 비던 문제 — 지금 고른 번역일 때만 반영하고, 끝나면 늘 다시 그린다 */
+  if(typeof SD!=="undefined"&&SD) render();
+  return info.then(j=>{ if(trId()!==t.id) return; TR_INFO.tr.name=j.name||t.name; TR_INFO.tr.src=j.src||""; const b=(typeof view!=="undefined"&&view.st.R)?view.st.R.b:(lastRange()||{b:1}).b; return bibleBook(b).then(()=>{ if(trId()===t.id&&typeof SD!=="undefined"&&SD) render(); }); }); }
 /* 번역 본문 책 하나 (보고 있는 책만 받는다) */
 function bibleBook(b){ const t=TR_LIST.find(x=>x.id===trId()); if(!t||!t.dir) return Promise.resolve(); const C=TR_CACHE[t.id] ||= {info:null,books:new Array(39),pend:{}}; window.BIBLE=C.books; window.BIBLE_NOTES=C.notes ||= new Array(39); window.BIBLE_HEADS=C.heads ||= new Array(39); window.BIBLE_LANG=t.lang||"ko";
-  if(C.info&&C.info.notes&&!C.notes[b-1]&&!C.pend["n"+b]) C.pend["n"+b]=fetch(`${t.dir}/notes/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>r.ok?r.json():{}).then(j=>{ C.notes[b-1]=j; delete C.pend["n"+b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend["n"+b]; });
-  if(C.info&&C.info.heads&&!C.heads[b-1]&&!C.pend["h"+b]) C.pend["h"+b]=fetch(`${t.dir}/heads/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>r.ok?r.json():{}).then(j=>{ C.heads[b-1]=j; delete C.pend["h"+b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend["h"+b]; });
+  if(C.info&&C.info.notes&&!C.notes[b-1]&&!C.pend["n"+b]) C.pend["n"+b]=fetch(`${t.dir}/notes/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>r.ok?r.json():{}).then(j=>{ C.notes[b-1]=j; delete C.pend["n"+b]; if(trId()===t.id&&typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend["n"+b]; });
+  if(C.info&&C.info.heads&&!C.heads[b-1]&&!C.pend["h"+b]) C.pend["h"+b]=fetch(`${t.dir}/heads/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>r.ok?r.json():{}).then(j=>{ C.heads[b-1]=j; delete C.pend["h"+b]; if(trId()===t.id&&typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend["h"+b]; });
   if(C.books[b-1]) return Promise.resolve(); if(C.pend[b]) return C.pend[b];
-  return C.pend[b]=fetch(`${t.dir}/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ C.books[b-1]=j; delete C.pend[b]; if(typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend[b]; }); }
+  return C.pend[b]=fetch(`${t.dir}/${b}.json?v=`+(window.STUDY_V||"1")).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ C.books[b-1]=j; delete C.pend[b]; if(trId()===t.id&&typeof SD!=="undefined"&&SD) render(); }).catch(()=>{ delete C.pend[b]; }); }
 
 /* --- 주야간 --- */
 function themeGet(){ try{ return localStorage.getItem("milal-theme")||"auto"; }catch(e){ return "auto"; } }

@@ -27,6 +27,9 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   ok('ESV 아가 1장: 말하는 이 표시(She·Others)가 소제목으로', en.esv.head.join('|').startsWith('She|Others') && !/She/.test(en.esv.kt[1].slice(0, 4)), JSON.stringify(en.esv).slice(0, 240));
   ok('NRSV가 앞 절에 합쳐 옮긴 절(출 22:4)은 "—"로 비워 둠', en.nrsvEx.kt.length >= 4 && en.nrsvEx.kt[3] === '—', JSON.stringify(en.nrsvEx.kt));
   await pg.evaluate(async () => { await trApply('niv'); await loadBook(1); setRange({ b: 1, c1: 1, c2: 1 }); await bibleBook(1); render(); }); await W(600); await pg.screenshot({ path: OUT + 'tr_niv.png' }); await pg.evaluate(async () => { await trApply('krv'); render(); }); await W(500);
+  const fast = await pg.evaluate(async () => { await loadBook(15); setRange({ b: 15, c1: 1, c2: 6 }); render(); for (const id of ['rnksv', 'nrsv', 'esv', 'niv', 'krh', 'krv', 'nrsv', 'krv']) trApply(id); await new Promise(r => setTimeout(r, 2500)); return { id: trId(), n: document.querySelectorAll('.kt').length, t: document.querySelector('.kt').textContent, name: TR_INFO.tr.name }; });
+  ok('번역을 빠르게 여러 번 바꿔도 마지막에 고른 것(개역개정)이 보임 — 스 1-6장', fast.id === 'krv' && fast.n > 5 && /이루게 하시려고/.test(fast.t) && fast.name === '개역개정', JSON.stringify(fast).slice(0, 160));
+  await pg.evaluate(async () => { await loadBook(1); setRange({ b: 1, c1: 1, c2: 1 }); render(); });
   const src = await pg.evaluate(() => document.querySelector('.ssrc') && document.querySelector('.ssrc').textContent); ok('자료 출처에 "성경전서 개역개정판 (대한성서공회, 사용 허락)"', /개역개정판 \(대한성서공회, 사용 허락\)/.test(src || ''), (src || '').slice(0, 120));
   ok('페이지 오류 없음', errs.length === 0, errs.join(' | '));
   console.log(R.join('\n')); console.log(`\n${R.filter(x => x.startsWith('PASS')).length}/${R.length} PASS`); await br.close(); })();
