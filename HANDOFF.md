@@ -13,7 +13,7 @@ MILALWV는 MILAL의 웹 보기 앱입니다. CBSR(이야기 통독 노트)의 '�
 - 독립 앱이 돌아갑니다: `index.html` + `host.js` + `study.css` + `app/`(study_ui · study_q · study_theory · menu · milal) + `study/` 자료 4개(meta · words · strong · bible).
 - 머리띠의 MILAL 글자와 주소 단추가 '어디로 갈까요'(책 → 장 + 최근 본 곳) 창을 엽니다.
 - 하단 탭: 본문 · 구조 · 연구 · 기록 (`index.html`의 `.bnav`, `host.js`의 `bindNav/navSync`). 첫 화면은 최근 본 곳, 없으면 창세기 1장.
-- 우상단 ☰ 메뉴(`app/menu.js`): 로그인 · 번역본(개역개정·새번역·개역한글·원문만 — 2026-10-23, 처음 기본 개역개정) · 밝기(기기/밝게/어둡게) · 홈 화면에 추가 · 처음 쓰는 법(첫 방문에 한 번 자동) · MILAL이란(Marker-Informed Linguistic Analysis of Layers) · 자료 출처.
+- 우상단 ☰ 메뉴(`app/menu.js`): 로그인 · 번역본(우리말: 개역개정·새번역·개역한글 / 영어: NRSV·ESV·NIV 1984 / 원문만 — 2026-10-23, 처음 기본 개역개정. 영어 셋은 사용 허락받아 공개. `pipeline/make_bible_dir.py`가 .bdb HTML에서 각주(notes/)·소제목(heads/)을 떼어 냄. NRSV 출 22:4·삿 20:23은 원본이 앞 절에 합쳐 옮겨 "—") · 밝기(기기/밝게/어둡게) · 홈 화면에 추가 · 처음 쓰는 법(첫 방문에 한 번 자동) · MILAL이란(Marker-Informed Linguistic Analysis of Layers) · 자료 출처.
 - 기록 탭 '내 기록'(`app/annots.js`): 낱말 메모(옛 저장 그대로) + 절·절 원자·구간 메모(관찰/해석) + 표시(형광펜·밑줄·괄호)를 한 목록에서 필터·태그·검색·정렬. Markdown/CSV 내보내기. 저장은 IndexedDB `milal-annots`(rev·device 포함), 동기화는 규칙 승인 뒤. 나눔: 신고(`reports`)·관리자 숨김(`admins/{uid}`).
 - MILAL 승인 기록: `study/milal/approvals.json`(분석 파일과 분리, 해시 대응) — `pipeline/milal_approve.py`. 변환기 `pipeline/milal_export_v1.py`(round-trip 정확, `milal_export_tests.py` 15건), fixture `test/v1_fixture/`(MILAL 자체 시험 산출물).
 - 번역 본문: `study/bible.json` (`pipeline/make_bible.py`로 만듦) → `split_study.py`가 `study/bible/krh/<b>.json`으로 쪼갬. 지금은 **개역한글**(대한성서공회, 저작재산권 만료, 출처 crizin/bible-db holybible 정본, 구약 23,144절). 개역개정.bdb를 받으면 `make_bible.py sqlite` 로 바꿔 넣고 `STUDY_V`를 올립니다. 개역한글에는 시편 표제가 따로 없습니다.

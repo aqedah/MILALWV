@@ -9,7 +9,8 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   ok('처음 쓰는 사람은 개역개정(창 1:2 "하나님의 영은 수면 위에 운행하시니라")', k0.id === 'krv' && k0.name === '개역개정' && /하나님의 영은 수면 위에 운행하시니라/.test(k0.v2), JSON.stringify(k0));
   await pg.click('#mBtn, .menubtn, [aria-label="메뉴"]').catch(() => {}); await W(300);
   const btns = await pg.evaluate(() => [...document.querySelectorAll('[data-mtr]')].map(b => b.textContent));
-  ok('메뉴의 번역본: 개역개정 · 새번역 · 개역한글 · 원문만', btns.join('|') === '개역개정|새번역|개역한글|원문만', JSON.stringify(btns));
+  ok('메뉴의 번역본: 우리말 3 · 영어 3 · 원문만', btns.join('|') === '개역개정|새번역|개역한글|NRSV|ESV|NIV|원문만 (번역 숨김)', JSON.stringify(btns));
+  await pg.screenshot({ path: OUT + 'tr_menu.png' }); await pg.keyboard.press('Escape').catch(() => {});
   await pg.evaluate(() => trApply('rnksv')); await pg.waitForFunction(() => document.querySelector('.trnote') && /태초에 하나님이 천지를 창조하셨다/.test(document.querySelector('.kt').textContent), null, { timeout: 20000 }); await W(300);
   const n1 = await pg.evaluate(() => ({ v1: document.querySelector('.kt').textContent, note: document.querySelector('.trnote').textContent, cnt: document.querySelectorAll('.trnote').length, src: TR_INFO.tr.src }));
   ok('새번역: 본문 + 절 아래 각주(창 1:1 "①또는 \'태초에…\'")', /①태초에 하나님이 천지를 창조하셨다/.test(n1.v1) && /^①또는/.test(n1.note) && n1.cnt >= 2 && /새번역/.test(n1.src), JSON.stringify(n1).slice(0, 220));
@@ -18,6 +19,14 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   ok('개역한글도 그대로 고를 수 있음(창 1:2 "하나님의 신은…"), 각주 없음', await pg.evaluate(() => !document.querySelector('.trnote') && localStorage.getItem('milal-tr') === 'krh'));
   const ver = await pg.evaluate(async () => { await trApply('krv'); await loadBook(9); setRange({ b: 9, c1: 30, c2: 30 }); await bibleBook(9); render(); await new Promise(r => setTimeout(r, 400)); const L = spanVerses([[9, 30, 30]]); return { n: L.length, last: krvText(L[L.length - 1]) }; });
   ok('개역개정 절 번호가 앱의 장·절과 같음(삼상 30장 31절까지)', ver.n === 31 && /다윗과 그의 사람들이 왕래하던 모든 곳에 보내었더라/.test(ver.last), JSON.stringify(ver));
+  const en = await pg.evaluate(async () => { const get = async (id, b, c) => { await trApply(id); await loadBook(b); setRange({ b, c1: c, c2: c }); await bibleBook(b); render(); for (let i = 0; i < 40 && (!window.BIBLE[b-1] || (TR_CACHE[id].info.heads && !BIBLE_HEADS[b-1]) || (TR_CACHE[id].info.notes && !BIBLE_NOTES[b-1])); i++) await new Promise(r => setTimeout(r, 150)); render(); await new Promise(r => setTimeout(r, 200));
+      return { kt: [...document.querySelectorAll('.kt')].slice(0, 4).map(x => x.textContent), head: [...document.querySelectorAll('.trhead')].map(x => x.textContent), note: (document.querySelector('.trnote') || {}).textContent || '', lang: (document.querySelector('.rdk') || {}).lang || '', src: TR_INFO.tr.src }; };
+    return { nrsv: await get('nrsv', 1, 1), niv: await get('niv', 1, 1), esv: await get('esv', 22, 1), nrsvEx: await get('nrsv', 2, 22) }; });
+  ok('NRSV: 창 1:1 본문 + 각주 "①Or when God began…", 영어 표시(lang=en)', /^In the beginning when God created①/.test(en.nrsv.kt[0]) && /^①Or when God began/.test(en.nrsv.note) && en.nrsv.lang === 'en' && /NRSV|Revised/.test(en.nrsv.src), JSON.stringify(en.nrsv).slice(0, 240));
+  ok('NIV(1984): 소제목 "The Beginning"이 절 위에, 본문에 섞이지 않음', en.niv.head[0] === 'The Beginning' && /^In the beginning God created the heavens and the earth\.$/.test(en.niv.kt[0]), JSON.stringify(en.niv).slice(0, 240));
+  ok('ESV 아가 1장: 말하는 이 표시(She·Others)가 소제목으로', en.esv.head.join('|').startsWith('She|Others') && !/She/.test(en.esv.kt[1].slice(0, 4)), JSON.stringify(en.esv).slice(0, 240));
+  ok('NRSV가 앞 절에 합쳐 옮긴 절(출 22:4)은 "—"로 비워 둠', en.nrsvEx.kt.length >= 4 && en.nrsvEx.kt[3] === '—', JSON.stringify(en.nrsvEx.kt));
+  await pg.evaluate(async () => { await trApply('niv'); await loadBook(1); setRange({ b: 1, c1: 1, c2: 1 }); await bibleBook(1); render(); }); await W(600); await pg.screenshot({ path: OUT + 'tr_niv.png' }); await pg.evaluate(async () => { await trApply('krv'); render(); }); await W(500);
   const src = await pg.evaluate(() => document.querySelector('.ssrc') && document.querySelector('.ssrc').textContent); ok('자료 출처에 "성경전서 개역개정판 (대한성서공회, 사용 허락)"', /개역개정판 \(대한성서공회, 사용 허락\)/.test(src || ''), (src || '').slice(0, 120));
   ok('페이지 오류 없음', errs.length === 0, errs.join(' | '));
   console.log(R.join('\n')); console.log(`\n${R.filter(x => x.startsWith('PASS')).length}/${R.length} PASS`); await br.close(); })();
