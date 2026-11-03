@@ -157,6 +157,24 @@ const loadedCount=()=>SD?SD.loaded.size:0;
 /* 한글 사전 풀이(LOG)는 따로 받는다 — 낱말 상세·낱말 검색에서만 필요 */
 let LKload=null; function lexKoLoad(){ if(SD.LK||LKload) return LKload||Promise.resolve(); return LKload=fetch("study/lexko.json?v="+STUDY_V).then(r=>r.json()).then(j=>{ SD.LK=j; LKload=null; render(); }).catch(()=>{ LKload=null; }); }
 const lexKo=li=>SD.LK?(SD.LK[li]||""):"";
+/* TBESH(STEPBible·Tyndale House, CC BY 4.0) 핵심 뜻·이름 설명 — 우리말로 옮긴 것. 스트롱 번호로 찾는다. 2026-11-03 */
+let TB=null, TBload=null;
+function tbeshLoad(){ if(TB||TBload) return TBload||Promise.resolve(); return TBload=fetch("study/tbesh.json?v="+STUDY_V).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{ TB=j; TBload=null; const d=document.getElementById("rDet"); if(d&&view.st.rw!=null){ d.innerHTML=readDetail(view.st.rw); bindReadDet(d); } document.querySelectorAll("[data-tbfill]").forEach(el=>{ const dd=el.nextElementSibling; if(dd&&dd.tagName==="DD") dd.remove(); const n=+el.dataset.tbfill; el.outerHTML=tbeshBlock(n); }); document.querySelectorAll("#sheetRoot [data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); }); }).catch(()=>{ TBload=null; TB={}; }); }
+/* 품사 코드(H:N-M, N:N-M-P …)를 우리말로 */
+function tbMorph(mo){ const [lang,rest]=mo.split(":"); if(!rest) return mo; const [typ,gen,ext]=rest.split("-");
+  const T={A:"형용사",Adv:"부사",Art:"관사",Cond:"조건사",Conj:"접속사",Cor:"상관사",DemP:"지시대명사",ImpP:"비인칭 대명사",Intg:"의문사",Intj:"감탄사",N:"명사",Neg:"부정어",Part:"불변사",Prep:"전치사",PerP:"인칭대명사",PosP:"소유대명사",RefP:"재귀대명사",RelP:"관계사",V:"동사"};
+  if(lang==="N"){ const E={P:"사람 이름",L:"땅 이름",T:"칭호·고유명사",G:"민족 이름",PG:"민족 이름(사람에서)",LG:"민족 이름(땅에서)",TG:"민족 이름"}; return (E[ext]||"이름")+(gen==="F"?" · 여성":gen==="M"&&ext&&ext!=="P"?" · 남성":""); }
+  return (lang==="A"?"아람어 ":"")+(T[typ]||typ)+(gen?({M:" 남성",F:" 여성",C:" 공성",N:" 중성"}[gen[0]]||"")+(gen[1]==="P"?" 복수":gen[1]==="S"?" 단수":""):""); }
+const TB_REL={aram:"의 아람어",heb:"의 히브리어",mean:"의 한 뜻",name:"의 다른 이름",spell:"의 다른 철자",group:"의 무리",part:"의 일부",form:"의 한 꼴",comb:"의 결합"};
+function tbRel(rel){ if(!rel) return ""; const [k,t]=rel.split(":"); const tg=(t||"").split(",").filter(Boolean).map(s=>`<button class="shl" data-sh="${parseInt(s)}">H${parseInt(s)}${s.replace(/^\d+/,"")}</button>`).join(", "); return tg?`${tg}${TB_REL[k]||""}`:""; }
+/* 낱말 상세에 끼우는 칸: 핵심 뜻(Tyndale) 한 줄 + 이름이면 이름 설명 */
+function tbeshBlock(n){ if(!n) return ""; if(!TB){ tbeshLoad(); return `<dt data-tbfill="${n}">핵심 뜻(Tyndale)</dt><dd>받는 중…</dd>`; } const L=TB[n]; if(!L||!L.length) return "";
+  const gl=[...new Set(L.map(e=>e[4]).filter(Boolean))];
+  let h=`<dt>핵심 뜻(Tyndale)</dt><dd>${gl.map(esc).join(" · ")}${L.length>1?` <small class="rdx">같은 번호 ${L.length}가지</small>`:""}</dd>`;
+  const names=L.filter(e=>e[5]||e[3].startsWith("N:"));
+  if(names.length) h+=`<dt>이름 설명</dt><dd class="tbnames">${names.map(e=>`<p><b>${esc(e[4])}</b> <small class="rdx">${esc(tbMorph(e[3]))}${e[0]?` · H${n}${e[0]}`:""}</small>${e[5]?`<br>${esc(e[5]).replace(/\(H0*(\d+)([A-Z]?)\)/g,(m,a,b)=>`<button class="shl" data-sh="${a}">H${a}${b}</button>`)}`:""}${e[6]?`<br><small class="rdx">${tbRel(e[6])}</small>`:""}</p>`).join("")}</dd>`;
+  else { const rel=L.map(e=>e[6]).filter(Boolean); if(rel.length) h+=`<dt>관련 번호</dt><dd>${[...new Set(rel)].map(tbRel).join(" · ")}</dd>`; }
+  return h; }
 const sHeb=vi=>SD.hv[vi] ||= (SD.heb[vi]||"").split("\t");
 const sHan=vi=>SD.hn[vi] ||= (SD.han[vi]||"").split("\t");
 const lexGloss=li=>{ const x=SD.L[li]; return x[9]||lexKo(li).split(/\s*[\/,;]\s*/).slice(0,2).join(", ")||x[5]; };
@@ -342,7 +360,7 @@ function renderStudy(){
   if(!SD.loaded.has(S.R.b)){ loadBook(S.R.b).then(()=>render()).catch(()=>{ SDerr=`${PLAN.full[S.R.b-1]} 자료를 내려받지 못했습니다.`; render(); });
     return h+`</section><section class="sec"><p class="lead">${SDerr?esc(SDerr):PLAN.full[S.R.b-1]+" 자료를 내려받는 중…"}</p></section>`; }
   const needAll=S.mode==="query"||(S.mode==="word"&&S.lex!=null); if(needAll&&!SD.allLoaded){ ensureAll().then(()=>render()).catch(()=>{}); }
-  if((S.mode==="word"||(S.mode==="verse"&&S.rv>=0))&&!SD.LK) lexKoLoad();
+  if((S.mode==="word"||(S.mode==="verse"&&S.rv>=0))&&!SD.LK) lexKoLoad(); if((S.mode==="word"||(S.mode==="verse"&&S.rv>=0))&&!TB) tbeshLoad();
   const T=todayOT(), isT=T&&T.b===S.R.b&&T.c1===S.R.c1&&T.c2===S.R.c2;
   h+=`<div class="sbar"><button class="iconbtn" id="sCPrev" aria-label="앞 장">‹</button><button class="saddr" id="sAddr">${esc(ux2()&&["start","tool","query"].includes(S.mode)?rScopeLabel():`${PLAN.abbr[S.R.b-1]} ${S.R.c1===S.R.c2?S.R.c1:S.R.c1+"–"+S.R.c2}${S.R.b===19?"편":"장"}`)} <i>▾</i></button><button class="iconbtn" id="sCNext" aria-label="다음 장">›</button>${S.mode==="verse"&&rdMode()==="struct"?`<button class="iconbtn sfa${S.foldAll?" on":""}" id="sFoldAll" title="말 모두 접기/펼치기" aria-label="말 모두 접기">⇕</button>`:""}<button class="iconbtn" id="sInfo" aria-label="보는 법">ⓘ</button></div></section>`;
   if(T&&!isT&&!S.todayHide) h+=`<button class="stoday" id="sGoToday">오늘 본문 · ${esc(rLabel(T))}으로 가기 ›</button>`;
@@ -372,7 +390,7 @@ function renderStudy(){
   else { h+=`<section class="sec">${ux2()?"":`<button class="srangeline" id="sMulti">범위: <b>${esc(rLabel(S.R))}</b> · 여러 장 묶기 ▾</button><div class="stools">${ST_TOOLS.map(([t,n,d])=>`<button class="stool${S.tool===t?" on":""}" data-stool="${t}"><i class="tool">${t}</i><b>${n}</b><small>${d}</small></button>`).join("")}</div>`}</section>`;
     if(S.tool){ const rk=S.tool==="전환"?"전환"+(S.sub||"b"):Q_RECIPES[S.tool]?S.tool:""; h+=`${ux2()&&S.tool==="반복"?`<div class="cmppreg" style="margin:0 0 8px"><small>예시 — 한 본문 안에서 이야기를 끌고 가는 말</small><button class="achip" data-rpex="룻 1:6-22">예시 · 룻 1:6–22 — '돌아가다(슈브)'</button></div>`:""}<section class="sec" id="sToolRes"><span class="label">${esc(S.tool)} · ${esc(stRangeLabel())}</span>${rk?`<button class="qlink" data-sqopen="${rk}">검색식으로 비슷하게 찾아보기 ›</button>${S.tool==="장면"?`<small class="qlinknote">검색식은 봐예히를 조건 없이 모두 찾으므로 이 도구보다 결과가 많습니다.</small>`:""}`:""}${toolResult()}</section>`; }
     else h+=`<section class="sec"><p class="lead">위에서 도구를 고르면 고른 범위를 원문에서 살핍니다. 아이러니와 공백은 기계로 찾을 수 없어 넣지 않았습니다.</p></section>`; }
-  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다. · 지도: 지명 위치·확실성 OpenBible.info Bible Geocoding Data(CC BY 4.0), 지형 그림·이동 경로 CBSR(AWS Terrain Tiles·Natural Earth), 지도 프로그램 Leaflet(BSD-2).</p></section>`;
+  h+=`<section class="sec ssrc"><span class="label">자료 출처</span><p class="lead">${window.BIBLE&&TR_INFO.tr&&TR_INFO.tr.src?"번역 본문: "+esc(TR_INFO.tr.src)+" · ":""}원문·문법·문장 구분: BHSA (Biblia Hebraica Stuttgartensia Amstelodamensis, ETCBC, CC BY-NC 4.0) · 스트롱 번호 연결: Open Scriptures Hebrew Bible (OSHB, CC BY 4.0) · 한국어 사전 풀이: Lexicon Omnium Gentium (E. Timothy Uy, 2026, CC BY 4.0, 영어 사전을 기계 번역한 자료) · 핵심 뜻(Tyndale)·이름 설명: STEPBible-Data TBESH(Tyndale House Cambridge·STEPBible.org, CC BY 4.0, STEPBible.github.io/STEPBible-Data)를 우리말로 옮긴 참고용(이름 설명은 Tyndale 자료 부분만; Online Bible 요약 뜻풀이는 넣지 않음) · 유래·단어 정의·KJV에서 옮긴 말: Strong's Hebrew Dictionary(공개 저작물, Open Scriptures HebrewLexicon 정리본 CC BY 4.0)를 우리말로 옮긴 참고용 · 짧은 뜻과 이름 표기는 BHSA 영어 뜻과 위 사전을 바탕으로 개역개정 표기에 맞춰 정리한 참고용이며, 음역은 BHSA 음운 전사를 한글로 옮긴 참고용입니다. · 지도: 지명 위치·확실성 OpenBible.info Bible Geocoding Data(CC BY 4.0), 지형 그림·이동 경로 CBSR(AWS Terrain Tiles·Natural Earth), 지도 프로그램 Leaflet(BSD-2).</p></section>`;
   return h; }
 function sugHTML(q){ if(!SD||!q) return ""; const L=lexSuggest(q); if(!L.length) return `<p class="lead">찾는 낱말이 없습니다. 다른 말로 넣어 보세요.</p>`; return L.map(li=>lexRow(li)).join(""); }
 function bindStudy(m){
@@ -557,10 +575,12 @@ function wordDetail(wi){ const vi=SD.vOf[wi], s=SD.V[vi][5], j=wi-s, H=sHeb(vi),
   return `<div class="sdh"><span class="heb">${esc(x[0])}</span><span><b>${esc(lexGloss(li))}</b><small>${esc(x[6])}${x[3]?` · 스트롱 H${x[3]}`:""}</small></span></div>
    <dl><dt>이 자리의 꼴</dt><dd><span class="heb">${esc(H[j].trim())}</span> ${esc(HN[j])} · ${esc(morphFull(SD.wm[wi]))}${SD.wg[wi]&4?" · 읽기 전통(케레)을 따름":""}</dd>
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
+   ${tbeshBlock(x[3])}
    ${lexKo(li)?`<dt>사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>사전 풀이</dt><dd>받는 중…</dd>`}<dt>영어 뜻(BHSA)</dt><dd>${esc(x[5])}</dd><dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번${x[8]?" · 아람어":""}</dd></dl>
    <div class="row"><button class="btn small" data-sfind="${li}">이 낱말이 나오는 곳</button></div>`; }
-function openWordSheet(wi){ if(!SD.LK) lexKoLoad(); const vi=SD.vOf[wi]; sheet(sRef(vi)+" · 낱말",`<div class="sdetail sheetd">${wordDetail(wi)}</div>`);
+function openWordSheet(wi){ if(!SD.LK) lexKoLoad(); if(!TB) tbeshLoad(); const vi=SD.vOf[wi]; sheet(sRef(vi)+" · 낱말",`<div class="sdetail sheetd">${wordDetail(wi)}</div>`);
   const root=document.getElementById("sheetRoot"), close=()=>{ root.innerHTML=""; }, S=view.st;
+  root.querySelectorAll("[data-sh]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStrongSheet(+b.dataset.sh); });
   root.querySelectorAll("[data-sfind]").forEach(b=>b.onclick=()=>{ close(); S.wide=true; S.mode="word"; S.lex=+b.dataset.sfind; S.dom=""; S.vs=""; S.vt=""; S.q=""; S.more=1; render(); scrollTo({top:0}); });
   root.querySelectorAll("[data-sva]").forEach(b=>b.onclick=()=>{ close(); S.vi=+b.dataset.sva; S.vMode="verse"; S.sel=wi; render(); scrollTo({top:0}); }); }
 
@@ -613,6 +633,7 @@ function readDetail(wi){ const vi=SD.vOf[wi], li=SD.wl[wi], x=SD.L[li], G=vGroup
    <dl class="rdl"><dt>문법 분해</dt><dd><span class="heb">${esc(wHeb(wi).trim())}</span> ${esc(wHan(wi))} · ${esc(morphFull(SD.wm[wi]))}${SD.wg[wi]&4?" · 읽기 전통(케레)을 따름":""}</dd>
    <dt>품사</dt><dd>${esc(SP_K[x[2]]||x[2])}${x[8]?" · 아람어":""}</dd>
    <dt>문장 속 역할</dt><dd>${esc(FN_K[SD.FN[SD.wf[wi]]]||SD.FN[SD.wf[wi]]||"-")} · ${esc(DOM_K[SD.DO[SD.domW[wi]]]||"")}</dd>
+   ${tbeshBlock(x[3])}
    ${strongBlock(x[3])}
    ${lexKo(li)?`<dt>한글 사전 풀이</dt><dd>${esc(lexKo(li))}</dd>`:SD.LK?"":`<dt>한글 사전 풀이</dt><dd>받는 중…</dd>`}<dt>구약에 나오는 횟수</dt><dd>${x[7].toLocaleString()}번</dd></dl>
    <div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button>${ux2()?`<button class="btn small ghost" data-sfindq="${wi}">이 낱말 모양으로 찾기</button>`:""}${ux2()?"":`<button class="btn small ghost" data-mkstart="${vi}">표시(형광펜·괄호)</button>`}<button class="btn small" data-rnote="${wi}">낱말 메모</button></div>
@@ -646,10 +667,10 @@ function bindRead(m){ const S=view.st; selPopClose();   /* 화면을 다시 그�
   if(!S.mkSel) m.querySelectorAll("[data-rsw]").forEach(b=>b.onclick=()=>{ S.rw=+b.dataset.rsw; b.parentNode.querySelectorAll(".rsw").forEach(x=>x.classList.toggle("on",x===b)); const d=document.getElementById("rDet"); if(!d) return; d.innerHTML=readDetail(S.rw); bindReadDet(d); });
   const d=document.getElementById("rDet"); if(d) bindReadDet(d); }
 function openStrongSheet(n){ const go=()=>{ const e=STR&&STR[n]; const lis=(SD.L.map((x,i)=>[x,i]).filter(([x])=>x[3]===n).sort((a,b)=>b[0][7]-a[0][7])); const li=lis.length?lis[0][1]:-1;
-    sheet(`스트롱 H${n}`,e?`<div class="sdetail sheetd"><div class="rdh2"><span class="heb">${esc(e[0])}</span>${li>=0?`<span class="rdp">${esc(SD.L[li][6])}</span><b>${esc(lexGloss(li))}</b>`:""}</div><dl class="rdl">${e[1]?`<dt>유래</dt><dd>${strongText(e[1])}</dd>`:""}${e[2]?`<dt>단어 정의</dt><dd>${strongText(e[2])}</dd>`:""}${e[3]?`<dt>KJV에서 옮긴 말 <small class="rdx">× 는 다른 말과 묶여 그렇게 옮겨진 경우</small></dt><dd>${strongText(e[3])}</dd>`:""}${li>=0?`<dt>구약에 나오는 횟수</dt><dd>${SD.L[li][7].toLocaleString()}번</dd>`:""}</dl>${li>=0?`<div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button></div>`:""}</div>`:`<p class="lead">이 번호의 풀이가 없습니다.</p>`);
+    sheet(`스트롱 H${n}`,e?`<div class="sdetail sheetd"><div class="rdh2"><span class="heb">${esc(e[0])}</span>${li>=0?`<span class="rdp">${esc(SD.L[li][6])}</span><b>${esc(lexGloss(li))}</b>`:""}</div><dl class="rdl">${tbeshBlock(n)}${e[1]?`<dt>유래</dt><dd>${strongText(e[1])}</dd>`:""}${e[2]?`<dt>단어 정의</dt><dd>${strongText(e[2])}</dd>`:""}${e[3]?`<dt>KJV에서 옮긴 말 <small class="rdx">× 는 다른 말과 묶여 그렇게 옮겨진 경우</small></dt><dd>${strongText(e[3])}</dd>`:""}${li>=0?`<dt>구약에 나오는 횟수</dt><dd>${SD.L[li][7].toLocaleString()}번</dd>`:""}</dl>${li>=0?`<div class="rbtns"><button class="btn small ghost" data-sfindw="${li}">이 원어로 검색</button></div>`:""}</div>`:`<p class="lead">이 번호의 풀이가 없습니다.</p>`);
     const root=document.getElementById("sheetRoot"); root.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>openStrongSheet(+b.dataset.sh));
     root.querySelectorAll("[data-sfindw]").forEach(b=>b.onclick=()=>{ root.innerHTML=""; wordFromText(+b.dataset.sfindw); }); };
-  if(STR) go(); else strongLoad().then(go); }
+  if(STR&&TB) go(); else Promise.all([strongLoad(),tbeshLoad()]).then(go); }
 /* 원어 메모: 이 기기에 저장 */
 const SN_KEY="milal-study-notes";
 function studyNotes(){ try{ return JSON.parse(localStorage.getItem(SN_KEY)||"[]")||[]; }catch(e){ return []; } }

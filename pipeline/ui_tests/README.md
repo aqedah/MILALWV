@@ -21,3 +21,4 @@
 - `node pipeline/ui_tests/verse_range.js <스크린샷 폴더>` — 장:절 범위 10건(절까지 정하기, 장 넘는 절 범위, 도구·검색·워커·보관 범위)
 - `node pipeline/ui_tests/speakers.js <스크린샷 폴더>` — 누가 말하나 11건(요나 13곳·아가 16곳 기대값, 안쪽 인용, 고치기·보내기·공용 자료)
 - `node pipeline/ui_tests/translations.js <스크린샷 폴더>` — 번역본 고르기 7건(개역개정 기본·새번역 각주·개역한글·절 번호·출처)
+- `node pipeline/ui_tests/tbesh.js <스크린샷 폴더>` — TBESH 핵심 뜻·이름 설명 8건: 낱말 상세·낱말 시트·스트롱 시트의 칸, 이름 설명 H번호 단추, 아람어 관련 번호, 자료 출처 표기, 가로 밀림
