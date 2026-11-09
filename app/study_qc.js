@@ -48,7 +48,9 @@ function qcCardHTML(Q,cd,i){ const k=String(i), c=cd.c; let f="";
   if(cd.more||c.ps||c.gn||c.nu) f+=qcSel(k,"ps",[["p1","1인칭"],["p2","2인칭"],["p3","3인칭"]],c.ps,"인칭")+qcSel(k,"gn",[["m","남성"],["f","여성"],["c","공성"]],c.gn,"성")+qcSel(k,"nu",[["sg","단수"],["pl","복수"],["du","쌍수"]],c.nu,"수");
   else f+=`<button class="qmore" data-qcmore="${k}">인칭·성·수 ›</button>`;
   f+=qcSel(k,"fn",SD.FN.filter(x=>FN_K[x]).map(x=>[x,FN_K[x]]),cd.fn,"문장 속 역할");
-  const del=Q.tgt==="clause"?`<button class="qx" data-qcdel="${k}" aria-label="이 낱말 지우기">✕</button>`:"";
+  /* 2026-11-09 목사님: 낱말 카드 순서 바꾸기 — 카드 내용만 위·아래와 맞바꾸고, 카드 사이의 '순서' 조건은 그 자리에 그대로 둔다 */
+  const n=Q.ws.length, mv=Q.tgt==="clause"&&n>1?`<span class="qmv"><button class="qmvb" data-qcmv="${k}:-1"${i?"":" disabled"} aria-label="이 낱말을 위로">▲</button><button class="qmvb" data-qcmv="${k}:1"${i<n-1?"":" disabled"} aria-label="이 낱말을 아래로">▼</button></span>`:"";
+  const del=Q.tgt==="clause"?`${mv}<button class="qx${mv?" qxm":""}" data-qcdel="${k}" aria-label="이 낱말 지우기">✕</button>`:"";
   return `${i?`<div class="qcjoin"><span>그리고 같은 절 안의 <b>다른 낱말</b></span><select data-qcop="${k}" aria-label="앞 낱말과의 순서">${QC_OPS.map(([v,n])=>`<option value="${v}"${(cd.op||"")===v?" selected":""}>${n}</option>`).join("")}</select></div>`:""}
   <div class="qcard"><div class="qch"><b>${Q.tgt==="word"?"찾을 낱말":"낱말 "+(QC_N[i]||i+1)}</b>${del}</div><div class="qfs">${f}</div><p class="qcnote">이 카드의 조건은 모두 <b>한 낱말</b>이 함께 갖춰야 합니다.${cd.fn?" '문장 속 역할'은 그 낱말이 들어 있는 구(주어·목적어…)의 역할입니다.":""}</p></div>`; }
 function qcJobHTML(){ return `<div class="qcjob"><span class="label">예시 — 욥기에서 말하는 이별로 좁히기 <small>(장 단위)</small></span><div class="achips">${QC_JOB.map(([a,z,n])=>`<button class="achip" data-rjob="${a}-${z}">${n} · 욥 ${a}–${z}장</button>`).join("")}</div><p class="lead" style="margin:2px 0 0;font-size:12.5px">장으로 나눈 대략의 구간입니다. 장 안의 서술 문장(예: 32:1–5, 38:1)이나 짧은 대답(40:3–5)도 함께 들어갑니다. 서술만·인물의 말만 보려면 절의 조건 '누구의 말'을 쓰세요.</p></div>`; }
@@ -86,6 +88,7 @@ function bindQueryCards(m){ const S=view.st, Q=S.qc; if(!Q) return; const rr=()=
     const cd=Q.ws[+k]; if(f==="fn") cd.fn=v; else { if(v) cd.c[f]=v; else delete cd.c[f]; if(f==="sp"&&v!=="verb"){ delete cd.c.vs; delete cd.c.vt; } } rr(); });
   m.querySelectorAll("[data-qcop]").forEach(s=>s.onchange=()=>{ Q.ws[+s.dataset.qcop].op=s.value; rr(); });
   m.querySelectorAll("[data-qcmore]").forEach(b=>b.onclick=()=>{ Q.ws[+b.dataset.qcmore].more=1; rr(); });
+  m.querySelectorAll("[data-qcmv]").forEach(b=>b.onclick=()=>{ const [i,d]=b.dataset.qcmv.split(":").map(Number), j=i+d; if(j<0||j>=Q.ws.length) return; const A=Q.ws[i], B=Q.ws[j]; Q.ws[i]={...B,op:A.op||""}; Q.ws[j]={...A,op:B.op||""}; Q.ws[0].op=""; rr(); });
   m.querySelectorAll("[data-qcdel]").forEach(b=>b.onclick=()=>{ Q.ws.splice(+b.dataset.qcdel,1); if(Q.ws[0]) Q.ws[0].op=""; rr(); });
   m.querySelectorAll("[data-qclexx]").forEach(b=>b.onclick=e=>{ e.preventDefault(); delete Q.ws[+b.dataset.qclexx].c.lex; rr(); });
   m.querySelectorAll("[data-qclexq]").forEach(inp=>inp.oninput=()=>{ const k=inp.dataset.qclexq, box=document.getElementById("qcsug-"+k); const L=lexSuggest(inp.value).slice(0,8);

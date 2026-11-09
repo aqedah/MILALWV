@@ -28,6 +28,12 @@ const { chromium, devices } = require('playwright'); const OUT = (process.argv[2
   ok('읽어 보면: "①·②는 서로 다른 낱말입니다"', /서로 다른 낱말입니다/.test(d.note), d.note);
   const o = await pg.evaluate(() => { const S = view.st; S.qc = { tgt: 'clause', cl: {}, ws: [{ c: { lex: 'HNH' }, fn: '', op: '' }, { c: { sp: 'verb', vt: 'ptca' }, fn: '', op: '<' }] }; qcSync(); return qGen(S.qb); });
   ok('순서 조건(앞 낱말보다 뒤에)이면 이미 다른 낱말이라 # 없이 "보라" 예시와 같은 식', !/#/.test(o) && /< word sp=verb vt=ptca/.test(o), o);
+  // 2026-11-09: 낱말 카드 순서 바꾸기(▲▼) — 카드 내용만 맞바꾸고 카드 사이 순서 조건은 제자리
+  const mv = await pg.evaluate(() => { const S = view.st; S.qres = null; S.qui = 'card'; S.qMode = 'blocks'; S.qc = { tgt: 'clause', cl: {}, ws: [{ c: { lex: 'DBR[' }, fn: '', op: '' }, { c: { lex: 'W' }, fn: '', op: '<' }, { c: { lex: 'RKB[' }, fn: '', op: '<' }] }; qcSync(); render();
+    const st = () => ({ lex: S.qc.ws.map(w => w.c.lex), op: S.qc.ws.map(w => w.op), up0: document.querySelector('[data-qcmv="0:-1"]').disabled, dn2: document.querySelector('[data-qcmv="2:1"]').disabled, n: document.querySelectorAll('[data-qcmv]').length });
+    const a = st(); document.querySelector('[data-qcmv="2:-1"]').click(); const b = st(); document.querySelector('[data-qcmv="0:1"]').click(); const c = st(); return { a, b, c, t: qGen(S.qb) }; });
+  ok('낱말 카드 ▲▼: 셋째를 위로 → 말·타다·그리고, 첫째를 아래로 → 타다·말·그리고, 순서 조건은 자리에 남음, 맨 위 ▲·맨 아래 ▼ 꺼짐', mv.a.n === 6 && mv.a.up0 && mv.a.dn2 && mv.b.lex.join() === 'DBR[,RKB[,W' && mv.c.lex.join() === 'RKB[,DBR[,W' && mv.c.op.join() === ',<,<' && /lex=RKB\[/.test(mv.t.split('\n')[1] || ''), JSON.stringify(mv));
+  await pg.evaluate(() => scrollTo(0, document.querySelector('.qcard').getBoundingClientRect().top + scrollY - 80)); await pg.screenshot({ path: OUT + 'qc_move.png' });
   // (2) 예시 왕복
   const rt = await pg.evaluate(() => Object.fromEntries(['예시1', '예시2', '서술명사문', '인물', '장면', '전환b'].map(k => { const Q = qcFromText(Q_RECIPES[k]); return [k, Q ? qCanon(qParse(qGen(qcBlock(Q)))) === qCanon(qParse(Q_RECIPES[k])) : 'adv']; })));
   ok('예시 식 → 카드 → 식 왕복에서 뜻이 같음(예시1·예시2·서술명사문·인물), 카드로 못 담는 식(장면: 맨 앞에)은 고급 검색으로', rt['예시1'] === true && rt['예시2'] === true && rt['서술명사문'] === true && rt['인물'] === true && rt['장면'] === 'adv', JSON.stringify(rt));
