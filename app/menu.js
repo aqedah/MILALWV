@@ -81,6 +81,7 @@ function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId
     :`<div class="mrow"><span class="micon">👤</span><span class="mtxt"><b>로그인</b><small>Google · 원어 메모를 기기끼리 맞추고 나눌 때만 필요합니다</small></span><button class="btn small" id="mIn"${A.ready?"":" disabled"}>로그인</button></div>`;
   drawer("메뉴",`${acct}
    <div class="mgrp">번역본</div>${[["ko","우리말"],["en","영어"],[undefined,""]].map(([lg,lb])=>`${lb?`<div class="mtrl">${lb}</div>`:""}<div class="seg sseg mseg">${TR_LIST.filter(t=>t.lang===lg).map(t=>`<button aria-checked="${tr===t.id}" data-mtr="${t.id}">${esc(lg===undefined?t.name:t.name.replace(/ \(.*\)/,""))}</button>`).join("")}</div>`).join("")}<p class="lead" style="margin:2px 0 0">개역개정·새번역: 대한성서공회 사용 허락. NRSV(NCC)·ESV(Crossway)·NIV 1984(Biblica): 사용 허락. 개역한글은 당분간 함께 둡니다. 각주는 절 아래에, 소제목은 절 위에 작게 보입니다.</p>
+   <div class="mgrp">히브리어 모음</div><div class="seg sseg mseg">${[["on","모음 보이기"],["off","모음 숨기기 (자음만)"]].map(([k,n])=>`<button aria-checked="${niqGet()===k}" data-mniq="${k}">${n}</button>`).join("")}</div>
    <div class="mgrp">밝기</div><div class="seg sseg mseg">${[["auto","기기 설정대로"],["light","밝게"],["dark","어둡게"]].map(([k,n])=>`<button aria-checked="${th===k}" data-mth="${k}">${n}</button>`).join("")}</div>
    <div class="mlist">
      <button class="mitem" id="mInstall"><span>📲</span>홈 화면에 추가</button>
@@ -92,10 +93,23 @@ function openMenu(){ const A=window.MILAL_AUTH, u=A.user, th=themeGet(), tr=trId
   const on=(id,fn)=>{ const el=root.querySelector("#"+id); if(el) el.onclick=fn; };
   on("mIn",()=>{ close(); A.signIn&&A.signIn(); }); on("mOut",()=>{ close(); A.signOut&&A.signOut(); });
   root.querySelectorAll("[data-mtr]").forEach(b=>b.onclick=()=>{ trApply(b.dataset.mtr); openMenu(); });
+  root.querySelectorAll("[data-mniq]").forEach(b=>b.onclick=()=>{ niqSet(b.dataset.mniq); openMenu(); });
   root.querySelectorAll("[data-mth]").forEach(b=>b.onclick=()=>{ themeSet(b.dataset.mth); openMenu(); });
   on("mInstall",()=>{ close(); openInstallSheet(); }); on("mTut",()=>{ close(); openTutorial(); }); on("mAbout",()=>{ close(); openAbout(); });
   on("mSrc",()=>{ close(); const s=document.querySelector(".ssrc"); if(s) s.scrollIntoView({behavior:"smooth",block:"start"}); }); }
 function bindHostMenu(el){ const b=el.querySelector("#menuBtn"); if(b) b.onclick=openMenu; }
 
 themeApply();
+/* --- 히브리어 모음 숨기기 (2026-11-09 목사님) — 자료는 그대로 두고 화면에 그려진 글자에서만 모음·다게쉬·쉰/신 점을 뺀다(막깊 ־ 와 소프 파숙 ׃ 은 남김). 끄면 다시 그려 원래대로 --- */
+const NIQ_RE=/[\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/g, NIQ_TEST=/[\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7]/;
+function niqGet(){ try{ return localStorage.getItem("milal-niq")==="off"?"off":"on"; }catch(e){ return "on"; } }
+function niqStrip(root){ if(!root) return; if(root.nodeType===3){ if(NIQ_TEST.test(root.nodeValue)) root.nodeValue=root.nodeValue.replace(NIQ_RE,""); return; }
+  if(root.nodeType!==1&&root.nodeType!==11) return; if(root.nodeType===1&&/^(INPUT|TEXTAREA|SCRIPT|STYLE)$/.test(root.tagName)) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode&&/^(TEXTAREA|SCRIPT|STYLE)$/.test(n.parentNode.nodeName)?2:1}); const L=[]; let n; while((n=w.nextNode())) if(NIQ_TEST.test(n.nodeValue)) L.push(n); L.forEach(t=>t.nodeValue=t.nodeValue.replace(NIQ_RE,"")); }
+let NIQ_OBS=null;
+function niqApply(){ const off=niqGet()==="off"; document.documentElement.toggleAttribute("data-niq-off",off);
+  if(off){ if(!NIQ_OBS){ NIQ_OBS=new MutationObserver(ms=>{ for(const m of ms){ if(m.type==="characterData") niqStrip(m.target); else m.addedNodes.forEach(niqStrip); } }); NIQ_OBS.observe(document.body,{childList:true,subtree:true,characterData:true}); } niqStrip(document.body); }
+  else if(NIQ_OBS){ NIQ_OBS.disconnect(); NIQ_OBS=null; } }
+function niqSet(v){ try{ localStorage.setItem("milal-niq",v); }catch(e){} const was=!!NIQ_OBS; niqApply(); if(v==="on"&&was&&typeof SD!=="undefined"&&SD&&typeof render==="function") render(); }
+if(document.body) niqApply(); else document.addEventListener("DOMContentLoaded",niqApply);
 if(matchMedia){ try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>themeApply()); }catch(e){} }

@@ -1,0 +1,20 @@
+// 메뉴의 '히브리어 모음 숨기기' 검증 — 2026-11-09. 쓰기: node niqqud.js <스크린샷 폴더>
+const { chromium, devices } = require('playwright'); const OUT = (process.argv[2] || '.') + '/'; const R = []; const ok = (n, c, info = '') => R.push((c ? 'PASS ' : 'FAIL ') + n + (info ? ' — ' + info : ''));
+(async () => { const br = await chromium.launch(); const c = await br.newContext({ ...devices['Pixel 5'] }); await c.addInitScript(() => { try { localStorage.setItem('milal-tut-seen', '1'); } catch (e) {} });
+  const pg = await c.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); const W = ms => pg.waitForTimeout(ms);
+  await pg.goto('http://localhost:8765/index.html'); await pg.waitForFunction(() => typeof SD !== 'undefined' && SD && SD.L, null, { timeout: 60000 });
+  await pg.evaluate(async () => { await loadBook(32); setRange({ b: 32, c1: 1, c2: 1 }); view.st.mode = 'verse'; view.st.rd = 'read'; render(); }); await pg.click('.bnav [data-nav="text"]'); await W(800);
+  const he = () => pg.evaluate(() => { const t = document.querySelector('.rdh').textContent; return { t: t.slice(0, 40), marks: (document.body.innerText.match(/[ְ-ּׁׂ]/g) || []).length }; });
+  const a = await he(); ok('처음엔 모음이 보임', a.marks > 100, JSON.stringify(a));
+  await pg.click('.menubtn, #mBtn, [aria-label="메뉴"]'); await W(300);
+  const btn = await pg.evaluate(() => [...document.querySelectorAll('[data-mniq]')].map(b => b.textContent)); ok('메뉴에 "모음 보이기 / 모음 숨기기 (자음만)"', btn.join('|') === '모음 보이기|모음 숨기기 (자음만)', JSON.stringify(btn));
+  await pg.click('[data-mniq="off"]'); await W(300); await pg.screenshot({ path: OUT + 'niq_menu.png' });
+  await pg.evaluate(() => document.querySelector('.drawer [aria-label="닫기"], .drawer .x, .mclose') ? document.querySelector('.drawer [aria-label="닫기"], .drawer .x, .mclose').click() : null); await W(300);
+  const b = await he(); ok('숨기면 화면의 히브리어에 모음 점이 하나도 없음(요나 1:1 "ויהי דבר־יהוה")', b.marks === 0 && /ויהי דבר־יהוה/.test(b.t), JSON.stringify(b));
+  await pg.evaluate(async () => { setRange({ b: 32, c1: 2, c2: 2 }); render(); }); await W(500); const b2 = await he(); ok('다른 장으로 가서 새로 그려도 모음 없음', b2.marks === 0, JSON.stringify(b2));
+  await pg.screenshot({ path: OUT + 'niq_off.png' });
+  ok('숨김은 기기에 기억됨', await pg.evaluate(() => localStorage.getItem('milal-niq') === 'off'));
+  ok('자료(사전형)는 그대로', await pg.evaluate(() => /[ְ-ּ]/.test(SD.L[0][0])));
+  await pg.evaluate(() => niqSet('on')); await W(500); const d = await he(); ok('다시 보이기로 하면 모음이 돌아옴', d.marks > 100, JSON.stringify(d));
+  ok('페이지 오류 없음', errs.length === 0, errs.join(' | '));
+  console.log(R.join('\n')); console.log(`\n${R.filter(x => x.startsWith('PASS')).length}/${R.length} PASS`); await br.close(); })();
